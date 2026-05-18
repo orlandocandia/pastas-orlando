@@ -1,0 +1,60 @@
+// Pastas Orlando - Esquema de base de datos
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Usuario {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String
+  nombre    String
+  rol       String   @default("cliente")
+  activo    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Producto {
+  id          Int      @id @default(autoincrement())
+  nombre      String
+  descripcion String?
+  categoria   String
+  precio      Float
+  peso        String   @default("500g")
+  imagen      String?
+  stock       Boolean  @default(true)
+  destacado   Boolean  @default(false)
+  orden       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Opinion {
+  id              Int       @id @default(autoincrement())
+  nombre          String
+  calificacion    Int
+  comentario      String
+  estado          String    @default("pending")
+  ip              String?
+  fecha           DateTime  @default(now())
+  fecha_aprobacion DateTime?
+  id_aprobador    Int?
+  respuesta       String?
+  fecha_respuesta DateTime?
+  destacado       Boolean   @default(false)
+  orden           Int       @default(0)
+}
+
+model InteraccionWhatsApp {
+  id              Int      @id @default(autoincrement())
+  tipo            String
+  mensaje_enviado String
+  ip              String?
+  fecha           DateTime @default(now())
+}
