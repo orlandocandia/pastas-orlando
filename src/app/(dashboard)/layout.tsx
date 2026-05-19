@@ -4,7 +4,7 @@ import { useEffect } from 'react'
 import { useSession, signOut } from 'next-auth/react'
 import { useRouter, usePathname } from 'next/navigation'
 import { useState } from 'react'
-import { Loader2, LogOut, LayoutDashboard, Package, MessageSquare, BarChart3, Users, UserCircle, Leaf, PackageOpen, UtensilsCrossed, FolderTree, Tag, Ruler, ChevronDown, ChevronRight, ShoppingCart, ClipboardList, ArrowLeftRight, Settings, Receipt, CalendarCheck } from 'lucide-react'
+import { Loader2, LogOut, LayoutDashboard, Package, MessageSquare, BarChart3, Users, UserCircle, Leaf, PackageOpen, UtensilsCrossed, FolderTree, Tag, Ruler, ChevronDown, ChevronRight, ShoppingCart, ClipboardList, ArrowLeftRight, Settings, Receipt, CalendarCheck, BookOpen, Factory } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
 
@@ -54,6 +54,16 @@ const stockItems = [
     title: 'Productos Terminados',
     href: '/admin/productos-terminados',
     icon: UtensilsCrossed,
+  },
+  {
+    title: 'Recetas',
+    href: '/admin/recetas',
+    icon: BookOpen,
+  },
+  {
+    title: 'Producción',
+    href: '/admin/produccion',
+    icon: Factory,
   },
 ]
 

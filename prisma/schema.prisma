@@ -1,4 +1,4 @@
-// Pastas Orlando - Esquema de base de datos (Fase 5)
+// Pastas Orlando - Esquema de base de datos (Fase 6)
 
 generator client {
   provider = "prisma-client-js"
@@ -127,6 +127,7 @@ model Persona {
   pedidosCliente   PedidoCliente[]
   reservasCliente  ReservaCliente[]
   ventas           Venta[]
+  produccionesSupervisadas Produccion[] @relation("SupervisorProduccion")
 
   @@index([tipo_persona])
   @@index([numero_documento])
@@ -280,6 +281,7 @@ model UnidadMedida {
   detalleCompras        DetalleCompra[]
   detallePedidosProveedor DetallePedidoProveedor[]
   stockMovements        StockMovement[]
+  detalleProduccionConsumo DetalleProduccionConsumo[]
 }
 
 // ============================================
@@ -323,6 +325,7 @@ model MateriaPrima {
   detalleCompras  DetalleCompra[]
   detallePedidosProveedor DetallePedidoProveedor[]
   stockMovements  StockMovement[]
+  detalleProduccionConsumo DetalleProduccionConsumo[]
 
   @@index([codigo])
   @@index([nombre])
@@ -369,6 +372,7 @@ model Insumo {
   detalleCompras  DetalleCompra[]
   detallePedidosProveedor DetallePedidoProveedor[]
   stockMovements  StockMovement[]
+  detalleProduccionConsumo DetalleProduccionConsumo[]
 
   @@index([codigo])
   @@index([nombre])
@@ -416,6 +420,8 @@ model ProductoTerminado {
   id_categoria        Int
   peso_unitario_aprox Float     @default(0)
   precio_venta        Float     @default(0)
+  stock_actual        Float     @default(0)
+  stock_minimo        Float     @default(0)
   imagen              String?
   estado              Boolean   @default(true)
   createdAt           DateTime  @default(now())
@@ -428,13 +434,14 @@ model ProductoTerminado {
   detallePedidosCliente DetallePedidoCliente[]
   detalleReservas ReservaCliente[]
   detalleVentas   DetalleVenta[]
+  detalleProduccionGenerado DetalleProduccionGenerado[]
 
   @@index([codigo])
   @@index([nombre])
 }
 
 // ============================================
-// RECETAS (FASE 3)
+// RECETAS (FASE 3 / FASE 6)
 // ============================================
 
 model Receta {
@@ -449,6 +456,7 @@ model Receta {
   // Relaciones
   productoTerminado ProductoTerminado @relation(fields: [id_producto_terminado], references: [id])
   detalleRecetas    DetalleReceta[]
+  producciones      Produccion[]
 }
 
 model DetalleReceta {
@@ -503,6 +511,7 @@ model EstadoGeneral {
   pedidosCliente      PedidoCliente[]
   reservasCliente     ReservaCliente[]
   ventas              Venta[]
+  producciones        Produccion[]
 }
 
 // ============================================
@@ -719,6 +728,71 @@ model DetalleVenta {
   productoTerminado ProductoTerminado @relation(fields: [id_producto_terminado], references: [id])
 
   @@index([id_venta])
+}
+
+// ============================================
+// PRODUCCIÓN (FASE 6)
+// ============================================
+
+model Produccion {
+  id                    Int      @id @default(autoincrement())
+  id_receta             Int
+  id_supervisor         Int?
+  cantidad_producida    Int
+  fecha_produccion      DateTime
+  costo_total_materias_primas Float @default(0)
+  costo_total_insumos   Float    @default(0)
+  costo_total           Float    @default(0)
+  id_estado             Int
+  observaciones         String?
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime? @updatedAt
+
+  // Relaciones
+  receta                Receta         @relation(fields: [id_receta], references: [id])
+  supervisor            Persona?       @relation("SupervisorProduccion", fields: [id_supervisor], references: [id])
+  estado                EstadoGeneral  @relation(fields: [id_estado], references: [id])
+  detalleConsumos       DetalleProduccionConsumo[]
+  detalleGenerados      DetalleProduccionGenerado[]
+
+  @@index([fecha_produccion])
+  @@index([id_receta])
+}
+
+model DetalleProduccionConsumo {
+  id                    Int      @id @default(autoincrement())
+  id_produccion         Int
+  id_materia_prima      Int?
+  id_insumo             Int?
+  cantidad_consumida    Float
+  id_unidad             Int
+  costo_unitario        Float
+  costo_total           Float
+  createdAt             DateTime @default(now())
+
+  // Relaciones
+  produccion            Produccion     @relation(fields: [id_produccion], references: [id], onDelete: Cascade)
+  materiaPrima          MateriaPrima?  @relation(fields: [id_materia_prima], references: [id])
+  insumo                Insumo?        @relation(fields: [id_insumo], references: [id])
+  unidad                UnidadMedida   @relation(fields: [id_unidad], references: [id])
+
+  @@index([id_produccion])
+}
+
+model DetalleProduccionGenerado {
+  id                    Int      @id @default(autoincrement())
+  id_produccion         Int
+  id_producto_terminado Int
+  cantidad_generada     Float
+  costo_unitario        Float
+  costo_total           Float
+  createdAt             DateTime @default(now())
+
+  // Relaciones
+  produccion            Produccion        @relation(fields: [id_produccion], references: [id], onDelete: Cascade)
+  productoTerminado     ProductoTerminado @relation(fields: [id_producto_terminado], references: [id])
+
+  @@index([id_produccion])
 }
 
 // ============================================

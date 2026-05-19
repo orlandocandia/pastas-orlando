@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useSession } from 'next-auth/react'
 import { motion } from 'framer-motion'
-import { Package, MessageSquare, Phone, ArrowRight, UserCircle, Users, Leaf, PackageOpen, UtensilsCrossed, ShoppingCart, ClipboardList, ArrowLeftRight, Receipt, CalendarCheck, DollarSign } from 'lucide-react'
+import { Package, MessageSquare, Phone, ArrowRight, UserCircle, Users, Leaf, PackageOpen, UtensilsCrossed, ShoppingCart, ClipboardList, ArrowLeftRight, Receipt, CalendarCheck, DollarSign, Factory, AlertTriangle, BookOpen } from 'lucide-react'
 import Link from 'next/link'
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -27,6 +27,9 @@ interface DashboardStats {
   ventasDelMes: number
   pedidosPendientes: number
   reservasActivas: number
+  produccionDelMes: number
+  costoPromedioProduccion: number
+  stockCritico: number
 }
 
 const cardVariants = {
@@ -62,13 +65,16 @@ export default function DashboardPage() {
     ventasDelMes: 0,
     pedidosPendientes: 0,
     reservasActivas: 0,
+    produccionDelMes: 0,
+    costoPromedioProduccion: 0,
+    stockCritico: 0,
   })
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     async function fetchStats() {
       try {
-        const [productosRes, opinionesRes, contactoRes, personasRes, usuariosRes, mpRes, insRes, ptRes, comprasRes, pedidosRes, stockRes, ventasRes, pedidosCliRes, reservasRes] = await Promise.all([
+        const [productosRes, opinionesRes, contactoRes, personasRes, usuariosRes, mpRes, insRes, ptRes, comprasRes, pedidosRes, stockRes, ventasRes, pedidosCliRes, reservasRes, produccionRes] = await Promise.all([
           fetch('/api/productos?stock=false'),
           fetch('/api/opiniones?admin=true&estado=pending'),
           fetch('/api/contacto?dias=30'),
@@ -83,6 +89,7 @@ export default function DashboardPage() {
           fetch('/api/ventas?limite=1'),
           fetch('/api/pedidos-clientes?limite=1'),
           fetch('/api/reservas-clientes?limite=1'),
+          fetch('/api/produccion?limite=1'),
         ])
 
         const productos = await productosRes.json()
@@ -99,6 +106,7 @@ export default function DashboardPage() {
         const ventasData = await ventasRes.json()
         const pedidosCliData = await pedidosCliRes.json()
         const reservasData = await reservasRes.json()
+        const produccionData = await produccionRes.json()
 
         setStats({
           productosActivos: Array.isArray(productos)
@@ -120,6 +128,9 @@ export default function DashboardPage() {
           ventasDelMes: ventasData?.total || 0,
           pedidosPendientes: pedidosCliData?.total || 0,
           reservasActivas: reservasData?.total || 0,
+          produccionDelMes: produccionData?.total || 0,
+          costoPromedioProduccion: 0,
+          stockCritico: 0,
         })
       } catch (error) {
         console.error('Error fetching stats:', error)
@@ -153,6 +164,27 @@ export default function DashboardPage() {
       icon: CalendarCheck,
       color: 'bg-rojo/10 text-rojo',
       href: '/admin/reservas-clientes',
+    },
+    {
+      title: 'Producción del Mes',
+      value: stats.produccionDelMes,
+      icon: Factory,
+      color: 'bg-marron/10 text-marron',
+      href: '/admin/produccion',
+    },
+    {
+      title: 'Stock Crítico',
+      value: stats.stockCritico,
+      icon: AlertTriangle,
+      color: 'bg-rojo/10 text-rojo',
+      href: '/admin/materias-primas',
+    },
+    {
+      title: 'Recetas Activas',
+      value: 0,
+      icon: BookOpen,
+      color: 'bg-oliva/10 text-oliva',
+      href: '/admin/recetas',
     },
     {
       title: 'Ventas',
@@ -339,6 +371,30 @@ export default function DashboardPage() {
                   <div className="text-left">
                     <div className="font-medium text-marron">Reservas</div>
                     <div className="text-xs text-muted-foreground">Reservas de productos con seña</div>
+                  </div>
+                </Button>
+              </Link>
+              <Link href="/admin/recetas">
+                <Button
+                  variant="outline"
+                  className="w-full justify-start h-auto py-3 border-marron/10 hover:border-oliva hover:bg-oliva/5"
+                >
+                  <BookOpen className="mr-3 h-5 w-5 text-oliva" />
+                  <div className="text-left">
+                    <div className="font-medium text-marron">Recetas</div>
+                    <div className="text-xs text-muted-foreground">Recetas de producción y costos</div>
+                  </div>
+                </Button>
+              </Link>
+              <Link href="/admin/produccion">
+                <Button
+                  variant="outline"
+                  className="w-full justify-start h-auto py-3 border-marron/10 hover:border-marron hover:bg-marron/5"
+                >
+                  <Factory className="mr-3 h-5 w-5 text-marron" />
+                  <div className="text-left">
+                    <div className="font-medium text-marron">Producción</div>
+                    <div className="text-xs text-muted-foreground">Producir y consumir stock</div>
                   </div>
                 </Button>
               </Link>

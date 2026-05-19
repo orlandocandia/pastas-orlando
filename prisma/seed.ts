@@ -677,6 +677,57 @@ async function main() {
   }
   console.log(`✅ ${permisosFase5.length} permisos de Fase 5 creados y asignados a Admin`)
 
+  // ============================================
+  // ESTADOS PARA PRODUCCIÓN (FASE 6)
+  // ============================================
+  console.log('🏭 Creando estados para producción...')
+
+  const estadosProduccion = [
+    { nombre_estado: 'planificado', entidad_aplicable: 'produccion', es_final: false },
+    { nombre_estado: 'en_curso', entidad_aplicable: 'produccion', es_final: false },
+    { nombre_estado: 'completado', entidad_aplicable: 'produccion', es_final: true },
+  ]
+  // "cancelado" ya existe de fases anteriores
+
+  for (const ep of estadosProduccion) {
+    await prisma.estadoGeneral.create({ data: ep })
+  }
+  console.log(`✅ ${estadosProduccion.length} estados de producción creados`)
+
+  // Actualizar "cancelado" para incluir "produccion"
+  const estadoCancelado = await prisma.estadoGeneral.findFirst({
+    where: { nombre_estado: 'cancelado' },
+  })
+  if (estadoCancelado) {
+    const nuevasEntidades = estadoCancelado.entidad_aplicable
+      ? estadoCancelado.entidad_aplicable + ',produccion'
+      : 'produccion'
+    await prisma.estadoGeneral.update({
+      where: { id: estadoCancelado.id },
+      data: { entidad_aplicable: nuevasEntidades },
+    })
+  }
+
+  // ============================================
+  // PERMISOS ADICIONALES FASE 6
+  // ============================================
+  const permisosFase6 = [
+    { nombre: 'recetas.ver', descripcion: 'Ver recetas' },
+    { nombre: 'recetas.crear', descripcion: 'Crear recetas' },
+    { nombre: 'recetas.editar', descripcion: 'Editar recetas' },
+    { nombre: 'produccion.ver', descripcion: 'Ver producción' },
+    { nombre: 'produccion.crear', descripcion: 'Crear producción' },
+    { nombre: 'produccion.editar', descripcion: 'Editar producción' },
+  ]
+
+  for (const perm of permisosFase6) {
+    const created = await prisma.permiso.create({ data: perm })
+    await prisma.rolPermiso.create({
+      data: { id_rol: rolAdmin.id, id_permiso: created.id },
+    })
+  }
+  console.log(`✅ ${permisosFase6.length} permisos de Fase 6 creados y asignados a Admin`)
+
   console.log('🎉 Base de datos sembrada exitosamente')
 }
 
