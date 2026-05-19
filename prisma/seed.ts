@@ -543,16 +543,16 @@ async function main() {
   console.log('🍝 Creando productos terminados de ejemplo...')
 
   const productosTerminadosData = [
-    { codigo: 'PT-001', nombre: 'Sorrentinos Jamón y Queso', descripcion: 'Sorrentinos rellenos de jamón y queso mozzarella', id_categoria: categoriasPT[1].id, peso_unitario_aprox: 0.5, precio_venta: 3500, estado: true },
-    { codigo: 'PT-002', nombre: 'Ravioles Ricota y Nuez', descripcion: 'Ravioles con relleno de ricota y nuez', id_categoria: categoriasPT[1].id, peso_unitario_aprox: 0.5, precio_venta: 3200, estado: true },
-    { codigo: 'PT-003', nombre: 'Fettuccine al Huevo', descripcion: 'Fettuccine de masa al huevo', id_categoria: categoriasPT[0].id, peso_unitario_aprox: 0.5, precio_venta: 2500, estado: true },
-    { codigo: 'PT-004', nombre: 'Ñoquis de Papa', descripcion: 'Ñoquis de papa caseros', id_categoria: categoriasPT[2].id, peso_unitario_aprox: 0.5, precio_venta: 2800, estado: true },
-    { codigo: 'PT-005', nombre: 'Sorrentinos de Calabaza', descripcion: 'Sorrentinos rellenos de calabaza y queso', id_categoria: categoriasPT[1].id, peso_unitario_aprox: 0.5, precio_venta: 3400, estado: true },
-    { codigo: 'PT-006', nombre: 'Tallarines al Huevo', descripcion: 'Tallarines clásicos de masa al huevo', id_categoria: categoriasPT[0].id, peso_unitario_aprox: 0.5, precio_venta: 2300, estado: true },
-    { codigo: 'PT-007', nombre: 'Canelones de Carne', descripcion: 'Canelones rellenos de carne', id_categoria: categoriasPT[6].id, peso_unitario_aprox: 0.5, precio_venta: 3500, estado: true },
-    { codigo: 'PT-008', nombre: 'Lasagna de Carne', descripcion: 'Lasagna con carne y bechamel', id_categoria: categoriasPT[6].id, peso_unitario_aprox: 0.5, precio_venta: 4000, estado: true },
-    { codigo: 'PT-009', nombre: 'Ravioles de Verdura', descripcion: 'Ravioles de espinaca y queso', id_categoria: categoriasPT[1].id, peso_unitario_aprox: 0.5, precio_venta: 3000, estado: true },
-    { codigo: 'PT-010', nombre: 'Tapas para Empanadas', descripcion: 'Tapas de masa para empanadas', id_categoria: categoriasPT[3].id, peso_unitario_aprox: 0.06, precio_venta: 800, estado: true },
+    { codigo: 'PT-001', nombre: 'Sorrentinos Jamón y Queso', descripcion: 'Sorrentinos rellenos de jamón y queso mozzarella', id_categoria: categoriasPT[1].id, peso_unitario_aprox: 0.5, precio_venta: 3500, stock_actual: 25, stock_minimo: 5, destacado: true, orden: 1, visible_en_landing: true, estado: true },
+    { codigo: 'PT-002', nombre: 'Ravioles Ricota y Nuez', descripcion: 'Ravioles con relleno de ricota y nuez', id_categoria: categoriasPT[1].id, peso_unitario_aprox: 0.5, precio_venta: 3200, stock_actual: 20, stock_minimo: 5, destacado: true, orden: 2, visible_en_landing: true, estado: true },
+    { codigo: 'PT-003', nombre: 'Fettuccine al Huevo', descripcion: 'Fettuccine de masa al huevo', id_categoria: categoriasPT[0].id, peso_unitario_aprox: 0.5, precio_venta: 2500, stock_actual: 30, stock_minimo: 8, destacado: true, orden: 3, visible_en_landing: true, estado: true },
+    { codigo: 'PT-004', nombre: 'Ñoquis de Papa', descripcion: 'Ñoquis de papa caseros', id_categoria: categoriasPT[2].id, peso_unitario_aprox: 0.5, precio_venta: 2800, stock_actual: 18, stock_minimo: 5, destacado: true, orden: 4, visible_en_landing: true, estado: true },
+    { codigo: 'PT-005', nombre: 'Sorrentinos de Calabaza', descripcion: 'Sorrentinos rellenos de calabaza y queso', id_categoria: categoriasPT[1].id, peso_unitario_aprox: 0.5, precio_venta: 3400, stock_actual: 15, stock_minimo: 5, destacado: true, orden: 5, visible_en_landing: true, estado: true },
+    { codigo: 'PT-006', nombre: 'Tallarines al Huevo', descripcion: 'Tallarines clásicos de masa al huevo', id_categoria: categoriasPT[0].id, peso_unitario_aprox: 0.5, precio_venta: 2300, stock_actual: 0, stock_minimo: 8, destacado: false, orden: 6, visible_en_landing: true, estado: true },
+    { codigo: 'PT-007', nombre: 'Canelones de Carne', descripcion: 'Canelones rellenos de carne', id_categoria: categoriasPT[6].id, peso_unitario_aprox: 0.5, precio_venta: 3500, stock_actual: 10, stock_minimo: 3, destacado: false, orden: 7, visible_en_landing: true, estado: true },
+    { codigo: 'PT-008', nombre: 'Lasagna de Carne', descripcion: 'Lasagna con carne y bechamel', id_categoria: categoriasPT[6].id, peso_unitario_aprox: 0.5, precio_venta: 4000, stock_actual: 8, stock_minimo: 3, destacado: true, orden: 8, visible_en_landing: true, estado: true },
+    { codigo: 'PT-009', nombre: 'Ravioles de Verdura', descripcion: 'Ravioles de espinaca y queso', id_categoria: categoriasPT[1].id, peso_unitario_aprox: 0.5, precio_venta: 3000, stock_actual: 12, stock_minimo: 4, destacado: false, orden: 9, visible_en_landing: true, estado: true },
+    { codigo: 'PT-010', nombre: 'Tapas para Empanadas', descripcion: 'Tapas de masa para empanadas', id_categoria: categoriasPT[3].id, peso_unitario_aprox: 0.06, precio_venta: 800, stock_actual: 50, stock_minimo: 10, destacado: false, orden: 10, visible_en_landing: false, estado: true },
   ]
 
   for (const pt of productosTerminadosData) {
@@ -727,6 +727,21 @@ async function main() {
     })
   }
   console.log(`✅ ${permisosFase6.length} permisos de Fase 6 creados y asignados a Admin`)
+
+  // ============================================
+  // PERMISOS ADICIONALES FASE 7
+  // ============================================
+  const permisosFase7 = [
+    { nombre: 'productos-terminados.public', descripcion: 'Ver productos terminados público (landing)' },
+  ]
+
+  for (const perm of permisosFase7) {
+    const created = await prisma.permiso.create({ data: perm })
+    await prisma.rolPermiso.create({
+      data: { id_rol: rolAdmin.id, id_permiso: created.id },
+    })
+  }
+  console.log(`✅ ${permisosFase7.length} permisos de Fase 7 creados y asignados a Admin`)
 
   console.log('🎉 Base de datos sembrada exitosamente')
 }

@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback } from 'react'
 import Image from 'next/image'
 import { toast } from 'sonner'
-import { Pencil, Trash2, Plus, Search, Loader2, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Pencil, Trash2, Plus, Search, Loader2, ChevronLeft, ChevronRight, Eye, EyeOff, Star } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -52,6 +52,11 @@ interface ProductoTerminado {
   id_categoria: number
   peso_unitario_aprox: number
   precio_venta: number
+  stock_actual: number
+  stock_minimo: number
+  destacado: boolean
+  orden: number
+  visible_en_landing: boolean
   imagen?: string | null
   estado: boolean
   categoria: { id: number; nombre: string }
@@ -215,8 +220,9 @@ export default function ProductosTerminadosTable() {
                 <TableHead>Código</TableHead>
                 <TableHead>Nombre</TableHead>
                 <TableHead className="hidden sm:table-cell">Categoría</TableHead>
-                <TableHead className="hidden md:table-cell">Peso Aprox.</TableHead>
-                <TableHead>Precio Venta</TableHead>
+                <TableHead>Precio</TableHead>
+                <TableHead>Stock</TableHead>
+                <TableHead className="hidden md:table-cell">Landing</TableHead>
                 <TableHead className="hidden md:table-cell">Estado</TableHead>
                 <TableHead className="text-right">Acciones</TableHead>
               </TableRow>
@@ -224,84 +230,111 @@ export default function ProductosTerminadosTable() {
             <TableBody>
               {productos.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
+                  <TableCell colSpan={9} className="text-center py-8 text-muted-foreground">
                     {search || filtroCategoria || filtroEstado
                       ? 'No se encontraron productos con los filtros aplicados'
                       : 'No hay productos terminados cargados'}
                   </TableCell>
                 </TableRow>
               ) : (
-                productos.map((pt) => (
-                  <TableRow key={pt.id} className="hover:bg-mostaza/5">
-                    <TableCell>
-                      <div className="relative w-10 h-10 rounded-md overflow-hidden bg-muted">
-                        {pt.imagen ? (
-                          <Image
-                            src={pt.imagen}
-                            alt={pt.nombre}
-                            fill
-                            className="object-cover"
-                          />
+                productos.map((pt) => {
+                  const stockCritico = pt.stock_actual > 0 && pt.stock_actual <= pt.stock_minimo
+                  const sinStock = pt.stock_actual <= 0
+
+                  return (
+                    <TableRow key={pt.id} className="hover:bg-mostaza/5">
+                      <TableCell>
+                        <div className="relative w-10 h-10 rounded-md overflow-hidden bg-muted">
+                          {pt.imagen ? (
+                            <Image
+                              src={pt.imagen}
+                              alt={pt.nombre}
+                              fill
+                              className="object-cover"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-muted-foreground text-xs">
+                              N/A
+                            </div>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell className="font-mono text-xs text-muted-foreground">
+                        {pt.codigo || '-'}
+                      </TableCell>
+                      <TableCell className="font-medium text-marron">
+                        <div className="flex items-center gap-1">
+                          {pt.destacado && (
+                            <Star className="h-3 w-3 text-mostaza fill-mostaza" />
+                          )}
+                          <span>{pt.nombre}</span>
+                        </div>
+                        <div className="sm:hidden text-xs text-muted-foreground">
+                          {pt.categoria?.nombre || '-'}
+                        </div>
+                      </TableCell>
+                      <TableCell className="hidden sm:table-cell">
+                        <Badge variant="outline" className="border-marron/20 text-marron">
+                          {pt.categoria?.nombre || '-'}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="font-medium">
+                        {formatPrice(pt.precio_venta)}
+                      </TableCell>
+                      <TableCell>
+                        <Badge
+                          className={
+                            sinStock
+                              ? 'bg-rojo/10 text-rojo hover:bg-rojo/20'
+                              : stockCritico
+                              ? 'bg-mostaza/10 text-mostaza hover:bg-mostaza/20'
+                              : 'bg-oliva/10 text-oliva hover:bg-oliva/20'
+                          }
+                        >
+                          {sinStock ? 'Sin stock' : `${pt.stock_actual} u.`}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="hidden md:table-cell">
+                        {pt.visible_en_landing ? (
+                          <Eye className="h-4 w-4 text-oliva" />
                         ) : (
-                          <div className="w-full h-full flex items-center justify-center text-muted-foreground text-xs">
-                            N/A
-                          </div>
+                          <EyeOff className="h-4 w-4 text-muted-foreground" />
                         )}
-                      </div>
-                    </TableCell>
-                    <TableCell className="font-mono text-xs text-muted-foreground">
-                      {pt.codigo || '-'}
-                    </TableCell>
-                    <TableCell className="font-medium text-marron">
-                      <div>{pt.nombre}</div>
-                      <div className="sm:hidden text-xs text-muted-foreground">
-                        {pt.categoria?.nombre || '-'}
-                      </div>
-                    </TableCell>
-                    <TableCell className="hidden sm:table-cell">
-                      <Badge variant="outline" className="border-marron/20 text-marron">
-                        {pt.categoria?.nombre || '-'}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="hidden md:table-cell text-muted-foreground">
-                      {pt.peso_unitario_aprox ? `${pt.peso_unitario_aprox}g` : '-'}
-                    </TableCell>
-                    <TableCell className="font-medium">
-                      {formatPrice(pt.precio_venta)}
-                    </TableCell>
-                    <TableCell className="hidden md:table-cell">
-                      <Badge
-                        className={
-                          pt.estado
-                            ? 'bg-oliva/10 text-oliva hover:bg-oliva/20'
-                            : 'bg-rojo/10 text-rojo hover:bg-rojo/20'
-                        }
-                      >
-                        {pt.estado ? 'Activo' : 'Inactivo'}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex items-center justify-end gap-1">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 hover:bg-mostaza/10"
-                          onClick={() => openEdit(pt)}
+                      </TableCell>
+                      <TableCell className="hidden md:table-cell">
+                        <Badge
+                          className={
+                            pt.estado
+                              ? 'bg-oliva/10 text-oliva hover:bg-oliva/20'
+                              : 'bg-rojo/10 text-rojo hover:bg-rojo/20'
+                          }
                         >
-                          <Pencil className="h-4 w-4 text-mostaza" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 hover:bg-rojo/10"
-                          onClick={() => setDeleteId(pt.id)}
-                        >
-                          <Trash2 className="h-4 w-4 text-rojo" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))
+                          {pt.estado ? 'Activo' : 'Inactivo'}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex items-center justify-end gap-1">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 hover:bg-mostaza/10"
+                            onClick={() => openEdit(pt)}
+                          >
+                            <Pencil className="h-4 w-4 text-mostaza" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 hover:bg-rojo/10"
+                            onClick={() => setDeleteId(pt.id)}
+                          >
+                            <Trash2 className="h-4 w-4 text-rojo" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  )
+                })
               )}
             </TableBody>
           </Table>

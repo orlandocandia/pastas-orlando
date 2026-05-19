@@ -207,15 +207,26 @@ export async function POST(request: NextRequest) {
         })
 
         // Crear registro de movimiento de stock (auditoría - salida)
-        // ProductoTerminado no tiene stock_actual, registramos movimiento para auditoría
+        // Actualizar stock_actual del ProductoTerminado
+        const ptForStock = await tx.productoTerminado.findUnique({
+          where: { id: detalle.id_producto_terminado },
+        })
+        const stockAntesPT = ptForStock?.stock_actual ?? 0
+        const stockDespuesPT = Math.max(0, stockAntesPT - detalle.cantidad)
+
+        await tx.productoTerminado.update({
+          where: { id: detalle.id_producto_terminado },
+          data: { stock_actual: stockDespuesPT },
+        })
+
         await tx.stockMovement.create({
           data: {
             tipo_movimiento: 'venta',
             id_producto_terminado: detalle.id_producto_terminado,
             cantidad: -detalle.cantidad,
             id_unidad: idUnidadDefault,
-            stock_antes: 0,
-            stock_despues: 0,
+            stock_antes: stockAntesPT,
+            stock_despues: stockDespuesPT,
             referencia_id: nuevaVenta.id,
             referencia_tabla: 'venta',
             observacion: `Venta #${nuevaVenta.id} - ${detalle.nombreProducto} x${detalle.cantidad}`,

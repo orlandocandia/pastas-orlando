@@ -12,6 +12,7 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Switch } from '@/components/ui/switch'
 import { Label } from '@/components/ui/label'
+import { Separator } from '@/components/ui/separator'
 import {
   Form,
   FormControl,
@@ -36,6 +37,10 @@ const productoTerminadoSchema = z.object({
   id_categoria: z.string().min(1, 'Seleccioná una categoría'),
   peso_unitario_aprox: z.coerce.number().min(0, 'El peso no puede ser negativo').default(0),
   precio_venta: z.coerce.number().min(0, 'El precio no puede ser negativo').default(0),
+  stock_minimo: z.coerce.number().min(0, 'El stock mínimo no puede ser negativo').default(0),
+  destacado: z.boolean().default(false),
+  orden: z.coerce.number().min(0, 'El orden no puede ser negativo').default(0),
+  visible_en_landing: z.boolean().default(true),
   imagen: z.string().optional(),
   estado: z.boolean().default(true),
 })
@@ -72,6 +77,10 @@ export default function ProductoTerminadoForm({ productoTerminado, onSuccess }: 
       id_categoria: productoTerminado?.id_categoria?.toString() || '',
       peso_unitario_aprox: productoTerminado?.peso_unitario_aprox ?? 0,
       precio_venta: productoTerminado?.precio_venta ?? 0,
+      stock_minimo: productoTerminado?.stock_minimo ?? 0,
+      destacado: productoTerminado?.destacado ?? false,
+      orden: productoTerminado?.orden ?? 0,
+      visible_en_landing: productoTerminado?.visible_en_landing ?? true,
       imagen: productoTerminado?.imagen || '',
       estado: productoTerminado?.estado ?? true,
     },
@@ -221,9 +230,9 @@ export default function ProductoTerminadoForm({ productoTerminado, onSuccess }: 
             name="peso_unitario_aprox"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Peso Aprox. (g)</FormLabel>
+                <FormLabel>Peso Aprox. (kg)</FormLabel>
                 <FormControl>
-                  <Input type="number" step="0.01" min="0" placeholder="500" {...field} />
+                  <Input type="number" step="0.01" min="0" placeholder="0.5" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -231,19 +240,50 @@ export default function ProductoTerminadoForm({ productoTerminado, onSuccess }: 
           />
         </div>
 
-        <FormField
-          control={form.control}
-          name="precio_venta"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Precio de Venta *</FormLabel>
-              <FormControl>
-                <Input type="number" step="0.01" min="0" placeholder="0.00" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <FormField
+            control={form.control}
+            name="precio_venta"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Precio de Venta *</FormLabel>
+                <FormControl>
+                  <Input type="number" step="0.01" min="0" placeholder="0.00" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="stock_minimo"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Stock Mínimo</FormLabel>
+                <FormControl>
+                  <Input type="number" step="1" min="0" placeholder="5" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        {/* Stock actual - solo lectura */}
+        {isEditing && (
+          <div className="bg-muted/50 rounded-lg p-3 border">
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium text-muted-foreground">Stock Actual</span>
+              <span className="text-lg font-bold text-marron">
+                {productoTerminado?.stock_actual ?? 0} u.
+              </span>
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              Se actualiza automáticamente con producciones y ventas
+            </p>
+          </div>
+        )}
 
         <div>
           <FormLabel>Foto</FormLabel>
@@ -258,6 +298,67 @@ export default function ProductoTerminadoForm({ productoTerminado, onSuccess }: 
             />
           </div>
         </div>
+
+        <Separator />
+
+        {/* Landing Page Settings */}
+        <div className="space-y-3">
+          <h4 className="text-sm font-semibold text-marron">Configuración Landing Page</h4>
+
+          <div className="flex items-center gap-6">
+            <FormField
+              control={form.control}
+              name="visible_en_landing"
+              render={({ field }) => (
+                <FormItem className="flex items-center gap-2 space-y-0">
+                  <FormControl>
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                  <Label className="text-sm font-normal cursor-pointer">
+                    Visible en landing
+                  </Label>
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="destacado"
+              render={({ field }) => (
+                <FormItem className="flex items-center gap-2 space-y-0">
+                  <FormControl>
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                  <Label className="text-sm font-normal cursor-pointer">
+                    Destacado
+                  </Label>
+                </FormItem>
+              )}
+            />
+          </div>
+
+          <FormField
+            control={form.control}
+            name="orden"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Orden de aparición</FormLabel>
+                <FormControl>
+                  <Input type="number" step="1" min="0" placeholder="0" className="w-32" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        <Separator />
 
         <div className="flex items-center gap-3 pt-2">
           <FormField

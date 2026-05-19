@@ -1,4 +1,4 @@
-// Pastas Orlando - Esquema de base de datos (Fase 6)
+// Pastas Orlando - Esquema de base de datos (Fase 7)
 
 generator client {
   provider = "prisma-client-js"
@@ -422,6 +422,9 @@ model ProductoTerminado {
   precio_venta        Float     @default(0)
   stock_actual        Float     @default(0)
   stock_minimo        Float     @default(0)
+  destacado           Boolean   @default(false)
+  orden               Int       @default(0)
+  visible_en_landing  Boolean   @default(true)
   imagen              String?
   estado              Boolean   @default(true)
   createdAt           DateTime  @default(now())

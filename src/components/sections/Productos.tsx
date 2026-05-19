@@ -1,29 +1,25 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import Image from 'next/image'
 import { motion } from 'framer-motion'
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import ProductCard from '@/components/products/ProductCard'
 import ProductGridSkeleton from '@/components/skeletons/ProductGridSkeleton'
 
-interface Producto {
+interface ProductoPublico {
   id: number
   nombre: string
   descripcion: string | null
-  categoria: string
-  precio: number
-  peso: string
+  precio_venta: number
+  peso_unitario_aprox: number
   imagen: string | null
-  stock: boolean
+  stock_actual: number
   destacado: boolean
-  orden: number
+  categoria: {
+    id: number
+    nombre: string
+  }
 }
-
-const priceFormatter = new Intl.NumberFormat('es-AR', {
-  style: 'currency',
-  currency: 'ARS',
-})
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -45,17 +41,17 @@ const cardVariants = {
 }
 
 export default function Productos() {
-  const [productos, setProductos] = useState<Producto[]>([])
+  const [productos, setProductos] = useState<ProductoPublico[]>([])
   const [loading, setLoading] = useState(true)
   const [showAll, setShowAll] = useState(false)
 
   useEffect(() => {
     async function fetchProductos() {
       try {
-        const res = await fetch('/api/productos?stock=true')
+        const res = await fetch('/api/productos-terminados/public')
         if (res.ok) {
           const data = await res.json()
-          setProductos(data)
+          setProductos(data.productos || [])
         }
       } catch {
         console.error('Error al cargar productos')
@@ -78,11 +74,21 @@ export default function Productos() {
             Nuestros <span className="text-rojo">Productos</span>
           </h2>
           <div className="h-1 w-20 bg-mostaza mx-auto mt-4 rounded-full" />
+          <p className="text-muted-foreground mt-3 max-w-lg mx-auto text-sm sm:text-base">
+            Pastas artesanales elaboradas con ingredientes frescos y de calidad. Stock en tiempo real.
+          </p>
         </div>
 
         {/* Loading */}
         {loading ? (
           <ProductGridSkeleton />
+        ) : productos.length === 0 ? (
+          <div className="text-center py-12">
+            <span className="text-5xl mb-4 block">🍝</span>
+            <p className="text-muted-foreground">
+              Próximamente más productos disponibles
+            </p>
+          </div>
         ) : (
           <>
             {/* Product Grid */}
@@ -94,60 +100,8 @@ export default function Productos() {
               viewport={{ once: true, margin: '-50px' }}
             >
               {displayed.map((producto) => (
-                <motion.div
-                  key={producto.id}
-                  variants={cardVariants}
-                  className="group rounded-xl border border-border bg-card overflow-hidden shadow-sm hover:shadow-lg transition-shadow duration-300"
-                >
-                  {/* Image */}
-                  <div className="relative h-48 bg-muted overflow-hidden">
-                    {producto.imagen ? (
-                      <Image
-                        src={producto.imagen}
-                        alt={producto.nombre}
-                        fill
-                        className="object-cover group-hover:scale-105 transition-transform duration-300"
-                        sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                        onError={(e) => {
-                          const target = e.target as HTMLImageElement
-                          target.style.display = 'none'
-                        }}
-                      />
-                    ) : (
-                      <div className="flex items-center justify-center h-full text-muted-foreground">
-                        <span className="text-4xl">🍝</span>
-                      </div>
-                    )}
-                    {/* Fallback overlay */}
-                    {!producto.imagen && (
-                      <div className="absolute inset-0 flex items-center justify-center bg-muted">
-                        <span className="text-5xl">🍝</span>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Content */}
-                  <div className="p-4">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Badge className="bg-mostaza/20 text-marron text-xs hover:bg-mostaza/30 border-0">
-                        {producto.peso}
-                      </Badge>
-                      <span className="text-xs text-muted-foreground">
-                        {producto.categoria}
-                      </span>
-                    </div>
-                    <h3 className="font-bold text-marron text-base mb-1 line-clamp-1">
-                      {producto.nombre}
-                    </h3>
-                    {producto.descripcion && (
-                      <p className="text-muted-foreground text-sm line-clamp-2 mb-3">
-                        {producto.descripcion}
-                      </p>
-                    )}
-                    <p className="text-mostaza font-bold text-lg">
-                      {priceFormatter.format(producto.precio)}
-                    </p>
-                  </div>
+                <motion.div key={producto.id} variants={cardVariants}>
+                  <ProductCard producto={producto} />
                 </motion.div>
               ))}
             </motion.div>
@@ -160,7 +114,7 @@ export default function Productos() {
                   variant="outline"
                   className="border-mostaza text-marron hover:bg-mostaza hover:text-marron font-semibold px-8"
                 >
-                  Ver más
+                  Ver más productos
                 </Button>
               </div>
             )}
