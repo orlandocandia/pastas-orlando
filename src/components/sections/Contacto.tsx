@@ -7,22 +7,16 @@ import {
   MapPin,
   Phone,
   Mail,
-  Calendar,
+  Clock,
   MessageCircle,
 } from 'lucide-react'
+import QRCode from 'react-qr-code'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
 
 const WHATSAPP_LINK =
-  'https://wa.me/549376419324?text=Hola!%20Quiero%20hacer%20un%20pedido%20de%20pastas'
-
-const orderSteps = [
-  'Escribinos por WhatsApp',
-  'Decinos qué producto y cantidades',
-  'Te confirmamos stock o tiempo al instante',
-  'Abonás la seña (datos por privado)',
-  'Coordinamos lugar, horario y quién recibe',
-  'Recibís, pagás el resto y disfrutás',
-]
+  'https://wa.me/5493754419324?text=Hola!%20Quiero%20hacer%20un%20pedido%20de%20pastas'
 
 async function trackInteraction(tipo: string) {
   try {
@@ -41,6 +35,13 @@ async function trackInteraction(tipo: string) {
 
 export default function Contacto() {
   const [qrHovered, setQrHovered] = useState(false)
+  const [nombre, setNombre] = useState('')
+  const [email, setEmail] = useState('')
+  const [telefono, setTelefono] = useState('')
+  const [mensaje, setMensaje] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [success, setSuccess] = useState(false)
+  const [error, setError] = useState('')
 
   const handleWhatsAppClick = () => {
     trackInteraction('whatsapp_click')
@@ -51,6 +52,47 @@ export default function Contacto() {
     if (!qrHovered) {
       setQrHovered(true)
       trackInteraction('qr_scan')
+    }
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setError('')
+    setSuccess(false)
+
+    // Validation
+    if (!nombre.trim() || !email.trim() || !telefono.trim() || !mensaje.trim()) {
+      setError('Todos los campos son obligatorios.')
+      return
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(email)) {
+      setError('Ingresá un email válido.')
+      return
+    }
+
+    setLoading(true)
+    try {
+      const res = await fetch('/api/consultas', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nombre, email, telefono, mensaje }),
+      })
+
+      if (!res.ok) {
+        throw new Error('Error al enviar')
+      }
+
+      setSuccess(true)
+      setNombre('')
+      setEmail('')
+      setTelefono('')
+      setMensaje('')
+    } catch {
+      setError('Ocurrió un error al enviar. Intentá de nuevo.')
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -68,6 +110,10 @@ export default function Contacto() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
           {/* Columna izquierda - Información */}
           <div className="space-y-5">
+            <h3 className="text-2xl font-bold text-marron mb-2">
+              El amigo de las pastas
+            </h3>
+
             <div className="flex items-start gap-3">
               <Star className="h-5 w-5 text-mostaza shrink-0 mt-0.5" />
               <div>
@@ -92,10 +138,10 @@ export default function Contacto() {
               <div>
                 <p className="text-marron font-medium">Zona de cobertura</p>
                 <p className="text-muted-foreground text-sm">
-                  Posadas: envío gratis
+                  Corrientes: envío gratis
                 </p>
                 <p className="text-muted-foreground text-sm">
-                  Alrededores: consultanos según el pedido
+                  Alrededores: consultanos
                 </p>
               </div>
             </div>
@@ -125,9 +171,9 @@ export default function Contacto() {
             </div>
 
             <div className="flex items-start gap-3">
-              <Calendar className="h-5 w-5 text-mostaza shrink-0 mt-0.5" />
+              <Clock className="h-5 w-5 text-mostaza shrink-0 mt-0.5" />
               <div>
-                <p className="text-marron font-medium text-sm">Pedidos con anticipación</p>
+                <p className="text-marron font-medium">Pedidos con anticipación</p>
                 <p className="text-muted-foreground text-sm">
                   Eventos, instituciones, grandes cantidades: consultanos cuando quieras, incluso fines de semana.
                 </p>
@@ -138,7 +184,7 @@ export default function Contacto() {
             <Button
               onClick={handleWhatsAppClick}
               size="lg"
-              className="w-full sm:w-auto bg-whatsapp hover:bg-whatsapp/90 text-white font-bold text-base px-8 py-6 mt-4"
+              className="w-full bg-green-600 hover:bg-green-700 text-white font-bold text-base px-8 py-6 mt-4"
             >
               <MessageCircle className="h-5 w-5 mr-2" />
               📲 PEDIR POR WHATSAPP
@@ -149,31 +195,105 @@ export default function Contacto() {
               className="mt-6 flex flex-col items-center"
               onMouseEnter={handleQRHover}
             >
-              <div className="w-[100px] h-[100px] bg-muted rounded-lg flex items-center justify-center border border-border">
-                <div className="text-center">
-                  <span className="text-2xl">📱</span>
-                  <p className="text-[8px] text-muted-foreground mt-0.5">QR</p>
-                </div>
+              <div className="bg-white rounded-xl border border-border p-3 shadow-sm">
+                <QRCode
+                  value="https://wa.me/5493754419324?text=Hola%20Orlando%2C%20vengo%20de%20la%20web%20(QR)%20y%20quiero%20hacer%20un%20pedido"
+                  size={120}
+                />
               </div>
-              <p className="text-xs text-muted-foreground mt-1">Escaneá y pedí</p>
+              <p className="text-xs text-muted-foreground mt-2">
+                Escaneá y escribí a Orlando
+              </p>
             </div>
           </div>
 
-          {/* Columna derecha - Pasos para pedir */}
+          {/* Columna derecha - Formulario */}
           <div className="bg-crema/50 rounded-xl border border-border p-6 sm:p-8">
             <h3 className="text-xl font-bold text-marron mb-6">
-              ¿Cómo hacer tu pedido?
+              Envianos tu consulta
             </h3>
-            <ol className="space-y-4">
-              {orderSteps.map((step, index) => (
-                <li key={index} className="flex items-start gap-4">
-                  <span className="flex items-center justify-center h-8 w-8 rounded-full bg-mostaza text-marron font-bold text-sm shrink-0">
-                    {index + 1}
-                  </span>
-                  <span className="text-muted-foreground pt-1">{step}</span>
-                </li>
-              ))}
-            </ol>
+
+            {success && (
+              <div className="mb-6 p-4 rounded-lg bg-green-50 border border-green-200 text-green-800 text-sm">
+                ✅ Mensaje enviado. Te responderemos a la brevedad.
+              </div>
+            )}
+
+            {error && (
+              <div className="mb-6 p-4 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm">
+                {error}
+              </div>
+            )}
+
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <label htmlFor="nombre" className="block text-sm font-medium text-marron mb-1">
+                  Nombre y apellido <span className="text-rojo">*</span>
+                </label>
+                <Input
+                  id="nombre"
+                  type="text"
+                  placeholder="Tu nombre completo"
+                  value={nombre}
+                  onChange={(e) => setNombre(e.target.value)}
+                  required
+                  className="bg-white"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="email" className="block text-sm font-medium text-marron mb-1">
+                  Email <span className="text-rojo">*</span>
+                </label>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="tu@email.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  className="bg-white"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="telefono" className="block text-sm font-medium text-marron mb-1">
+                  Teléfono / WhatsApp <span className="text-rojo">*</span>
+                </label>
+                <Input
+                  id="telefono"
+                  type="tel"
+                  placeholder="3754-000000"
+                  value={telefono}
+                  onChange={(e) => setTelefono(e.target.value)}
+                  required
+                  className="bg-white"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="mensaje" className="block text-sm font-medium text-marron mb-1">
+                  Mensaje <span className="text-rojo">*</span>
+                </label>
+                <Textarea
+                  id="mensaje"
+                  placeholder="Escribí tu consulta..."
+                  value={mensaje}
+                  onChange={(e) => setMensaje(e.target.value)}
+                  required
+                  rows={4}
+                  className="bg-white resize-none"
+                />
+              </div>
+
+              <Button
+                type="submit"
+                disabled={loading}
+                className="w-full bg-mostaza hover:bg-mostaza/90 text-marron font-bold text-base py-6"
+              >
+                {loading ? 'Enviando...' : 'Enviar Solicitud'}
+              </Button>
+            </form>
           </div>
         </div>
       </div>

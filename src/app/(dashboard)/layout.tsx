@@ -248,6 +248,11 @@ const otherItems = [
     icon: MessageSquare,
   },
   {
+    title: 'Consultas',
+    href: '/admin/consultas',
+    icon: Mail,
+  },
+  {
     title: 'Estadísticas',
     href: '/admin/estadisticas',
     icon: BarChart3,

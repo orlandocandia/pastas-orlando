@@ -1141,3 +1141,22 @@ model DetallePresupuesto {
 
   @@index([id_presupuesto])
 }
+
+// ============================================
+// CONSULTAS DESDE LA WEB (FORMULARIO DE CONTACTO)
+// ============================================
+
+model Consulta {
+  id          Int      @id @default(autoincrement())
+  nombre      String
+  email       String
+  telefono    String
+  mensaje     String
+  leido       Boolean  @default(false)
+  respondido  Boolean  @default(false)
+  fecha       DateTime @default(now())
+  createdAt   DateTime @default(now())
+
+  @@index([fecha])
+  @@index([leido])
+}
