@@ -23,24 +23,10 @@ const navLinks = [
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false)
   const [open, setOpen] = useState(false)
-  const [activeSection, setActiveSection] = useState('inicio')
 
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 50)
-
-      // Determine active section based on scroll position
-      const sections = navLinks.map((link) => link.href.replace('#', ''))
-      for (let i = sections.length - 1; i >= 0; i--) {
-        const el = document.getElementById(sections[i])
-        if (el) {
-          const rect = el.getBoundingClientRect()
-          if (rect.top <= 150) {
-            setActiveSection(sections[i])
-            break
-          }
-        }
-      }
     }
     window.addEventListener('scroll', handleScroll)
     return () => window.removeEventListener('scroll', handleScroll)
@@ -62,30 +48,20 @@ export default function Navbar() {
         <div className="flex items-center justify-center h-16 sm:h-20">
           {/* Desktop Navigation - centered */}
           <div className="hidden lg:flex items-center gap-1">
-            {navLinks.map((link) => {
-              const sectionId = link.href.replace('#', '')
-              const isActive = activeSection === sectionId
-              return (
-                <a
-                  key={link.href}
-                  href={link.href}
-                  className={`nav-link relative px-4 py-2 rounded-md text-base font-semibold transition-colors duration-200
-                    ${isActive ? 'text-mostaza' : scrolled ? 'text-marron' : 'text-white'}
-                    hover:text-mostaza
-                  `}
-                >
-                  {link.label}
-                  {/* Active underline */}
-                  <span
-                    className={`absolute bottom-0 left-0 h-0.5 bg-mostaza rounded-full transition-all duration-300 ${
-                      isActive ? 'w-full' : 'w-0'
-                    }`}
-                  />
-                  {/* Hover underline - expands from center */}
-                  <span className="nav-link-underline absolute bottom-0 left-1/2 -translate-x-1/2 h-0.5 bg-mostaza/60 rounded-full w-0 transition-all duration-300" />
-                </a>
-              )
-            })}
+            {navLinks.map((link) => (
+              <a
+                key={link.href}
+                href={link.href}
+                className={`nav-link relative px-4 py-2 rounded-lg text-base font-semibold transition-all duration-200
+                  ${scrolled ? 'text-marron' : 'text-white'}
+                  hover:text-mostaza hover:bg-mostaza/10
+                `}
+              >
+                {link.label}
+                {/* Hover underline - expands from center, mostaza */}
+                <span className="nav-link-underline absolute bottom-0 left-1/2 -translate-x-1/2 h-0.5 bg-mostaza rounded-full w-0 transition-all duration-300" />
+              </a>
+            ))}
           </div>
 
           {/* Mobile Menu Button */}
@@ -110,22 +86,16 @@ export default function Navbar() {
                   Menú
                 </SheetTitle>
                 <div className="flex flex-col gap-1 px-4 mt-4">
-                  {navLinks.map((link) => {
-                    const sectionId = link.href.replace('#', '')
-                    const isActive = activeSection === sectionId
-                    return (
-                      <a
-                        key={link.href}
-                        href={link.href}
-                        onClick={handleLinkClick}
-                        className={`px-4 py-3 rounded-md font-semibold transition-colors hover:bg-mostaza/10 hover:text-mostaza
-                          ${isActive ? 'text-mostaza bg-mostaza/5' : 'text-marron'}
-                        `}
-                      >
-                        {link.label}
-                      </a>
-                    )
-                  })}
+                  {navLinks.map((link) => (
+                    <a
+                      key={link.href}
+                      href={link.href}
+                      onClick={handleLinkClick}
+                      className="px-4 py-3 rounded-lg font-semibold transition-all duration-200 text-marron hover:bg-mostaza/10 hover:text-mostaza"
+                    >
+                      {link.label}
+                    </a>
+                  ))}
                 </div>
               </SheetContent>
             </Sheet>
