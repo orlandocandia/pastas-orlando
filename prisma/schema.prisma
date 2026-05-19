@@ -70,6 +70,8 @@ model Provincia {
   pais          Pais         @relation(fields: [id_pais], references: [id])
   departamentos Departamento[]
   createdAt     DateTime     @default(now())
+
+  @@unique([id_pais, nombre])
 }
 
 model Departamento {
@@ -79,6 +81,8 @@ model Departamento {
   provincia    Provincia @relation(fields: [id_provincia], references: [id])
   municipios   Municipio[]
   createdAt    DateTime  @default(now())
+
+  @@unique([id_provincia, nombre])
 }
 
 model Municipio {
@@ -89,6 +93,8 @@ model Municipio {
   direcciones     Direccion[]
   personas        Persona[]
   createdAt       DateTime     @default(now())
+
+  @@unique([id_departamento, nombre])
 }
 
 // ============================================
@@ -1040,6 +1046,54 @@ model AlertaConfiguracion {
   ultimo_envio    DateTime?
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+}
+
+// ============================================
+// TABLAS DE REFERENCIA ADICIONALES
+// ============================================
+
+model EmpresaTelefonica {
+  id        Int      @id @default(autoincrement())
+  nombre    String   @unique
+  codigo    String?  @unique
+  activo    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime? @updatedAt
+}
+
+model ServicioCorreoElectronico {
+  id        Int      @id @default(autoincrement())
+  nombre    String   @unique
+  dominio   String?  @unique
+  activo    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime? @updatedAt
+}
+
+model TipoPlataforma {
+  id        Int      @id @default(autoincrement())
+  nombre    String   @unique
+  descripcion String?
+  activo    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime? @updatedAt
+}
+
+model TipoEntidad {
+  id        Int      @id @default(autoincrement())
+  nombre    String   @unique
+  descripcion String?
+  activo    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime? @updatedAt
+}
+
+model EstadoSesion {
+  id        Int      @id @default(autoincrement())
+  nombre    String   @unique
+  descripcion String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime? @updatedAt
 }
 
 // ============================================
