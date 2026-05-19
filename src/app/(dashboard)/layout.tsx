@@ -4,7 +4,7 @@ import { useEffect } from 'react'
 import { useSession, signOut } from 'next-auth/react'
 import { useRouter, usePathname } from 'next/navigation'
 import { useState } from 'react'
-import { Loader2, LogOut, LayoutDashboard, Package, MessageSquare, BarChart3, Users, UserCircle, Leaf, PackageOpen, UtensilsCrossed, FolderTree, Tag, Ruler, ChevronDown, ChevronRight, ShoppingCart, ClipboardList, ArrowLeftRight, Settings } from 'lucide-react'
+import { Loader2, LogOut, LayoutDashboard, Package, MessageSquare, BarChart3, Users, UserCircle, Leaf, PackageOpen, UtensilsCrossed, FolderTree, Tag, Ruler, ChevronDown, ChevronRight, ShoppingCart, ClipboardList, ArrowLeftRight, Settings, Receipt, CalendarCheck } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
 
@@ -67,6 +67,24 @@ const comprasItems = [
     title: 'Pedidos a Proveedores',
     href: '/admin/pedidos-proveedores',
     icon: ClipboardList,
+  },
+]
+
+const ventasItems = [
+  {
+    title: 'Pedidos de Clientes',
+    href: '/admin/pedidos-clientes',
+    icon: ClipboardList,
+  },
+  {
+    title: 'Ventas',
+    href: '/admin/ventas',
+    icon: Receipt,
+  },
+  {
+    title: 'Reservas de Clientes',
+    href: '/admin/reservas-clientes',
+    icon: CalendarCheck,
   },
 ]
 
@@ -134,11 +152,13 @@ export default function DashboardLayout({
   const pathname = usePathname()
   const [stockOpen, setStockOpen] = useState(true)
   const [comprasOpen, setComprasOpen] = useState(false)
+  const [ventasOpen, setVentasOpen] = useState(false)
   const [stockMovOpen, setStockMovOpen] = useState(false)
   const [configOpen, setConfigOpen] = useState(false)
 
   const isStockActive = stockItems.some(item => pathname === item.href || pathname.startsWith(item.href + '/'))
   const isComprasActive = comprasItems.some(item => pathname === item.href || pathname.startsWith(item.href + '/'))
+  const isVentasActive = ventasItems.some(item => pathname === item.href || pathname.startsWith(item.href + '/'))
   const isStockMovActive = stockMovimientoItems.some(item => pathname === item.href || pathname.startsWith(item.href + '/'))
   const isConfigActive = configItems.some(item => pathname === item.href || pathname.startsWith(item.href + '/'))
 
@@ -149,10 +169,11 @@ export default function DashboardLayout({
   }, [status, router])
 
   // Toggle section handler
-  const toggleSection = (section: 'stock' | 'compras' | 'stockMov' | 'config', currentOpen: boolean) => {
+  const toggleSection = (section: 'stock' | 'compras' | 'ventas' | 'stockMov' | 'config', currentOpen: boolean) => {
     switch (section) {
       case 'stock': setStockOpen(!currentOpen); break
       case 'compras': setComprasOpen(!currentOpen); break
+      case 'ventas': setVentasOpen(!currentOpen); break
       case 'stockMov': setStockMovOpen(!currentOpen); break
       case 'config': setConfigOpen(!currentOpen); break
     }
@@ -161,6 +182,7 @@ export default function DashboardLayout({
   // Auto-open active sections based on current pathname
   const effectiveStockOpen = stockOpen || isStockActive
   const effectiveComprasOpen = comprasOpen || isComprasActive
+  const effectiveVentasOpen = ventasOpen || isVentasActive
   const effectiveStockMovOpen = stockMovOpen || isStockMovActive
   const effectiveConfigOpen = configOpen || isConfigActive
 
@@ -291,6 +313,16 @@ export default function DashboardLayout({
             effectiveComprasOpen,
             () => toggleSection('compras', comprasOpen),
             isComprasActive
+          )}
+
+          {/* Ventas */}
+          {renderCollapsibleSection(
+            'Ventas',
+            <Receipt className="h-3.5 w-3.5" />,
+            ventasItems,
+            effectiveVentasOpen,
+            () => toggleSection('ventas', ventasOpen),
+            isVentasActive
           )}
 
           {/* Stock Movements */}

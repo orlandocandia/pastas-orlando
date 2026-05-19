@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useSession } from 'next-auth/react'
 import { motion } from 'framer-motion'
-import { Package, MessageSquare, Phone, ArrowRight, UserCircle, Users, Leaf, PackageOpen, UtensilsCrossed, ShoppingCart, ClipboardList, ArrowLeftRight } from 'lucide-react'
+import { Package, MessageSquare, Phone, ArrowRight, UserCircle, Users, Leaf, PackageOpen, UtensilsCrossed, ShoppingCart, ClipboardList, ArrowLeftRight, Receipt, CalendarCheck, DollarSign } from 'lucide-react'
 import Link from 'next/link'
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -21,6 +21,12 @@ interface DashboardStats {
   totalCompras: number
   totalPedidos: number
   totalMovimientos: number
+  totalVentas: number
+  totalPedidosClientes: number
+  totalReservas: number
+  ventasDelMes: number
+  pedidosPendientes: number
+  reservasActivas: number
 }
 
 const cardVariants = {
@@ -50,13 +56,19 @@ export default function DashboardPage() {
     totalCompras: 0,
     totalPedidos: 0,
     totalMovimientos: 0,
+    totalVentas: 0,
+    totalPedidosClientes: 0,
+    totalReservas: 0,
+    ventasDelMes: 0,
+    pedidosPendientes: 0,
+    reservasActivas: 0,
   })
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     async function fetchStats() {
       try {
-        const [productosRes, opinionesRes, contactoRes, personasRes, usuariosRes, mpRes, insRes, ptRes, comprasRes, pedidosRes, stockRes] = await Promise.all([
+        const [productosRes, opinionesRes, contactoRes, personasRes, usuariosRes, mpRes, insRes, ptRes, comprasRes, pedidosRes, stockRes, ventasRes, pedidosCliRes, reservasRes] = await Promise.all([
           fetch('/api/productos?stock=false'),
           fetch('/api/opiniones?admin=true&estado=pending'),
           fetch('/api/contacto?dias=30'),
@@ -68,6 +80,9 @@ export default function DashboardPage() {
           fetch('/api/compras?limite=1'),
           fetch('/api/pedidos-proveedores?limite=1'),
           fetch('/api/stock-movements?limite=1'),
+          fetch('/api/ventas?limite=1'),
+          fetch('/api/pedidos-clientes?limite=1'),
+          fetch('/api/reservas-clientes?limite=1'),
         ])
 
         const productos = await productosRes.json()
@@ -81,6 +96,9 @@ export default function DashboardPage() {
         const comprasData = await comprasRes.json()
         const pedidosData = await pedidosRes.json()
         const stockData = await stockRes.json()
+        const ventasData = await ventasRes.json()
+        const pedidosCliData = await pedidosCliRes.json()
+        const reservasData = await reservasRes.json()
 
         setStats({
           productosActivos: Array.isArray(productos)
@@ -96,6 +114,12 @@ export default function DashboardPage() {
           totalCompras: comprasData?.total || 0,
           totalPedidos: pedidosData?.total || 0,
           totalMovimientos: stockData?.total || 0,
+          totalVentas: ventasData?.total || 0,
+          totalPedidosClientes: pedidosCliData?.total || 0,
+          totalReservas: reservasData?.total || 0,
+          ventasDelMes: ventasData?.total || 0,
+          pedidosPendientes: pedidosCliData?.total || 0,
+          reservasActivas: reservasData?.total || 0,
         })
       } catch (error) {
         console.error('Error fetching stats:', error)
@@ -108,6 +132,35 @@ export default function DashboardPage() {
   }, [])
 
   const metricCards = [
+    {
+      title: 'Ventas del Mes',
+      value: stats.totalVentas,
+      icon: DollarSign,
+      color: 'bg-oliva/10 text-oliva',
+      href: '/admin/ventas',
+      isCurrency: false,
+    },
+    {
+      title: 'Pedidos Pendientes',
+      value: stats.totalPedidosClientes,
+      icon: ClipboardList,
+      color: 'bg-mostaza/10 text-mostaza',
+      href: '/admin/pedidos-clientes',
+    },
+    {
+      title: 'Reservas Activas',
+      value: stats.totalReservas,
+      icon: CalendarCheck,
+      color: 'bg-rojo/10 text-rojo',
+      href: '/admin/reservas-clientes',
+    },
+    {
+      title: 'Ventas',
+      value: stats.totalVentas,
+      icon: Receipt,
+      color: 'bg-marron/10 text-marron',
+      href: '/admin/ventas',
+    },
     {
       title: 'Productos Activos',
       value: stats.productosActivos,
@@ -253,6 +306,42 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              <Link href="/admin/ventas">
+                <Button
+                  variant="outline"
+                  className="w-full justify-start h-auto py-3 border-marron/10 hover:border-oliva hover:bg-oliva/5"
+                >
+                  <Receipt className="mr-3 h-5 w-5 text-oliva" />
+                  <div className="text-left">
+                    <div className="font-medium text-marron">Ventas</div>
+                    <div className="text-xs text-muted-foreground">Registrar ventas y descontar stock</div>
+                  </div>
+                </Button>
+              </Link>
+              <Link href="/admin/pedidos-clientes">
+                <Button
+                  variant="outline"
+                  className="w-full justify-start h-auto py-3 border-marron/10 hover:border-mostaza hover:bg-mostaza/5"
+                >
+                  <ClipboardList className="mr-3 h-5 w-5 text-mostaza" />
+                  <div className="text-left">
+                    <div className="font-medium text-marron">Pedidos de Clientes</div>
+                    <div className="text-xs text-muted-foreground">Gestionar pedidos y entregas</div>
+                  </div>
+                </Button>
+              </Link>
+              <Link href="/admin/reservas-clientes">
+                <Button
+                  variant="outline"
+                  className="w-full justify-start h-auto py-3 border-marron/10 hover:border-rojo hover:bg-rojo/5"
+                >
+                  <CalendarCheck className="mr-3 h-5 w-5 text-rojo" />
+                  <div className="text-left">
+                    <div className="font-medium text-marron">Reservas</div>
+                    <div className="text-xs text-muted-foreground">Reservas de productos con seña</div>
+                  </div>
+                </Button>
+              </Link>
               <Link href="/admin/compras">
                 <Button
                   variant="outline"

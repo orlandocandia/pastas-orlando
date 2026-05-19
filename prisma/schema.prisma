@@ -1,4 +1,4 @@
-// Pastas Orlando - Esquema de base de datos (Fase 4)
+// Pastas Orlando - Esquema de base de datos (Fase 5)
 
 generator client {
   provider = "prisma-client-js"
@@ -124,6 +124,9 @@ model Persona {
   usuario          Usuario?
   compras          Compra[]
   pedidosProveedor PedidoProveedor[]
+  pedidosCliente   PedidoCliente[]
+  reservasCliente  ReservaCliente[]
+  ventas           Venta[]
 
   @@index([tipo_persona])
   @@index([numero_documento])
@@ -198,6 +201,7 @@ model Usuario {
   roles            UsuarioRol[]
   sesiones         Sesion[]
   stockMovements   StockMovement[]
+  ventas           Venta[]
 
   @@index([email])
 }
@@ -421,6 +425,9 @@ model ProductoTerminado {
   categoria       CategoriaProductoTerminado @relation(fields: [id_categoria], references: [id])
   recetas         Receta[]
   stockMovements  StockMovement[]
+  detallePedidosCliente DetallePedidoCliente[]
+  detalleReservas ReservaCliente[]
+  detalleVentas   DetalleVenta[]
 
   @@index([codigo])
   @@index([nombre])
@@ -475,6 +482,7 @@ model FormaPago {
 
   // Relaciones
   compras Compra[]
+  ventas  Venta[]
 }
 
 // ============================================
@@ -490,8 +498,11 @@ model EstadoGeneral {
   updatedAt         DateTime? @updatedAt
 
   // Relaciones
-  compras Compra[]
-  pedidosProveedor PedidoProveedor[]
+  compras             Compra[]
+  pedidosProveedor    PedidoProveedor[]
+  pedidosCliente      PedidoCliente[]
+  reservasCliente     ReservaCliente[]
+  ventas              Venta[]
 }
 
 // ============================================
@@ -588,6 +599,126 @@ model DetallePedidoProveedor {
   materiaPrima MateriaPrima?   @relation(fields: [id_materia_prima], references: [id])
   insumo       Insumo?         @relation(fields: [id_insumo], references: [id])
   unidad       UnidadMedida    @relation(fields: [id_unidad], references: [id])
+}
+
+// ============================================
+// PEDIDOS DE CLIENTES (FASE 5)
+// ============================================
+
+model PedidoCliente {
+  id                      Int      @id @default(autoincrement())
+  id_cliente              Int
+  fecha_pedido            DateTime
+  fecha_entrega_solicitada DateTime
+  fecha_entrega_real      DateTime?
+  subtotal                Float    @default(0)
+  total                   Float    @default(0)
+  senia                   Float    @default(0)
+  id_estado               Int
+  observaciones           String?
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime? @updatedAt
+
+  // Relaciones
+  cliente    Persona              @relation(fields: [id_cliente], references: [id])
+  estado     EstadoGeneral        @relation(fields: [id_estado], references: [id])
+  detalle    DetallePedidoCliente[]
+  reservas   ReservaCliente[]
+  venta      Venta?
+
+  @@index([fecha_pedido])
+  @@index([id_cliente])
+}
+
+model DetallePedidoCliente {
+  id                    Int      @id @default(autoincrement())
+  id_pedido             Int
+  id_producto_terminado Int
+  cantidad              Float
+  precio_unitario       Float
+  subtotal              Float
+  createdAt             DateTime @default(now())
+
+  // Relaciones
+  pedido            PedidoCliente     @relation(fields: [id_pedido], references: [id], onDelete: Cascade)
+  productoTerminado ProductoTerminado @relation(fields: [id_producto_terminado], references: [id])
+
+  @@index([id_pedido])
+}
+
+// ============================================
+// RESERVAS DE CLIENTES (FASE 5)
+// ============================================
+
+model ReservaCliente {
+  id                    Int      @id @default(autoincrement())
+  id_cliente            Int
+  id_pedido             Int?
+  fecha_reserva         DateTime
+  fecha_validez_hasta   DateTime
+  id_producto_terminado Int
+  cantidad_reservada    Float
+  cantidad_confirmada   Float    @default(0)
+  senia                 Float    @default(0)
+  id_estado             Int
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime? @updatedAt
+
+  // Relaciones
+  cliente           Persona           @relation(fields: [id_cliente], references: [id])
+  pedido            PedidoCliente?    @relation(fields: [id_pedido], references: [id])
+  productoTerminado ProductoTerminado @relation(fields: [id_producto_terminado], references: [id])
+  estado            EstadoGeneral     @relation(fields: [id_estado], references: [id])
+
+  @@index([fecha_reserva])
+  @@index([id_cliente])
+}
+
+// ============================================
+// VENTAS (FASE 5)
+// ============================================
+
+model Venta {
+  id                 Int      @id @default(autoincrement())
+  id_cliente         Int
+  id_vendedor        Int
+  id_forma_pago      Int
+  id_pedido          Int?      @unique
+  numero_comprobante String?
+  fecha_venta        DateTime
+  subtotal           Float    @default(0)
+  iva                Float    @default(0)
+  total              Float    @default(0)
+  id_estado          Int
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime? @updatedAt
+
+  // Relaciones
+  cliente   Persona        @relation(fields: [id_cliente], references: [id])
+  vendedor  Usuario        @relation(fields: [id_vendedor], references: [id])
+  formaPago FormaPago      @relation(fields: [id_forma_pago], references: [id])
+  pedido    PedidoCliente? @relation(fields: [id_pedido], references: [id])
+  estado    EstadoGeneral  @relation(fields: [id_estado], references: [id])
+  detalle   DetalleVenta[]
+
+  @@index([fecha_venta])
+  @@index([id_cliente])
+}
+
+model DetalleVenta {
+  id                    Int      @id @default(autoincrement())
+  id_venta              Int
+  id_producto_terminado Int
+  cantidad              Float
+  precio_unitario       Float
+  subtotal              Float
+  createdAt             DateTime @default(now())
+
+  // Relaciones
+  venta            Venta           @relation(fields: [id_venta], references: [id], onDelete: Cascade)
+  productoTerminado ProductoTerminado @relation(fields: [id_producto_terminado], references: [id])
+
+  @@index([id_venta])
 }
 
 // ============================================

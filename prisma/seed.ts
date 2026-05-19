@@ -611,12 +611,17 @@ async function main() {
   console.log('📋 Creando estados generales...')
 
   const estadosGeneralesData = [
-    { nombre_estado: 'pendiente', entidad_aplicable: 'compra,pedido', es_final: false },
-    { nombre_estado: 'confirmado', entidad_aplicable: 'pedido', es_final: false },
-    { nombre_estado: 'en_proceso', entidad_aplicable: 'compra', es_final: false },
-    { nombre_estado: 'completado', entidad_aplicable: 'compra', es_final: true },
+    { nombre_estado: 'pendiente', entidad_aplicable: 'compra,pedido,pedido_cliente,venta,reserva', es_final: false },
+    { nombre_estado: 'confirmado', entidad_aplicable: 'pedido,pedido_cliente,reserva', es_final: false },
+    { nombre_estado: 'en_proceso', entidad_aplicable: 'compra,pedido_cliente', es_final: false },
+    { nombre_estado: 'en_produccion', entidad_aplicable: 'pedido_cliente', es_final: false },
+    { nombre_estado: 'listo_para_entregar', entidad_aplicable: 'pedido_cliente', es_final: false },
+    { nombre_estado: 'completado', entidad_aplicable: 'compra,pedido,pedido_cliente,venta', es_final: true },
     { nombre_estado: 'recibido', entidad_aplicable: 'compra', es_final: true },
-    { nombre_estado: 'anulado', entidad_aplicable: 'compra,pedido', es_final: true },
+    { nombre_estado: 'entregado', entidad_aplicable: 'pedido_cliente,venta', es_final: true },
+    { nombre_estado: 'anulado', entidad_aplicable: 'compra,pedido,pedido_cliente,venta,reserva', es_final: true },
+    { nombre_estado: 'expirado', entidad_aplicable: 'reserva', es_final: true },
+    { nombre_estado: 'cancelado', entidad_aplicable: 'pedido_cliente,reserva', es_final: true },
   ]
 
   for (const eg of estadosGeneralesData) {
@@ -647,6 +652,30 @@ async function main() {
     })
   }
   console.log(`✅ ${permisosFase4.length} permisos de Fase 4 creados y asignados a Admin`)
+
+  // ============================================
+  // PERMISOS ADICIONALES FASE 5
+  // ============================================
+  const permisosFase5 = [
+    { nombre: 'ventas.ver', descripcion: 'Ver ventas' },
+    { nombre: 'ventas.crear', descripcion: 'Crear ventas' },
+    { nombre: 'ventas.editar', descripcion: 'Editar ventas' },
+    { nombre: 'ventas.eliminar', descripcion: 'Eliminar ventas' },
+    { nombre: 'pedidos-clientes.ver', descripcion: 'Ver pedidos de clientes' },
+    { nombre: 'pedidos-clientes.crear', descripcion: 'Crear pedidos de clientes' },
+    { nombre: 'pedidos-clientes.editar', descripcion: 'Editar pedidos de clientes' },
+    { nombre: 'reservas.ver', descripcion: 'Ver reservas' },
+    { nombre: 'reservas.crear', descripcion: 'Crear reservas' },
+    { nombre: 'reservas.editar', descripcion: 'Editar reservas' },
+  ]
+
+  for (const perm of permisosFase5) {
+    const created = await prisma.permiso.create({ data: perm })
+    await prisma.rolPermiso.create({
+      data: { id_rol: rolAdmin.id, id_permiso: created.id },
+    })
+  }
+  console.log(`✅ ${permisosFase5.length} permisos de Fase 5 creados y asignados a Admin`)
 
   console.log('🎉 Base de datos sembrada exitosamente')
 }
