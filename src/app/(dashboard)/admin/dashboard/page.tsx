@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useSession } from 'next-auth/react'
 import { motion } from 'framer-motion'
-import { Package, MessageSquare, Phone, ArrowRight } from 'lucide-react'
+import { Package, MessageSquare, Phone, ArrowRight, UserCircle, Users } from 'lucide-react'
 import Link from 'next/link'
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -13,6 +13,8 @@ interface DashboardStats {
   productosActivos: number
   opinionesPendientes: number
   interaccionesWhatsApp: number
+  totalPersonas: number
+  totalUsuarios: number
 }
 
 const cardVariants = {
@@ -34,21 +36,27 @@ export default function DashboardPage() {
     productosActivos: 0,
     opinionesPendientes: 0,
     interaccionesWhatsApp: 0,
+    totalPersonas: 0,
+    totalUsuarios: 0,
   })
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     async function fetchStats() {
       try {
-        const [productosRes, opinionesRes, contactoRes] = await Promise.all([
+        const [productosRes, opinionesRes, contactoRes, personasRes, usuariosRes] = await Promise.all([
           fetch('/api/productos?stock=false'),
           fetch('/api/opiniones?admin=true&estado=pending'),
           fetch('/api/contacto?dias=30'),
+          fetch('/api/personas?limite=1'),
+          fetch('/api/usuarios'),
         ])
 
         const productos = await productosRes.json()
         const opiniones = await opinionesRes.json()
         const contacto = await contactoRes.json()
+        const personasData = await personasRes.json()
+        const usuariosData = await usuariosRes.json()
 
         setStats({
           productosActivos: Array.isArray(productos)
@@ -56,6 +64,8 @@ export default function DashboardPage() {
             : 0,
           opinionesPendientes: Array.isArray(opiniones) ? opiniones.length : 0,
           interaccionesWhatsApp: contacto?.estadisticas?.total || 0,
+          totalPersonas: personasData?.total || 0,
+          totalUsuarios: Array.isArray(usuariosData) ? usuariosData.length : 0,
         })
       } catch (error) {
         console.error('Error fetching stats:', error)
@@ -92,6 +102,22 @@ export default function DashboardPage() {
       iconColor: 'text-whatsapp',
       href: '/admin/estadisticas',
     },
+    {
+      title: 'Total Personas',
+      value: stats.totalPersonas,
+      icon: UserCircle,
+      color: 'bg-marron/10 text-marron',
+      iconColor: 'text-marron',
+      href: '/admin/personas',
+    },
+    {
+      title: 'Total Usuarios',
+      value: stats.totalUsuarios,
+      icon: Users,
+      color: 'bg-oliva/10 text-oliva',
+      iconColor: 'text-oliva',
+      href: '/admin/usuarios',
+    },
   ]
 
   const firstName = session?.user?.name?.split(' ')[0] || 'Admin'
@@ -107,7 +133,7 @@ export default function DashboardPage() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 md:gap-6">
         {metricCards.map((card, i) => (
           <motion.div
             key={card.title}
@@ -193,6 +219,30 @@ export default function DashboardPage() {
                   <div className="text-left">
                     <div className="font-medium text-marron">Estadísticas WhatsApp</div>
                     <div className="text-xs text-muted-foreground">Ver interacciones y datos</div>
+                  </div>
+                </Button>
+              </Link>
+              <Link href="/admin/personas">
+                <Button
+                  variant="outline"
+                  className="w-full justify-start h-auto py-3 border-marron/10 hover:border-mostaza hover:bg-mostaza/5"
+                >
+                  <UserCircle className="mr-3 h-5 w-5 text-marron" />
+                  <div className="text-left">
+                    <div className="font-medium text-marron">Gestionar Personas</div>
+                    <div className="text-xs text-muted-foreground">Clientes, proveedores, empleados</div>
+                  </div>
+                </Button>
+              </Link>
+              <Link href="/admin/usuarios">
+                <Button
+                  variant="outline"
+                  className="w-full justify-start h-auto py-3 border-marron/10 hover:border-mostaza hover:bg-mostaza/5"
+                >
+                  <Users className="mr-3 h-5 w-5 text-oliva" />
+                  <div className="text-left">
+                    <div className="font-medium text-marron">Administrar Usuarios</div>
+                    <div className="text-xs text-muted-foreground">Cuentas y permisos</div>
                   </div>
                 </Button>
               </Link>

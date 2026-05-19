@@ -3,7 +3,7 @@
 import { useEffect } from 'react'
 import { useSession, signOut } from 'next-auth/react'
 import { useRouter, usePathname } from 'next/navigation'
-import { Loader2, LogOut, LayoutDashboard, Package, MessageSquare, BarChart3 } from 'lucide-react'
+import { Loader2, LogOut, LayoutDashboard, Package, MessageSquare, BarChart3, Users, UserCircle } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
 
@@ -35,6 +35,16 @@ const navItems = [
     title: 'Productos',
     href: '/admin/productos',
     icon: Package,
+  },
+  {
+    title: 'Personas',
+    href: '/admin/personas',
+    icon: UserCircle,
+  },
+  {
+    title: 'Usuarios',
+    href: '/admin/usuarios',
+    icon: Users,
   },
   {
     title: 'Opiniones',
@@ -111,7 +121,7 @@ export default function DashboardLayout({
                   <SidebarMenuItem key={item.href}>
                     <SidebarMenuButton
                       asChild
-                      isActive={pathname === item.href}
+                      isActive={pathname === item.href || pathname.startsWith(item.href + '/')}
                       tooltip={item.title}
                     >
                       <Link href={item.href}>

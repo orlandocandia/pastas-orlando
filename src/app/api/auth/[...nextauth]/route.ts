@@ -18,9 +18,23 @@ export const authOptions: NextAuthOptions = {
 
         const usuario = await db.usuario.findUnique({
           where: { email: credentials.email },
+          include: {
+            persona: true,
+            roles: {
+              include: {
+                rol: {
+                  include: {
+                    permisos: {
+                      include: { permiso: true },
+                    },
+                  },
+                },
+              },
+            },
+          },
         })
 
-        if (!usuario || !usuario.activo) {
+        if (!usuario || !usuario.estado) {
           return null
         }
 
@@ -30,11 +44,20 @@ export const authOptions: NextAuthOptions = {
           return null
         }
 
+        // Obtener roles y permisos
+        const roles = usuario.roles.map((ur) => ur.rol.nombre)
+        const permisos = usuario.roles.flatMap((ur) =>
+          ur.rol.permisos.map((rp) => rp.permiso.nombre)
+        )
+
         return {
           id: usuario.id.toString(),
           email: usuario.email,
-          name: usuario.nombre,
-          role: usuario.rol,
+          name: `${usuario.persona.nombre} ${usuario.persona.apellido}`,
+          role: roles[0] || 'cliente',
+          roles,
+          permisos,
+          imagen: usuario.imagen || usuario.persona.imagen,
         }
       },
     }),
@@ -43,14 +66,20 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, user }) {
       if (user) {
         token.role = (user as { role: string }).role
+        token.roles = (user as { roles: string[] }).roles
+        token.permisos = (user as { permisos: string[] }).permisos
         token.id = user.id
+        token.imagen = (user as { imagen?: string }).imagen
       }
       return token
     },
     async session({ session, token }) {
       if (session.user) {
         (session.user as { role?: string }).role = token.role as string
+        ;(session.user as { roles?: string[] }).roles = token.roles as string[]
+        ;(session.user as { permisos?: string[] }).permisos = token.permisos as string[]
         ;(session.user as { id?: string }).id = token.id as string
+        ;(session.user as { imagen?: string }).imagen = token.imagen as string
       }
       return session
     },

@@ -1,4 +1,4 @@
-// Pastas Orlando - Esquema de base de datos
+// Pastas Orlando - Esquema de base de datos (Fase 2)
 
 generator client {
   provider = "prisma-client-js"
@@ -9,16 +9,9 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Usuario {
-  id        Int      @id @default(autoincrement())
-  email     String   @unique
-  password  String
-  nombre    String
-  rol       String   @default("cliente")
-  activo    Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
+// ============================================
+// MODELOS ORIGINALES (FASE 1)
+// ============================================
 
 model Producto {
   id          Int      @id @default(autoincrement())
@@ -57,4 +50,205 @@ model InteraccionWhatsApp {
   mensaje_enviado String
   ip              String?
   fecha           DateTime @default(now())
+}
+
+// ============================================
+// MÓDULO GEOGRÁFICO (base para direcciones)
+// ============================================
+
+model Pais {
+  id         Int         @id @default(autoincrement())
+  nombre     String      @unique
+  provincias Provincia[]
+  createdAt  DateTime    @default(now())
+}
+
+model Provincia {
+  id            Int          @id @default(autoincrement())
+  id_pais       Int
+  nombre        String
+  pais          Pais         @relation(fields: [id_pais], references: [id])
+  departamentos Departamento[]
+  createdAt     DateTime     @default(now())
+}
+
+model Departamento {
+  id           Int       @id @default(autoincrement())
+  id_provincia Int
+  nombre       String
+  provincia    Provincia @relation(fields: [id_provincia], references: [id])
+  municipios   Municipio[]
+  createdAt    DateTime  @default(now())
+}
+
+model Municipio {
+  id              Int          @id @default(autoincrement())
+  id_departamento Int
+  nombre          String
+  departamento    Departamento @relation(fields: [id_departamento], references: [id])
+  direcciones     Direccion[]
+  personas        Persona[]
+  createdAt       DateTime     @default(now())
+}
+
+// ============================================
+// MÓDULO PERSONAS (con tipos)
+// ============================================
+
+model TipoPersona {
+  id        Int      @id @default(autoincrement())
+  nombre    String   @unique
+  createdAt DateTime @default(now())
+}
+
+model Persona {
+  id               Int       @id @default(autoincrement())
+  id_municipio     Int?
+  nombre           String
+  apellido         String
+  numero_documento String    @unique
+  fecha_nacimiento DateTime?
+  observaciones    String?
+  tipo_persona     String
+  razon_social     String?
+  cuit             String?
+  condicion_iva    String?
+  imagen           String?
+  fecha_registro   DateTime  @default(now())
+  fecha_actualizacion DateTime? @updatedAt
+
+  // Relaciones
+  municipio        Municipio?  @relation(fields: [id_municipio], references: [id])
+  contactos        Contacto[]
+  direcciones      Direccion[]
+  usuario          Usuario?
+
+  @@index([tipo_persona])
+  @@index([numero_documento])
+}
+
+// ============================================
+// CONTACTOS (múltiples por persona)
+// ============================================
+
+model TipoContacto {
+  id        Int      @id @default(autoincrement())
+  nombre    String   @unique
+  contactos Contacto[]
+}
+
+model Contacto {
+  id              Int          @id @default(autoincrement())
+  id_persona      Int
+  id_tipo_contacto Int
+  valor           String
+  es_principal    Boolean      @default(false)
+  verificado      Boolean      @default(false)
+  persona         Persona      @relation(fields: [id_persona], references: [id], onDelete: Cascade)
+  tipo            TipoContacto @relation(fields: [id_tipo_contacto], references: [id])
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime?    @updatedAt
+}
+
+// ============================================
+// DIRECCIONES (múltiples por persona)
+// ============================================
+
+model TipoDireccion {
+  id         Int        @id @default(autoincrement())
+  nombre     String     @unique
+  direcciones Direccion[]
+}
+
+model Direccion {
+  id              Int           @id @default(autoincrement())
+  id_persona      Int
+  id_tipo_direccion Int
+  id_municipio    Int?
+  direccion       String
+  referencia      String?
+  latitud         Float?
+  longitud        Float?
+  es_principal    Boolean       @default(false)
+  persona         Persona       @relation(fields: [id_persona], references: [id], onDelete: Cascade)
+  tipo            TipoDireccion @relation(fields: [id_tipo_direccion], references: [id])
+  municipio       Municipio?    @relation(fields: [id_municipio], references: [id])
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime?     @updatedAt
+}
+
+// ============================================
+// USUARIOS (vinculados a Persona)
+// ============================================
+
+model Usuario {
+  id               Int      @id @default(autoincrement())
+  id_persona       Int      @unique
+  email            String   @unique
+  password         String
+  estado           Boolean  @default(true)
+  imagen           String?
+  fecha_registro   DateTime @default(now())
+  fecha_actualizacion DateTime? @updatedAt
+
+  // Relaciones
+  persona          Persona       @relation(fields: [id_persona], references: [id])
+  roles            UsuarioRol[]
+  sesiones         Sesion[]
+
+  @@index([email])
+}
+
+// ============================================
+// ROLES Y PERMISOS
+// ============================================
+
+model Rol {
+  id          Int          @id @default(autoincrement())
+  nombre      String       @unique
+  descripcion String?
+  usuarios    UsuarioRol[]
+  permisos    RolPermiso[]
+  createdAt   DateTime     @default(now())
+}
+
+model UsuarioRol {
+  id_usuario Int
+  id_rol     Int
+  usuario    Usuario @relation(fields: [id_usuario], references: [id], onDelete: Cascade)
+  rol        Rol     @relation(fields: [id_rol], references: [id])
+
+  @@id([id_usuario, id_rol])
+}
+
+model Permiso {
+  id          Int         @id @default(autoincrement())
+  nombre      String      @unique
+  descripcion String?
+  roles       RolPermiso[]
+  createdAt   DateTime    @default(now())
+}
+
+model RolPermiso {
+  id_rol     Int
+  id_permiso Int
+  rol        Rol     @relation(fields: [id_rol], references: [id], onDelete: Cascade)
+  permiso    Permiso @relation(fields: [id_permiso], references: [id], onDelete: Cascade)
+
+  @@id([id_rol, id_permiso])
+}
+
+// ============================================
+// SESIONES (auditoría)
+// ============================================
+
+model Sesion {
+  id         Int      @id @default(autoincrement())
+  id_usuario Int
+  token      String
+  ip         String?
+  dispositivo String?
+  fecha_inicio DateTime @default(now())
+  fecha_fin  DateTime?
+  usuario    Usuario  @relation(fields: [id_usuario], references: [id])
 }
