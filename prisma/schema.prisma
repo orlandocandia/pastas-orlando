@@ -1,4 +1,4 @@
-// Pastas Orlando - Esquema de base de datos (Fase 9)
+// Pastas Orlando - Esquema de base de datos (Fase 10)
 
 generator client {
   provider = "prisma-client-js"
@@ -646,6 +646,7 @@ model PedidoCliente {
   detalle    DetallePedidoCliente[]
   reservas   ReservaCliente[]
   venta      Venta?
+  entregas   Entrega[]
 
   @@index([fecha_pedido])
   @@index([id_cliente])
@@ -919,4 +920,65 @@ model Auditoria {
   @@index([modulo])
   @@index([accion])
   @@index([id_usuario])
+}
+
+// ============================================
+// ENVÍOS Y LOGÍSTICA (FASE 10)
+// ============================================
+
+model PuntoEncuentro {
+  id          Int      @id @default(autoincrement())
+  nombre      String
+  direccion   String
+  latitud     Float?
+  longitud    Float?
+  horarios    String?  // JSON con horarios disponibles
+  activo      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  entregas    Entrega[]
+}
+
+model Entrega {
+  id                  Int      @id @default(autoincrement())
+  id_pedido           Int
+  id_punto_encuentro  Int?
+  direccion_alternativa String?
+  fecha_programada    DateTime
+  fecha_realizada     DateTime?
+  hora_desde          String?
+  hora_hasta          String?
+  nombre_recibe       String?
+  telefono_recibe     String?
+  estado              String   @default("programado") // programado, en_camino, entregado, cancelado, reagendado
+  observaciones       String?
+  latitud_entrega     Float?
+  longitud_entrega    Float?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  pedido              PedidoCliente   @relation(fields: [id_pedido], references: [id])
+  puntoEncuentro      PuntoEncuentro? @relation(fields: [id_punto_encuentro], references: [id])
+  notificaciones      NotificacionEntrega[]
+
+  @@index([fecha_programada])
+  @@index([estado])
+}
+
+model NotificacionEntrega {
+  id           Int      @id @default(autoincrement())
+  id_entrega   Int
+  tipo         String   // recordatorio, confirmacion, retraso, completado
+  canal        String   // whatsapp, email
+  destinatario String
+  mensaje      String
+  estado       String   // pendiente, enviado, error
+  fecha_envio  DateTime?
+  error        String?
+  createdAt    DateTime @default(now())
+
+  entrega      Entrega  @relation(fields: [id_entrega], references: [id], onDelete: Cascade)
+
+  @@index([id_entrega])
 }

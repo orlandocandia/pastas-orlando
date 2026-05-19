@@ -4,7 +4,7 @@ import { useEffect } from 'react'
 import { useSession, signOut } from 'next-auth/react'
 import { useRouter, usePathname } from 'next/navigation'
 import { useState } from 'react'
-import { Loader2, LogOut, LayoutDashboard, Package, MessageSquare, BarChart3, Users, UserCircle, Leaf, PackageOpen, UtensilsCrossed, FolderTree, Tag, Ruler, ChevronDown, ChevronRight, ShoppingCart, ClipboardList, ArrowLeftRight, Settings, Receipt, CalendarCheck, BookOpen, Factory, Shield, FileBarChart, KeyRound, FileSearch, MonitorSmartphone } from 'lucide-react'
+import { Loader2, LogOut, LayoutDashboard, Package, MessageSquare, BarChart3, Users, UserCircle, Leaf, PackageOpen, UtensilsCrossed, FolderTree, Tag, Ruler, ChevronDown, ChevronRight, ShoppingCart, ClipboardList, ArrowLeftRight, Settings, Receipt, CalendarCheck, BookOpen, Factory, Shield, FileBarChart, KeyRound, FileSearch, MonitorSmartphone, Truck, MapPin, Map } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
 
@@ -106,6 +106,29 @@ const stockMovimientoItems = [
   },
 ]
 
+const logisticaItems = [
+  {
+    title: 'Entregas',
+    href: '/admin/logistica/entregas',
+    icon: Truck,
+  },
+  {
+    title: 'Puntos de Encuentro',
+    href: '/admin/logistica/puntos-encuentro',
+    icon: MapPin,
+  },
+  {
+    title: 'Mapa de Entregas',
+    href: '/admin/logistica/mapa-entregas',
+    icon: Map,
+  },
+  {
+    title: 'Mapa de Proveedores',
+    href: '/admin/logistica/mapa-proveedores',
+    icon: MapPin,
+  },
+]
+
 const configItems = [
   {
     title: 'Categorías',
@@ -200,6 +223,7 @@ export default function DashboardLayout({
   const [comprasOpen, setComprasOpen] = useState(false)
   const [ventasOpen, setVentasOpen] = useState(false)
   const [stockMovOpen, setStockMovOpen] = useState(false)
+  const [logisticaOpen, setLogisticaOpen] = useState(false)
   const [configOpen, setConfigOpen] = useState(false)
   const [auditoriaOpen, setAuditoriaOpen] = useState(false)
   const [seguridadOpen, setSeguridadOpen] = useState(false)
@@ -208,6 +232,7 @@ export default function DashboardLayout({
   const isComprasActive = comprasItems.some(item => pathname === item.href || pathname.startsWith(item.href + '/'))
   const isVentasActive = ventasItems.some(item => pathname === item.href || pathname.startsWith(item.href + '/'))
   const isStockMovActive = stockMovimientoItems.some(item => pathname === item.href || pathname.startsWith(item.href + '/'))
+  const isLogisticaActive = logisticaItems.some(item => pathname === item.href || pathname.startsWith(item.href + '/'))
   const isConfigActive = configItems.some(item => pathname === item.href || pathname.startsWith(item.href + '/'))
   const isAuditoriaActive = auditoriaItems.some(item => pathname === item.href || pathname.startsWith(item.href + '/'))
   const isSeguridadActive = seguridadItems.some(item => pathname === item.href || pathname.startsWith(item.href + '/'))
@@ -219,12 +244,13 @@ export default function DashboardLayout({
   }, [status, router])
 
   // Toggle section handler
-  const toggleSection = (section: 'stock' | 'compras' | 'ventas' | 'stockMov' | 'config' | 'auditoria' | 'seguridad', currentOpen: boolean) => {
+  const toggleSection = (section: 'stock' | 'compras' | 'ventas' | 'stockMov' | 'logistica' | 'config' | 'auditoria' | 'seguridad', currentOpen: boolean) => {
     switch (section) {
       case 'stock': setStockOpen(!currentOpen); break
       case 'compras': setComprasOpen(!currentOpen); break
       case 'ventas': setVentasOpen(!currentOpen); break
       case 'stockMov': setStockMovOpen(!currentOpen); break
+      case 'logistica': setLogisticaOpen(!currentOpen); break
       case 'config': setConfigOpen(!currentOpen); break
       case 'auditoria': setAuditoriaOpen(!currentOpen); break
       case 'seguridad': setSeguridadOpen(!currentOpen); break
@@ -236,6 +262,7 @@ export default function DashboardLayout({
   const effectiveComprasOpen = comprasOpen || isComprasActive
   const effectiveVentasOpen = ventasOpen || isVentasActive
   const effectiveStockMovOpen = stockMovOpen || isStockMovActive
+  const effectiveLogisticaOpen = logisticaOpen || isLogisticaActive
   const effectiveConfigOpen = configOpen || isConfigActive
   const effectiveAuditoriaOpen = auditoriaOpen || isAuditoriaActive
   const effectiveSeguridadOpen = seguridadOpen || isSeguridadActive
@@ -387,6 +414,16 @@ export default function DashboardLayout({
             effectiveStockMovOpen,
             () => toggleSection('stockMov', stockMovOpen),
             isStockMovActive
+          )}
+
+          {/* Envíos y Logística */}
+          {renderCollapsibleSection(
+            'Envíos y Logística',
+            <Truck className="h-3.5 w-3.5" />,
+            logisticaItems,
+            effectiveLogisticaOpen,
+            () => toggleSection('logistica', logisticaOpen),
+            isLogisticaActive
           )}
 
           {/* Configuración */}
