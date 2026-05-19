@@ -1,8 +1,6 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import Link from 'next/link'
-import Image from 'next/image'
 import { Menu } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
@@ -18,16 +16,31 @@ const navLinks = [
   { label: 'Cómo pedir', href: '#como-pedir' },
   { label: 'Nosotros', href: '#nosotros' },
   { label: 'Opiniones', href: '#opiniones' },
+  { label: 'FAQ', href: '#faq' },
   { label: 'Contacto', href: '#contacto' },
 ]
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false)
   const [open, setOpen] = useState(false)
+  const [activeSection, setActiveSection] = useState('inicio')
 
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 50)
+
+      // Determine active section based on scroll position
+      const sections = navLinks.map((link) => link.href.replace('#', ''))
+      for (let i = sections.length - 1; i >= 0; i--) {
+        const el = document.getElementById(sections[i])
+        if (el) {
+          const rect = el.getBoundingClientRect()
+          if (rect.top <= 150) {
+            setActiveSection(sections[i])
+            break
+          }
+        }
+      }
     }
     window.addEventListener('scroll', handleScroll)
     return () => window.removeEventListener('scroll', handleScroll)
@@ -46,74 +59,77 @@ export default function Navbar() {
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16 sm:h-20">
-          {/* Logo */}
-          <Link href="#inicio" className="flex items-center gap-2 shrink-0">
-            <Image
-              src="/images/logo.png"
-              alt="Pastas Orlando"
-              width={48}
-              height={48}
-              className="h-10 w-10 sm:h-12 sm:w-12 object-contain"
-            />
-            <span
-              className={`font-bold text-lg sm:text-xl transition-colors duration-300 ${
-                scrolled ? 'text-marron' : 'text-white'
-              }`}
-            >
-              Pastas Orlando
-            </span>
-          </Link>
-
-          {/* Desktop Navigation */}
+        <div className="flex items-center justify-center h-16 sm:h-20">
+          {/* Desktop Navigation - centered */}
           <div className="hidden lg:flex items-center gap-1">
-            {navLinks.map((link) => (
-              <a
-                key={link.href}
-                href={link.href}
-                className={`px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 hover:text-mostaza hover:bg-marron/10 ${
-                  scrolled ? 'text-marron' : 'text-white'
-                }`}
-              >
-                {link.label}
-              </a>
-            ))}
+            {navLinks.map((link) => {
+              const sectionId = link.href.replace('#', '')
+              const isActive = activeSection === sectionId
+              return (
+                <a
+                  key={link.href}
+                  href={link.href}
+                  className={`nav-link relative px-4 py-2 rounded-md text-base font-semibold transition-colors duration-200
+                    ${isActive ? 'text-mostaza' : scrolled ? 'text-marron' : 'text-white'}
+                    hover:text-mostaza
+                  `}
+                >
+                  {link.label}
+                  {/* Active underline */}
+                  <span
+                    className={`absolute bottom-0 left-0 h-0.5 bg-mostaza rounded-full transition-all duration-300 ${
+                      isActive ? 'w-full' : 'w-0'
+                    }`}
+                  />
+                  {/* Hover underline - expands from center */}
+                  <span className="nav-link-underline absolute bottom-0 left-1/2 -translate-x-1/2 h-0.5 bg-mostaza/60 rounded-full w-0 transition-all duration-300" />
+                </a>
+              )
+            })}
           </div>
 
-          {/* Mobile Menu */}
-          <Sheet open={open} onOpenChange={setOpen}>
-            <SheetTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className={`lg:hidden transition-colors ${
-                  scrolled
-                    ? 'text-marron hover:text-mostaza'
-                    : 'text-white hover:text-mostaza'
-                }`}
-                aria-label="Abrir menú"
-              >
-                <Menu className="h-6 w-6" />
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="right" className="bg-crema w-72">
-              <SheetTitle className="text-marron font-bold text-xl px-4 pt-2">
-                Pastas Orlando
-              </SheetTitle>
-              <div className="flex flex-col gap-1 px-4 mt-4">
-                {navLinks.map((link) => (
-                  <a
-                    key={link.href}
-                    href={link.href}
-                    onClick={handleLinkClick}
-                    className="px-4 py-3 rounded-md text-marron font-medium transition-colors hover:bg-mostaza/10 hover:text-mostaza"
-                  >
-                    {link.label}
-                  </a>
-                ))}
-              </div>
-            </SheetContent>
-          </Sheet>
+          {/* Mobile Menu Button */}
+          <div className="lg:hidden flex items-center justify-end w-full">
+            <Sheet open={open} onOpenChange={setOpen}>
+              <SheetTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className={`transition-colors ${
+                    scrolled
+                      ? 'text-marron hover:text-mostaza'
+                      : 'text-white hover:text-mostaza'
+                  }`}
+                  aria-label="Abrir menú"
+                >
+                  <Menu className="h-6 w-6" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right" className="bg-crema w-72">
+                <SheetTitle className="text-marron font-bold text-xl px-4 pt-2">
+                  Menú
+                </SheetTitle>
+                <div className="flex flex-col gap-1 px-4 mt-4">
+                  {navLinks.map((link) => {
+                    const sectionId = link.href.replace('#', '')
+                    const isActive = activeSection === sectionId
+                    return (
+                      <a
+                        key={link.href}
+                        href={link.href}
+                        onClick={handleLinkClick}
+                        className={`px-4 py-3 rounded-md font-semibold transition-colors hover:bg-mostaza/10 hover:text-mostaza
+                          ${isActive ? 'text-mostaza bg-mostaza/5' : 'text-marron'}
+                        `}
+                      >
+                        {link.label}
+                      </a>
+                    )
+                  })}
+                </div>
+              </SheetContent>
+            </Sheet>
+          </div>
         </div>
       </div>
     </nav>

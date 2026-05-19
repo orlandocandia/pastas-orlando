@@ -207,6 +207,11 @@
   }
 }
 
+/* Navbar hover underline effect */
+.nav-link:hover .nav-link-underline {
+  width: 100% !important;
+}
+
 /* Custom scrollbar para listas */
 .custom-scrollbar::-webkit-scrollbar {
   width: 6px;
