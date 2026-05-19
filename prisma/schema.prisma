@@ -117,6 +117,12 @@ model Persona {
   fecha_registro   DateTime  @default(now())
   fecha_actualizacion DateTime? @updatedAt
 
+  // Ubicación en mapa (FASE 12)
+  latitud          Float?
+  longitud         Float?
+  direccion_mapa   String?
+  ubicacion_valida Boolean   @default(false)
+
   // Relaciones
   municipio        Municipio?  @relation(fields: [id_municipio], references: [id])
   contactos        Contacto[]

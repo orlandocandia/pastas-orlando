@@ -62,6 +62,10 @@ export async function PUT(
       id_municipio,
       contactos,
       direcciones,
+      latitud,
+      longitud,
+      direccion_mapa,
+      ubicacion_valida,
     } = body
 
     // Verificar documento único (excluyendo la persona actual)
@@ -123,6 +127,10 @@ export async function PUT(
         condicion_iva: condicion_iva || undefined,
         imagen: imagen || undefined,
         id_municipio: id_municipio || undefined,
+        latitud: latitud !== undefined ? latitud : undefined,
+        longitud: longitud !== undefined ? longitud : undefined,
+        direccion_mapa: direccion_mapa !== undefined ? direccion_mapa : undefined,
+        ubicacion_valida: ubicacion_valida !== undefined ? ubicacion_valida : undefined,
         fecha_actualizacion: new Date(),
       },
       include: {

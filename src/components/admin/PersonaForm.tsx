@@ -30,6 +30,8 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import ContactosEditor, { type ContactoInput } from './ContactosEditor'
+import dynamic from 'next/dynamic'
+const SelectorUbicacion = dynamic(() => import('@/components/ui/SelectorUbicacion'), { ssr: false })
 
 // ==================== Zod Schema ====================
 
@@ -106,6 +108,10 @@ interface Persona {
       }
     }
   } | null
+  latitud?: number | null
+  longitud?: number | null
+  direccion_mapa?: string | null
+  ubicacion_valida?: boolean | null
   contactos?: Array<{
     id: number
     id_tipo_contacto: number
@@ -158,6 +164,11 @@ export default function PersonaForm({ persona, onSuccess }: PersonaFormProps) {
 
   // Contactos
   const [contactos, setContactos] = useState<ContactoInput[]>([])
+
+  // Ubicación en mapa
+  const [latitud, setLatitud] = useState<number | null>(persona?.latitud ?? null)
+  const [longitud, setLongitud] = useState<number | null>(persona?.longitud ?? null)
+  const [ubicacionValida, setUbicacionValida] = useState(persona?.ubicacion_valida ?? false)
 
   const isEditing = !!persona
 
@@ -375,6 +386,10 @@ export default function PersonaForm({ persona, onSuccess }: PersonaFormProps) {
         imagen: imageUrl || null,
         id_municipio: data.id_municipio ? parseInt(data.id_municipio) : null,
         contactos: contactos.filter((c) => c.valor.trim() !== ''),
+        latitud: latitud,
+        longitud: longitud,
+        direccion_mapa: data.direccion || null,
+        ubicacion_valida: ubicacionValida,
         direcciones: data.direccion
           ? [
               {
@@ -888,6 +903,35 @@ export default function PersonaForm({ persona, onSuccess }: PersonaFormProps) {
               </FormItem>
             )}
           />
+        </div>
+
+        <Separator />
+
+        {/* ===== Ubicación en Mapa ===== */}
+        <div>
+          <h3 className="text-sm font-semibold text-marron mb-3">📍 Ubicación en el mapa</h3>
+          <p className="text-xs text-muted-foreground mb-3">
+            Marcá la ubicación exacta en el mapa. Esto permite usar la función &quot;Cómo llegar&quot; para entregas y visitas.
+          </p>
+          <SelectorUbicacion
+            onLocationSelect={(lat: number, lng: number) => {
+              setLatitud(lat)
+              setLongitud(lng)
+              setUbicacionValida(true)
+            }}
+            latitudInicial={latitud ?? undefined}
+            longitudInicial={longitud ?? undefined}
+          />
+          {latitud && longitud && (
+            <div className="mt-2 text-sm text-oliva flex items-center gap-1">
+              ✅ Ubicación seleccionada: {latitud.toFixed(6)}, {longitud.toFixed(6)}
+            </div>
+          )}
+          {!latitud && !longitud && (
+            <div className="mt-2 text-sm text-muted-foreground italic">
+              No se ha seleccionado ubicación
+            </div>
+          )}
         </div>
 
         <Separator />

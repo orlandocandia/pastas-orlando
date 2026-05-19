@@ -3,6 +3,8 @@
 import { useEffect, useState, useCallback } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Image from 'next/image'
+import dynamic from 'next/dynamic'
+const MapaLeaflet = dynamic(() => import('@/components/ui/MapaLeaflet'), { ssr: false })
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { toast } from 'sonner'
@@ -100,6 +102,10 @@ interface Persona {
   cuit?: string | null
   condicion_iva?: string | null
   imagen?: string | null
+  latitud?: number | null
+  longitud?: number | null
+  direccion_mapa?: string | null
+  ubicacion_valida?: boolean | null
   municipio?: {
     id: number
     nombre: string
@@ -417,6 +423,54 @@ export default function PersonaDetailPage() {
               </div>
             ) : (
               <p className="text-sm text-muted-foreground italic">Sin dirección registrada</p>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Ubicación en Mapa */}
+        <Card className="border-marron/5">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base text-marron flex items-center gap-2">
+              <MapPin className="h-4 w-4" />
+              Ubicación en el Mapa
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {persona.latitud && persona.longitud ? (
+              <div className="space-y-3">
+                <MapaLeaflet
+                  latitud={persona.latitud}
+                  longitud={persona.longitud}
+                  titulo={`${persona.nombre} ${persona.apellido}`}
+                  direccion={persona.direccion_mapa || principalDireccion?.direccion || 'Sin dirección'}
+                />
+                <div className="flex flex-wrap gap-2">
+                  <a
+                    href={`https://www.google.com/maps/dir/?api=1&destination=${persona.latitud},${persona.longitud}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 bg-oliva hover:bg-oliva/90 text-white px-3 py-1.5 rounded-lg text-sm font-medium transition-colors"
+                  >
+                    🗺️ Cómo llegar (Google Maps)
+                  </a>
+                  {persona.tipo_persona === 'Proveedor' && (
+                    <span className="inline-flex items-center gap-1 text-xs text-muted-foreground bg-mostaza/10 px-2 py-1 rounded">
+                      Proveedor — Ir a buscar mercadería
+                    </span>
+                  )}
+                  {persona.tipo_persona === 'Cliente' && (
+                    <span className="inline-flex items-center gap-1 text-xs text-muted-foreground bg-oliva/10 px-2 py-1 rounded">
+                      Cliente — Llevar producto
+                    </span>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <div className="text-center py-6">
+                <MapPin className="h-8 w-8 text-muted-foreground/30 mx-auto mb-2" />
+                <p className="text-sm text-muted-foreground italic">Sin ubicación en mapa registrada</p>
+                <p className="text-xs text-muted-foreground">Editá la persona para marcar su ubicación</p>
+              </div>
             )}
           </CardContent>
         </Card>
