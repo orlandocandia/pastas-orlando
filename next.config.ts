@@ -7,6 +7,11 @@ const nextConfig: NextConfig = {
     ignoreBuildErrors: true,
   },
   reactStrictMode: false,
+  allowedDevOrigins: [
+    // Sandbox preview panel origins
+    ".space-z.ai",
+    "localhost",
+  ],
 };
 
 export default nextConfig;
