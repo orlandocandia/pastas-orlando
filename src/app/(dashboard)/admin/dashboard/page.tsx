@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useSession } from 'next-auth/react'
 import { motion } from 'framer-motion'
-import { Package, MessageSquare, Phone, ArrowRight, UserCircle, Users, Leaf, PackageOpen, UtensilsCrossed, ShoppingCart, ClipboardList, ArrowLeftRight, Receipt, CalendarCheck, DollarSign, Factory, AlertTriangle, BookOpen } from 'lucide-react'
+import { Package, MessageSquare, Phone, ArrowRight, UserCircle, Users, Leaf, PackageOpen, UtensilsCrossed, ShoppingCart, ClipboardList, ArrowLeftRight, Receipt, CalendarCheck, DollarSign, Factory, AlertTriangle, BookOpen, Shield, TrendingUp, FileBarChart } from 'lucide-react'
 import Link from 'next/link'
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -491,6 +491,30 @@ export default function DashboardPage() {
                   <div className="text-left">
                     <div className="font-medium text-marron">Moderar Opiniones</div>
                     <div className="text-xs text-muted-foreground">Aprobar o rechazar reseñas</div>
+                  </div>
+                </Button>
+              </Link>
+              <Link href="/admin/auditoria">
+                <Button
+                  variant="outline"
+                  className="w-full justify-start h-auto py-3 border-marron/10 hover:border-oliva hover:bg-oliva/5"
+                >
+                  <Shield className="mr-3 h-5 w-5 text-oliva" />
+                  <div className="text-left">
+                    <div className="font-medium text-marron">Auditoría</div>
+                    <div className="text-xs text-muted-foreground">Registro de acciones del sistema</div>
+                  </div>
+                </Button>
+              </Link>
+              <Link href="/admin/reportes">
+                <Button
+                  variant="outline"
+                  className="w-full justify-start h-auto py-3 border-marron/10 hover:border-mostaza hover:bg-mostaza/5"
+                >
+                  <FileBarChart className="mr-3 h-5 w-5 text-mostaza" />
+                  <div className="text-left">
+                    <div className="font-medium text-marron">Reportes</div>
+                    <div className="text-xs text-muted-foreground">Reportes exportables Excel/PDF</div>
                   </div>
                 </Button>
               </Link>

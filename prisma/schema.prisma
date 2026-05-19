@@ -1,4 +1,4 @@
-// Pastas Orlando - Esquema de base de datos (Fase 7)
+// Pastas Orlando - Esquema de base de datos (Fase 8)
 
 generator client {
   provider = "prisma-client-js"
@@ -203,6 +203,7 @@ model Usuario {
   sesiones         Sesion[]
   stockMovements   StockMovement[]
   ventas           Venta[]
+  auditorias       Auditoria[]
 
   @@index([email])
 }
@@ -824,4 +825,28 @@ model StockMovement {
   productoTerminado  ProductoTerminado? @relation(fields: [id_producto_terminado], references: [id])
   unidad             UnidadMedida      @relation(fields: [id_unidad], references: [id])
   usuario            Usuario?          @relation(fields: [id_usuario], references: [id])
+}
+
+// ============================================
+// AUDITORÍA (FASE 8)
+// ============================================
+
+model Auditoria {
+  id              Int      @id @default(autoincrement())
+  id_usuario      Int?
+  accion          String   // CREATE, UPDATE, DELETE, LOGIN_OK, LOGIN_FAIL, LOGOUT, EXPORT, VIEW
+  modulo          String   // productos, compras, ventas, produccion, usuarios, reportes, login
+  entidad_id      Int?
+  entidad_nombre  String?
+  detalles        String?  // JSON string con cambios antes/después
+  ip              String?
+  user_agent      String?
+  fecha           DateTime @default(now())
+
+  usuario         Usuario? @relation(fields: [id_usuario], references: [id])
+
+  @@index([fecha])
+  @@index([modulo])
+  @@index([accion])
+  @@index([id_usuario])
 }

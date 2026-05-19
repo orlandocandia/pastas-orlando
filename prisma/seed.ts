@@ -743,6 +743,23 @@ async function main() {
   }
   console.log(`✅ ${permisosFase7.length} permisos de Fase 7 creados y asignados a Admin`)
 
+  // ============================================
+  // PERMISOS ADICIONALES FASE 8
+  // ============================================
+  const permisosFase8 = [
+    { nombre: 'auditoria.ver', descripcion: 'Ver auditoría del sistema' },
+    { nombre: 'reportes.ver', descripcion: 'Ver reportes del sistema' },
+    { nombre: 'reportes.exportar', descripcion: 'Exportar reportes a Excel/PDF/CSV' },
+  ]
+
+  for (const perm of permisosFase8) {
+    const created = await prisma.permiso.create({ data: perm })
+    await prisma.rolPermiso.create({
+      data: { id_rol: rolAdmin.id, id_permiso: created.id },
+    })
+  }
+  console.log(`✅ ${permisosFase8.length} permisos de Fase 8 creados y asignados a Admin`)
+
   console.log('🎉 Base de datos sembrada exitosamente')
 }
 

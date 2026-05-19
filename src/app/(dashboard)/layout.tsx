@@ -4,7 +4,7 @@ import { useEffect } from 'react'
 import { useSession, signOut } from 'next-auth/react'
 import { useRouter, usePathname } from 'next/navigation'
 import { useState } from 'react'
-import { Loader2, LogOut, LayoutDashboard, Package, MessageSquare, BarChart3, Users, UserCircle, Leaf, PackageOpen, UtensilsCrossed, FolderTree, Tag, Ruler, ChevronDown, ChevronRight, ShoppingCart, ClipboardList, ArrowLeftRight, Settings, Receipt, CalendarCheck, BookOpen, Factory } from 'lucide-react'
+import { Loader2, LogOut, LayoutDashboard, Package, MessageSquare, BarChart3, Users, UserCircle, Leaf, PackageOpen, UtensilsCrossed, FolderTree, Tag, Ruler, ChevronDown, ChevronRight, ShoppingCart, ClipboardList, ArrowLeftRight, Settings, Receipt, CalendarCheck, BookOpen, Factory, Shield, FileBarChart } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
 
@@ -129,6 +129,19 @@ const configItems = [
   },
 ]
 
+const auditoriaItems = [
+  {
+    title: 'Auditoría',
+    href: '/admin/auditoria',
+    icon: Shield,
+  },
+  {
+    title: 'Reportes',
+    href: '/admin/reportes',
+    icon: FileBarChart,
+  },
+]
+
 const otherItems = [
   {
     title: 'Personas',
@@ -165,12 +178,14 @@ export default function DashboardLayout({
   const [ventasOpen, setVentasOpen] = useState(false)
   const [stockMovOpen, setStockMovOpen] = useState(false)
   const [configOpen, setConfigOpen] = useState(false)
+  const [auditoriaOpen, setAuditoriaOpen] = useState(false)
 
   const isStockActive = stockItems.some(item => pathname === item.href || pathname.startsWith(item.href + '/'))
   const isComprasActive = comprasItems.some(item => pathname === item.href || pathname.startsWith(item.href + '/'))
   const isVentasActive = ventasItems.some(item => pathname === item.href || pathname.startsWith(item.href + '/'))
   const isStockMovActive = stockMovimientoItems.some(item => pathname === item.href || pathname.startsWith(item.href + '/'))
   const isConfigActive = configItems.some(item => pathname === item.href || pathname.startsWith(item.href + '/'))
+  const isAuditoriaActive = auditoriaItems.some(item => pathname === item.href || pathname.startsWith(item.href + '/'))
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -179,13 +194,14 @@ export default function DashboardLayout({
   }, [status, router])
 
   // Toggle section handler
-  const toggleSection = (section: 'stock' | 'compras' | 'ventas' | 'stockMov' | 'config', currentOpen: boolean) => {
+  const toggleSection = (section: 'stock' | 'compras' | 'ventas' | 'stockMov' | 'config' | 'auditoria', currentOpen: boolean) => {
     switch (section) {
       case 'stock': setStockOpen(!currentOpen); break
       case 'compras': setComprasOpen(!currentOpen); break
       case 'ventas': setVentasOpen(!currentOpen); break
       case 'stockMov': setStockMovOpen(!currentOpen); break
       case 'config': setConfigOpen(!currentOpen); break
+      case 'auditoria': setAuditoriaOpen(!currentOpen); break
     }
   }
 
@@ -195,6 +211,7 @@ export default function DashboardLayout({
   const effectiveVentasOpen = ventasOpen || isVentasActive
   const effectiveStockMovOpen = stockMovOpen || isStockMovActive
   const effectiveConfigOpen = configOpen || isConfigActive
+  const effectiveAuditoriaOpen = auditoriaOpen || isAuditoriaActive
 
   if (status === 'loading') {
     return (
@@ -353,6 +370,18 @@ export default function DashboardLayout({
             effectiveConfigOpen,
             () => toggleSection('config', configOpen),
             isConfigActive
+          )}
+
+          <SidebarSeparator />
+
+          {/* Auditoría & Reportes */}
+          {renderCollapsibleSection(
+            'Auditoría & Reportes',
+            <Shield className="h-3.5 w-3.5" />,
+            auditoriaItems,
+            effectiveAuditoriaOpen,
+            () => toggleSection('auditoria', auditoriaOpen),
+            isAuditoriaActive
           )}
 
           <SidebarSeparator />
