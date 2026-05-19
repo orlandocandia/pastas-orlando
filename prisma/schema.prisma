@@ -1,4 +1,4 @@
-// Pastas Orlando - Esquema de base de datos (Fase 10)
+// Pastas Orlando - Esquema de base de datos (Fase 11)
 
 generator client {
   provider = "prisma-client-js"
@@ -981,4 +981,54 @@ model NotificacionEntrega {
   entrega      Entrega  @relation(fields: [id_entrega], references: [id], onDelete: Cascade)
 
   @@index([id_entrega])
+}
+
+// ============================================
+// NOTIFICACIONES (FASE 11)
+// ============================================
+
+model PlantillaNotificacion {
+  id          Int      @id @default(autoincrement())
+  nombre      String   @unique  // pedido_confirmado, stock_bajo, entrega_recordatorio, etc.
+  canal       String   // email, whatsapp, ambos
+  asunto      String?  // para email
+  mensaje     String   // plantilla con variables {{nombre}}, {{pedido}}, etc.
+  activo      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  notificaciones Notificacion[]
+}
+
+model Notificacion {
+  id               Int      @id @default(autoincrement())
+  id_plantilla     Int?
+  tipo             String   // email, whatsapp
+  destinatario     String
+  asunto           String?
+  mensaje          String
+  estado           String   @default("pendiente") // pendiente, enviado, error, cancelado
+  fecha_programada DateTime?
+  fecha_envio      DateTime?
+  error            String?
+  metadata         String?  // JSON string con datos adicionales (pedido_id, producto_id, etc.)
+  createdAt        DateTime @default(now())
+
+  plantilla        PlantillaNotificacion? @relation(fields: [id_plantilla], references: [id])
+
+  @@index([estado])
+  @@index([tipo])
+  @@index([createdAt])
+}
+
+model AlertaConfiguracion {
+  id              Int      @id @default(autoincrement())
+  tipo            String   @unique // stock_bajo, pedido_pendiente, produccion_atrasada, entrega_proxima
+  activo          Boolean  @default(true)
+  umbral          Int?     // para stock: porcentaje o cantidad mínima
+  destinatarios   String?  // emails o teléfonos (JSON array string)
+  frecuencia      String?  // inmediato, diario, semanal
+  ultimo_envio    DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 }
