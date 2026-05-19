@@ -3,7 +3,8 @@
 import { useEffect } from 'react'
 import { useSession, signOut } from 'next-auth/react'
 import { useRouter, usePathname } from 'next/navigation'
-import { Loader2, LogOut, LayoutDashboard, Package, MessageSquare, BarChart3, Users, UserCircle } from 'lucide-react'
+import { useState } from 'react'
+import { Loader2, LogOut, LayoutDashboard, Package, MessageSquare, BarChart3, Users, UserCircle, Leaf, PackageOpen, UtensilsCrossed, FolderTree, Tag, Ruler, ChevronDown, ChevronRight } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
 
@@ -36,6 +37,45 @@ const navItems = [
     href: '/admin/productos',
     icon: Package,
   },
+]
+
+const stockItems = [
+  {
+    title: 'Materias Primas',
+    href: '/admin/materias-primas',
+    icon: Leaf,
+  },
+  {
+    title: 'Insumos',
+    href: '/admin/insumos',
+    icon: PackageOpen,
+  },
+  {
+    title: 'Productos Terminados',
+    href: '/admin/productos-terminados',
+    icon: UtensilsCrossed,
+  },
+]
+
+const configItems = [
+  {
+    title: 'Categorías',
+    href: '/admin/categorias',
+    icon: FolderTree,
+  },
+  {
+    title: 'Marcas',
+    href: '/admin/marcas',
+    icon: Tag,
+  },
+  {
+    title: 'Unidades de Medida',
+    href: '/admin/unidades-medida',
+    icon: Ruler,
+  },
+]
+
+const otherItems = [
   {
     title: 'Personas',
     href: '/admin/personas',
@@ -66,6 +106,11 @@ export default function DashboardLayout({
   const { data: session, status } = useSession()
   const router = useRouter()
   const pathname = usePathname()
+  const [stockOpen, setStockOpen] = useState(true)
+  const [configOpen, setConfigOpen] = useState(false)
+
+  const isStockActive = stockItems.some(item => pathname === item.href || pathname.startsWith(item.href + '/'))
+  const isConfigActive = configItems.some(item => pathname === item.href || pathname.startsWith(item.href + '/'))
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -118,6 +163,104 @@ export default function DashboardLayout({
             <SidebarGroupContent>
               <SidebarMenu>
                 {navItems.map((item) => (
+                  <SidebarMenuItem key={item.href}>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={pathname === item.href || pathname.startsWith(item.href + '/')}
+                      tooltip={item.title}
+                    >
+                      <Link href={item.href}>
+                        <item.icon className="h-4 w-4" />
+                        <span>{item.title}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+
+          <SidebarSeparator />
+
+          {/* Stock & Producción */}
+          <SidebarGroup>
+            <SidebarGroupContent>
+              <button
+                onClick={() => setStockOpen(!stockOpen)}
+                className="flex w-full items-center gap-2 px-2 py-1.5 text-xs font-semibold text-sidebar-foreground/60 uppercase tracking-wider hover:text-sidebar-foreground"
+              >
+                <Package className="h-3.5 w-3.5" />
+                <span className="flex-1 text-left">Stock & Producción</span>
+                {stockOpen ? (
+                  <ChevronDown className="h-3.5 w-3.5" />
+                ) : (
+                  <ChevronRight className="h-3.5 w-3.5" />
+                )}
+              </button>
+              {stockOpen && (
+                <SidebarMenu>
+                  {stockItems.map((item) => (
+                    <SidebarMenuItem key={item.href}>
+                      <SidebarMenuButton
+                        asChild
+                        isActive={pathname === item.href || pathname.startsWith(item.href + '/')}
+                        tooltip={item.title}
+                      >
+                        <Link href={item.href}>
+                          <item.icon className="h-4 w-4" />
+                          <span>{item.title}</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
+                </SidebarMenu>
+              )}
+            </SidebarGroupContent>
+          </SidebarGroup>
+
+          {/* Configuración */}
+          <SidebarGroup>
+            <SidebarGroupContent>
+              <button
+                onClick={() => setConfigOpen(!configOpen)}
+                className={`flex w-full items-center gap-2 px-2 py-1.5 text-xs font-semibold uppercase tracking-wider hover:text-sidebar-foreground ${isConfigActive ? 'text-sidebar-foreground' : 'text-sidebar-foreground/60'}`}
+              >
+                <FolderTree className="h-3.5 w-3.5" />
+                <span className="flex-1 text-left">Configuración</span>
+                {configOpen ? (
+                  <ChevronDown className="h-3.5 w-3.5" />
+                ) : (
+                  <ChevronRight className="h-3.5 w-3.5" />
+                )}
+              </button>
+              {configOpen && (
+                <SidebarMenu>
+                  {configItems.map((item) => (
+                    <SidebarMenuItem key={item.href}>
+                      <SidebarMenuButton
+                        asChild
+                        isActive={pathname === item.href || pathname.startsWith(item.href + '/')}
+                        tooltip={item.title}
+                      >
+                        <Link href={item.href}>
+                          <item.icon className="h-4 w-4" />
+                          <span>{item.title}</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
+                </SidebarMenu>
+              )}
+            </SidebarGroupContent>
+          </SidebarGroup>
+
+          <SidebarSeparator />
+
+          {/* Other items */}
+          <SidebarGroup>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {otherItems.map((item) => (
                   <SidebarMenuItem key={item.href}>
                     <SidebarMenuButton
                       asChild

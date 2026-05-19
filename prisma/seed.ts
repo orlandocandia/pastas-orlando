@@ -376,6 +376,217 @@ async function main() {
   }
   console.log(`✅ ${opiniones.length} opiniones creadas`)
 
+  // ============================================
+  // UNIDADES DE MEDIDA (FASE 3)
+  // ============================================
+  console.log('📐 Creando unidades de medida...')
+
+  const unidadesData = [
+    { codigo: 'g', nombre: 'Gramo', conversion_a_base: 1, tipo_medida: 'peso' },
+    { codigo: 'kg', nombre: 'Kilogramo', conversion_a_base: 1000, tipo_medida: 'peso' },
+    { codigo: 'unidad', nombre: 'Unidad', conversion_a_base: 1, tipo_medida: 'unidad' },
+    { codigo: 'L', nombre: 'Litro', conversion_a_base: 1, tipo_medida: 'volumen' },
+    { codigo: 'mL', nombre: 'Mililitro', conversion_a_base: 0.001, tipo_medida: 'volumen' },
+    { codigo: 'cm', nombre: 'Centímetro', conversion_a_base: 1, tipo_medida: 'longitud' },
+    { codigo: 'm', nombre: 'Metro', conversion_a_base: 100, tipo_medida: 'longitud' },
+  ]
+
+  const unidades = []
+  for (const ud of unidadesData) {
+    unidades.push(
+      await prisma.unidadMedida.create({ data: ud })
+    )
+  }
+  console.log(`✅ ${unidades.length} unidades de medida creadas`)
+
+  // ============================================
+  // CATEGORÍAS DE MATERIAS PRIMAS (FASE 3)
+  // ============================================
+  console.log('📂 Creando categorías de materias primas...')
+
+  const categoriasMPData = [
+    { nombre: 'Harinas', descripcion: 'Harinas de trigo, semolín y otras' },
+    { nombre: 'Huevos', descripcion: 'Huevos frescos y derivados' },
+    { nombre: 'Carnes', descripcion: 'Carnes para rellenos' },
+    { nombre: 'Quesos', descripcion: 'Quesos para rellenos y salsas' },
+    { nombre: 'Verduras', descripcion: 'Verduras frescas para rellenos y salsas' },
+    { nombre: 'Aceites y Grasas', descripcion: 'Aceites, manteca y grasas' },
+    { nombre: 'Especias y Condimentos', descripcion: 'Especias, hierbas y condimentos' },
+    { nombre: 'Lácteos', descripcion: 'Leche, crema y otros lácteos' },
+  ]
+
+  const categoriasMP = []
+  for (const cat of categoriasMPData) {
+    categoriasMP.push(
+      await prisma.categoriaMateriaPrima.create({ data: cat })
+    )
+  }
+  console.log(`✅ ${categoriasMP.length} categorías de materias primas creadas`)
+
+  // ============================================
+  // TIPOS DE INSUMOS (FASE 3)
+  // ============================================
+  console.log('📦 Creando tipos de insumos...')
+
+  const tiposInsumoData = [
+    { nombre: 'Envases', descripcion: 'Envases para productos terminados' },
+    { nombre: 'Bandejas', descripcion: 'Bandejas de poliestireno y cartón' },
+    { nombre: 'Bolsas', descripcion: 'Bolsas de polietileno y papel' },
+    { nombre: 'Etiquetas', descripcion: 'Etiquetas y rótulos para productos' },
+    { nombre: 'Films', descripcion: 'Films de PVC y retráctil' },
+    { nombre: 'Limpieza', descripcion: 'Productos de limpieza e higiene' },
+    { nombre: 'Utensilios', descripcion: 'Utensilios y herramientas de trabajo' },
+  ]
+
+  const tiposInsumo = []
+  for (const ti of tiposInsumoData) {
+    tiposInsumo.push(
+      await prisma.tipoInsumo.create({ data: ti })
+    )
+  }
+  console.log(`✅ ${tiposInsumo.length} tipos de insumos creados`)
+
+  // ============================================
+  // MARCAS (FASE 3)
+  // ============================================
+  console.log('🏷️ Creando marcas...')
+
+  const marcasData = [
+    { nombre: 'Lario', descripcion: 'Harinas Lario' },
+    { nombre: 'Cocinero', descripcion: 'Harinas Cocinero' },
+    { nombre: 'Cañuelas', descripcion: 'Harinas Cañuelas' },
+    { nombre: 'Molinos Río de la Plata', descripcion: 'Molinos Río de la Plata' },
+    { nombre: 'La Serenísima', descripcion: 'Lácteos La Serenísima' },
+    { nombre: 'Sancor', descripcion: 'Lácteos Sancor' },
+    { nombre: ' generics', descripcion: 'Marcas genéricas' },
+  ]
+
+  for (const marca of marcasData) {
+    await prisma.marca.create({ data: marca })
+  }
+  console.log(`✅ ${marcasData.length} marcas creadas`)
+
+  // ============================================
+  // CATEGORÍAS DE PRODUCTOS TERMINADOS (FASE 3)
+  // ============================================
+  console.log('🍝 Creando categorías de productos terminados...')
+
+  const categoriasPTData = [
+    { nombre: 'Pastas Secas', descripcion: 'Pastas sin relleno (fettuccine, tallarines, etc.)' },
+    { nombre: 'Pastas Rellenas', descripcion: 'Sorrentinos, ravioles, capeletis, agnolottis' },
+    { nombre: 'Ñoquis', descripcion: 'Ñoquis de papa, semolín, etc.' },
+    { nombre: 'Tapas', descripcion: 'Tapas para empanadas y tartas' },
+    { nombre: 'Empanadas', descripcion: 'Empanadas de diferentes gustos' },
+    { nombre: 'Especiales', descripcion: 'Lasagna, canelones y preparaciones especiales' },
+    { nombre: 'Salsas', descripcion: 'Salsas caseras para acompañar' },
+  ]
+
+  const categoriasPT = []
+  for (const cat of categoriasPTData) {
+    categoriasPT.push(
+      await prisma.categoriaProductoTerminado.create({ data: cat })
+    )
+  }
+  console.log(`✅ ${categoriasPT.length} categorías de productos terminados creadas`)
+
+  // ============================================
+  // MATERIAS PRIMAS DE EJEMPLO (FASE 3)
+  // ============================================
+  console.log('🥬 Creando materias primas de ejemplo...')
+
+  const unidadGramo = unidades.find(u => u.codigo === 'g')!
+  const unidadKilo = unidades.find(u => u.codigo === 'kg')!
+  const unidadLitro = unidades.find(u => u.codigo === 'L')!
+  const unidadUnidad = unidades.find(u => u.codigo === 'unidad')!
+
+  const materiasPrimasData = [
+    { codigo: 'MP-001', nombre: 'Harina 000', descripcion: 'Harina de trigo tipo 000', id_categoria: categoriasMP[0].id, id_unidad_base: unidadKilo.id, stock_actual: 50, stock_minimo: 10, precio_compra_referencia: 1200, estado: true },
+    { codigo: 'MP-002', nombre: 'Harina 0000', descripcion: 'Harina de trigo tipo 0000', id_categoria: categoriasMP[0].id, id_unidad_base: unidadKilo.id, stock_actual: 30, stock_minimo: 8, precio_compra_referencia: 1400, estado: true },
+    { codigo: 'MP-003', nombre: 'Semolín', descripcion: 'Semolín de trigo duro', id_categoria: categoriasMP[0].id, id_unidad_base: unidadKilo.id, stock_actual: 20, stock_minimo: 5, precio_compra_referencia: 1800, estado: true },
+    { codigo: 'MP-004', nombre: 'Huevos Frescos', descripcion: 'Huevos de gallina frescos', id_categoria: categoriasMP[1].id, id_unidad_base: unidadUnidad.id, stock_actual: 200, stock_minimo: 60, precio_compra_referencia: 150, estado: true },
+    { codigo: 'MP-005', nombre: 'Carne Picada Especial', descripcion: 'Carne picada especial para rellenos', id_categoria: categoriasMP[2].id, id_unidad_base: unidadKilo.id, stock_actual: 15, stock_minimo: 5, precio_compra_referencia: 5500, estado: true },
+    { codigo: 'MP-006', nombre: 'Jamón Cocido', descripcion: 'Jamón cocido fiambre', id_categoria: categoriasMP[2].id, id_unidad_base: unidadKilo.id, stock_actual: 8, stock_minimo: 3, precio_compra_referencia: 6200, estado: true },
+    { codigo: 'MP-007', nombre: 'Queso Mozzarella', descripcion: 'Queso mozzarella para rellenos', id_categoria: categoriasMP[3].id, id_unidad_base: unidadKilo.id, stock_actual: 10, stock_minimo: 3, precio_compra_referencia: 5800, estado: true },
+    { codigo: 'MP-008', nombre: 'Queso Ricota', descripcion: 'Ricota fresca', id_categoria: categoriasMP[3].id, id_unidad_base: unidadKilo.id, stock_actual: 8, stock_minimo: 2, precio_compra_referencia: 3500, estado: true },
+    { codigo: 'MP-009', nombre: 'Espinaca', descripcion: 'Espinaca fresca', id_categoria: categoriasMP[4].id, id_unidad_base: unidadKilo.id, stock_actual: 5, stock_minimo: 2, precio_compra_referencia: 2800, estado: true },
+    { codigo: 'MP-010', nombre: 'Calabaza', descripcion: 'Calabaza fresca', id_categoria: categoriasMP[4].id, id_unidad_base: unidadKilo.id, stock_actual: 8, stock_minimo: 3, precio_compra_referencia: 1200, estado: true },
+    { codigo: 'MP-011', nombre: 'Aceite de Girasol', descripcion: 'Aceite de girasol', id_categoria: categoriasMP[5].id, id_unidad_base: unidadLitro.id, stock_actual: 10, stock_minimo: 3, precio_compra_referencia: 1500, estado: true },
+    { codigo: 'MP-012', nombre: 'Papa', descripcion: 'Papa fresca para ñoquis', id_categoria: categoriasMP[4].id, id_unidad_base: unidadKilo.id, stock_actual: 20, stock_minimo: 5, precio_compra_referencia: 900, estado: true },
+  ]
+
+  for (const mp of materiasPrimasData) {
+    await prisma.materiaPrima.create({ data: mp })
+  }
+  console.log(`✅ ${materiasPrimasData.length} materias primas de ejemplo creadas`)
+
+  // ============================================
+  // INSUMOS DE EJEMPLO (FASE 3)
+  // ============================================
+  console.log('📦 Creando insumos de ejemplo...')
+
+  const insumosData = [
+    { codigo: 'INS-001', nombre: 'Bandeja PS 500g', descripcion: 'Bandeja de poliestireno para 500g', id_tipo_insumo: tiposInsumo[1].id, id_unidad_base: unidadUnidad.id, stock_actual: 200, stock_minimo: 50, precio_compra_referencia: 120, estado: true },
+    { codigo: 'INS-002', nombre: 'Bolsa Polietileno', descripcion: 'Bolsa de polietileno para pastas', id_tipo_insumo: tiposInsumo[2].id, id_unidad_base: unidadUnidad.id, stock_actual: 500, stock_minimo: 100, precio_compra_referencia: 50, estado: true },
+    { codigo: 'INS-003', nombre: 'Film PVC', descripcion: 'Film de PVC para envasar', id_tipo_insumo: tiposInsumo[4].id, id_unidad_base: unidadUnidad.id, stock_actual: 10, stock_minimo: 3, precio_compra_referencia: 800, estado: true },
+    { codigo: 'INS-004', nombre: 'Etiqueta Producto', descripcion: 'Etiqueta adhesiva para productos', id_tipo_insumo: tiposInsumo[3].id, id_unidad_base: unidadUnidad.id, stock_actual: 1000, stock_minimo: 200, precio_compra_referencia: 30, estado: true },
+    { codigo: 'INS-005', nombre: 'Lavandina', descripcion: 'Lavandina para desinfección', id_tipo_insumo: tiposInsumo[5].id, id_unidad_base: unidadLitro.id, stock_actual: 5, stock_minimo: 2, precio_compra_referencia: 600, estado: true },
+  ]
+
+  for (const ins of insumosData) {
+    await prisma.insumo.create({ data: ins })
+  }
+  console.log(`✅ ${insumosData.length} insumos de ejemplo creados`)
+
+  // ============================================
+  // PRODUCTOS TERMINADOS DE EJEMPLO (FASE 3)
+  // ============================================
+  console.log('🍝 Creando productos terminados de ejemplo...')
+
+  const productosTerminadosData = [
+    { codigo: 'PT-001', nombre: 'Sorrentinos Jamón y Queso', descripcion: 'Sorrentinos rellenos de jamón y queso mozzarella', id_categoria: categoriasPT[1].id, peso_unitario_aprox: 0.5, precio_venta: 3500, estado: true },
+    { codigo: 'PT-002', nombre: 'Ravioles Ricota y Nuez', descripcion: 'Ravioles con relleno de ricota y nuez', id_categoria: categoriasPT[1].id, peso_unitario_aprox: 0.5, precio_venta: 3200, estado: true },
+    { codigo: 'PT-003', nombre: 'Fettuccine al Huevo', descripcion: 'Fettuccine de masa al huevo', id_categoria: categoriasPT[0].id, peso_unitario_aprox: 0.5, precio_venta: 2500, estado: true },
+    { codigo: 'PT-004', nombre: 'Ñoquis de Papa', descripcion: 'Ñoquis de papa caseros', id_categoria: categoriasPT[2].id, peso_unitario_aprox: 0.5, precio_venta: 2800, estado: true },
+    { codigo: 'PT-005', nombre: 'Sorrentinos de Calabaza', descripcion: 'Sorrentinos rellenos de calabaza y queso', id_categoria: categoriasPT[1].id, peso_unitario_aprox: 0.5, precio_venta: 3400, estado: true },
+    { codigo: 'PT-006', nombre: 'Tallarines al Huevo', descripcion: 'Tallarines clásicos de masa al huevo', id_categoria: categoriasPT[0].id, peso_unitario_aprox: 0.5, precio_venta: 2300, estado: true },
+    { codigo: 'PT-007', nombre: 'Canelones de Carne', descripcion: 'Canelones rellenos de carne', id_categoria: categoriasPT[6].id, peso_unitario_aprox: 0.5, precio_venta: 3500, estado: true },
+    { codigo: 'PT-008', nombre: 'Lasagna de Carne', descripcion: 'Lasagna con carne y bechamel', id_categoria: categoriasPT[6].id, peso_unitario_aprox: 0.5, precio_venta: 4000, estado: true },
+    { codigo: 'PT-009', nombre: 'Ravioles de Verdura', descripcion: 'Ravioles de espinaca y queso', id_categoria: categoriasPT[1].id, peso_unitario_aprox: 0.5, precio_venta: 3000, estado: true },
+    { codigo: 'PT-010', nombre: 'Tapas para Empanadas', descripcion: 'Tapas de masa para empanadas', id_categoria: categoriasPT[3].id, peso_unitario_aprox: 0.06, precio_venta: 800, estado: true },
+  ]
+
+  for (const pt of productosTerminadosData) {
+    await prisma.productoTerminado.create({ data: pt })
+  }
+  console.log(`✅ ${productosTerminadosData.length} productos terminados de ejemplo creados`)
+
+  // ============================================
+  // PERMISOS ADICIONALES FASE 3
+  // ============================================
+  const permisosFase3 = [
+    { nombre: 'materias-primas.ver', descripcion: 'Ver materias primas' },
+    { nombre: 'materias-primas.crear', descripcion: 'Crear materias primas' },
+    { nombre: 'materias-primas.editar', descripcion: 'Editar materias primas' },
+    { nombre: 'materias-primas.eliminar', descripcion: 'Eliminar materias primas' },
+    { nombre: 'insumos.ver', descripcion: 'Ver insumos' },
+    { nombre: 'insumos.crear', descripcion: 'Crear insumos' },
+    { nombre: 'insumos.editar', descripcion: 'Editar insumos' },
+    { nombre: 'insumos.eliminar', descripcion: 'Eliminar insumos' },
+    { nombre: 'productos-terminados.ver', descripcion: 'Ver productos terminados' },
+    { nombre: 'productos-terminados.crear', descripcion: 'Crear productos terminados' },
+    { nombre: 'productos-terminados.editar', descripcion: 'Editar productos terminados' },
+    { nombre: 'productos-terminados.eliminar', descripcion: 'Eliminar productos terminados' },
+  ]
+
+  for (const perm of permisosFase3) {
+    const created = await prisma.permiso.create({ data: perm })
+    // Assign to Admin
+    await prisma.rolPermiso.create({
+      data: { id_rol: rolAdmin.id, id_permiso: created.id },
+    })
+  }
+  console.log(`✅ ${permisosFase3.length} permisos de Fase 3 creados y asignados a Admin`)
+
   console.log('🎉 Base de datos sembrada exitosamente')
 }
 

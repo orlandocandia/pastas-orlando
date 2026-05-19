@@ -1,4 +1,4 @@
-// Pastas Orlando - Esquema de base de datos (Fase 2)
+// Pastas Orlando - Esquema de base de datos (Fase 3)
 
 generator client {
   provider = "prisma-client-js"
@@ -195,6 +195,7 @@ model Usuario {
   persona          Persona       @relation(fields: [id_persona], references: [id])
   roles            UsuarioRol[]
   sesiones         Sesion[]
+  stockMovements   StockMovement[]
 
   @@index([email])
 }
@@ -251,4 +252,228 @@ model Sesion {
   fecha_inicio DateTime @default(now())
   fecha_fin  DateTime?
   usuario    Usuario  @relation(fields: [id_usuario], references: [id])
+}
+
+// ============================================
+// UNIDADES DE MEDIDA (FASE 3)
+// ============================================
+
+model UnidadMedida {
+  id              Int       @id @default(autoincrement())
+  codigo          String    @unique
+  nombre          String
+  conversion_a_base Float   @default(1.0)
+  tipo_medida     String    // peso, volumen, longitud, unidad
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime? @updatedAt
+
+  // Relaciones
+  materiasPrimas        MateriaPrima[]
+  insumos               Insumo[]
+  detalleRecetas        DetalleReceta[]
+  stockMovements        StockMovement[]
+}
+
+// ============================================
+// CATEGORÍAS DE MATERIAS PRIMAS (FASE 3)
+// ============================================
+
+model CategoriaMateriaPrima {
+  id          Int       @id @default(autoincrement())
+  nombre      String    @unique
+  descripcion String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime? @updatedAt
+
+  // Relaciones
+  materiasPrimas MateriaPrima[]
+}
+
+// ============================================
+// MATERIAS PRIMAS (FASE 3)
+// ============================================
+
+model MateriaPrima {
+  id                     Int       @id @default(autoincrement())
+  codigo                 String?   @unique
+  nombre                 String
+  descripcion            String?
+  id_categoria           Int
+  id_unidad_base         Int
+  stock_actual           Float     @default(0)
+  stock_minimo           Float     @default(0)
+  precio_compra_referencia Float   @default(0)
+  imagen                 String?
+  estado                 Boolean   @default(true)
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime? @updatedAt
+
+  // Relaciones
+  categoria       CategoriaMateriaPrima @relation(fields: [id_categoria], references: [id])
+  unidadBase      UnidadMedida         @relation(fields: [id_unidad_base], references: [id])
+  detalleRecetas  DetalleReceta[]
+  stockMovements  StockMovement[]
+
+  @@index([codigo])
+  @@index([nombre])
+}
+
+// ============================================
+// TIPOS DE INSUMOS (FASE 3)
+// ============================================
+
+model TipoInsumo {
+  id          Int       @id @default(autoincrement())
+  nombre      String    @unique
+  descripcion String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime? @updatedAt
+
+  // Relaciones
+  insumos Insumo[]
+}
+
+// ============================================
+// INSUMOS (FASE 3)
+// ============================================
+
+model Insumo {
+  id                     Int       @id @default(autoincrement())
+  codigo                 String?   @unique
+  nombre                 String
+  descripcion            String?
+  id_tipo_insumo         Int
+  id_unidad_base         Int
+  stock_actual           Float     @default(0)
+  stock_minimo           Float     @default(0)
+  precio_compra_referencia Float   @default(0)
+  imagen                 String?
+  estado                 Boolean   @default(true)
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime? @updatedAt
+
+  // Relaciones
+  tipoInsumo      TipoInsumo   @relation(fields: [id_tipo_insumo], references: [id])
+  unidadBase      UnidadMedida @relation(fields: [id_unidad_base], references: [id])
+  detalleRecetas  DetalleReceta[]
+  stockMovements  StockMovement[]
+
+  @@index([codigo])
+  @@index([nombre])
+}
+
+// ============================================
+// MARCAS (FASE 3)
+// ============================================
+
+model Marca {
+  id          Int       @id @default(autoincrement())
+  nombre      String    @unique
+  descripcion String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime? @updatedAt
+}
+
+// ============================================
+// CATEGORÍAS DE PRODUCTOS TERMINADOS (FASE 3)
+// ============================================
+
+model CategoriaProductoTerminado {
+  id          Int       @id @default(autoincrement())
+  nombre      String    @unique
+  descripcion String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime? @updatedAt
+
+  // Relaciones
+  productosTerminados ProductoTerminado[]
+}
+
+// ============================================
+// PRODUCTOS TERMINADOS (FASE 3)
+// ============================================
+
+model ProductoTerminado {
+  id                  Int       @id @default(autoincrement())
+  codigo              String?   @unique
+  nombre              String
+  descripcion         String?
+  id_categoria        Int
+  peso_unitario_aprox Float     @default(0)
+  precio_venta        Float     @default(0)
+  imagen              String?
+  estado              Boolean   @default(true)
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime? @updatedAt
+
+  // Relaciones
+  categoria       CategoriaProductoTerminado @relation(fields: [id_categoria], references: [id])
+  recetas         Receta[]
+  stockMovements  StockMovement[]
+
+  @@index([codigo])
+  @@index([nombre])
+}
+
+// ============================================
+// RECETAS (FASE 3)
+// ============================================
+
+model Receta {
+  id                    Int       @id @default(autoincrement())
+  id_producto_terminado Int
+  nombre_receta         String
+  rendimiento_unidades  Int       @default(1)
+  activo                Boolean   @default(true)
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime? @updatedAt
+
+  // Relaciones
+  productoTerminado ProductoTerminado @relation(fields: [id_producto_terminado], references: [id])
+  detalleRecetas    DetalleReceta[]
+}
+
+model DetalleReceta {
+  id                  Int      @id @default(autoincrement())
+  id_receta           Int
+  id_materia_prima    Int?
+  id_insumo           Int?
+  cantidad_necesaria  Float
+  id_unidad           Int
+  costo_estimado      Float    @default(0)
+  createdAt           DateTime @default(now())
+
+  // Relaciones
+  receta       Receta        @relation(fields: [id_receta], references: [id])
+  materiaPrima MateriaPrima? @relation(fields: [id_materia_prima], references: [id])
+  insumo       Insumo?       @relation(fields: [id_insumo], references: [id])
+  unidad       UnidadMedida  @relation(fields: [id_unidad], references: [id])
+}
+
+// ============================================
+// STOCK MOVEMENTS / AUDITORÍA (FASE 3)
+// ============================================
+
+model StockMovement {
+  id                    Int      @id @default(autoincrement())
+  tipo_movimiento       String   // compra, venta, produccion_consumo, produccion_genera, ajuste_in, ajuste_out, devolucion
+  id_materia_prima      Int?
+  id_insumo             Int?
+  id_producto_terminado Int?
+  cantidad              Float
+  id_unidad             Int
+  stock_antes           Float
+  stock_despues         Float
+  referencia_id         Int?
+  referencia_tabla      String?
+  observacion           String?
+  id_usuario            Int?
+  fecha_movimiento      DateTime @default(now())
+
+  // Relaciones
+  materiaPrima       MateriaPrima?     @relation(fields: [id_materia_prima], references: [id])
+  insumo             Insumo?           @relation(fields: [id_insumo], references: [id])
+  productoTerminado  ProductoTerminado? @relation(fields: [id_producto_terminado], references: [id])
+  unidad             UnidadMedida      @relation(fields: [id_unidad], references: [id])
+  usuario            Usuario?          @relation(fields: [id_usuario], references: [id])
 }

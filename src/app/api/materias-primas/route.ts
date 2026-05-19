@@ -1,0 +1,102 @@
+import { NextRequest, NextResponse } from 'next/server'
+import { db } from '@/lib/db'
+
+// GET /api/materias-primas - Listar materias primas con filtros y paginación
+export async function GET(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url)
+    const buscar = searchParams.get('buscar')
+    const id_categoria = searchParams.get('id_categoria')
+    const estado = searchParams.get('estado')
+    const pagina = parseInt(searchParams.get('pagina') || '1')
+    const limite = parseInt(searchParams.get('limite') || '10')
+
+    const where: Record<string, unknown> = {}
+    if (id_categoria) where.id_categoria = parseInt(id_categoria)
+    if (estado !== null && estado !== '') where.estado = estado === 'true'
+    if (buscar) {
+      where.OR = [
+        { nombre: { contains: buscar } },
+        { codigo: { contains: buscar } },
+      ]
+    }
+
+    const [data, total] = await Promise.all([
+      db.materiaPrima.findMany({
+        where,
+        include: {
+          categoria: true,
+          unidadBase: true,
+        },
+        orderBy: { nombre: 'asc' },
+        skip: (pagina - 1) * limite,
+        take: limite,
+      }),
+      db.materiaPrima.count({ where }),
+    ])
+
+    return NextResponse.json({
+      data,
+      total,
+      pagina,
+      totalPaginas: Math.ceil(total / limite),
+    })
+  } catch (error) {
+    console.error('Error al obtener materias primas:', error)
+    return NextResponse.json({ error: 'Error al obtener materias primas' }, { status: 500 })
+  }
+}
+
+// POST /api/materias-primas - Crear materia prima
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json()
+    const {
+      codigo,
+      nombre,
+      descripcion,
+      id_categoria,
+      id_unidad_base,
+      stock_actual,
+      stock_minimo,
+      precio_compra_referencia,
+      imagen,
+      estado,
+    } = body
+
+    // Verificar código único si se proporciona
+    if (codigo) {
+      const existente = await db.materiaPrima.findUnique({ where: { codigo } })
+      if (existente) {
+        return NextResponse.json(
+          { error: 'Ya existe una materia prima con ese código' },
+          { status: 400 }
+        )
+      }
+    }
+
+    const materiaPrima = await db.materiaPrima.create({
+      data: {
+        codigo: codigo || null,
+        nombre,
+        descripcion: descripcion || null,
+        id_categoria: parseInt(id_categoria),
+        id_unidad_base: parseInt(id_unidad_base),
+        stock_actual: parseFloat(stock_actual) || 0,
+        stock_minimo: parseFloat(stock_minimo) || 0,
+        precio_compra_referencia: parseFloat(precio_compra_referencia) || 0,
+        imagen: imagen || null,
+        estado: estado !== false,
+      },
+      include: {
+        categoria: true,
+        unidadBase: true,
+      },
+    })
+
+    return NextResponse.json(materiaPrima, { status: 201 })
+  } catch (error) {
+    console.error('Error al crear materia prima:', error)
+    return NextResponse.json({ error: 'Error al crear materia prima' }, { status: 500 })
+  }
+}
