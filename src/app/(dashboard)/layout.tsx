@@ -4,7 +4,7 @@ import { useEffect } from 'react'
 import { useSession, signOut } from 'next-auth/react'
 import { useRouter, usePathname } from 'next/navigation'
 import { useState } from 'react'
-import { Loader2, LogOut, LayoutDashboard, Package, MessageSquare, BarChart3, Users, UserCircle, Leaf, PackageOpen, UtensilsCrossed, FolderTree, Tag, Ruler, ChevronDown, ChevronRight, ShoppingCart, ClipboardList, ArrowLeftRight, Settings, Receipt, CalendarCheck, BookOpen, Factory, Shield, FileBarChart, KeyRound, FileSearch, MonitorSmartphone, Truck, MapPin, Map, Bell, History, AlertTriangle, Send } from 'lucide-react'
+import { Loader2, LogOut, LayoutDashboard, Package, MessageSquare, BarChart3, Users, UserCircle, Leaf, PackageOpen, UtensilsCrossed, FolderTree, Tag, Ruler, ChevronDown, ChevronRight, ShoppingCart, ClipboardList, ArrowLeftRight, Settings, Receipt, CalendarCheck, BookOpen, Factory, Shield, FileBarChart, KeyRound, FileSearch, MonitorSmartphone, Truck, MapPin, Map, Bell, History, AlertTriangle, Send, FileText, AlertCircle } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
 
@@ -85,6 +85,11 @@ const ventasItems = [
     title: 'Pedidos de Clientes',
     href: '/admin/pedidos-clientes',
     icon: ClipboardList,
+  },
+  {
+    title: 'Presupuestos',
+    href: '/admin/presupuestos',
+    icon: FileText,
   },
   {
     title: 'Ventas',
@@ -182,9 +187,24 @@ const auditoriaItems = [
     icon: Shield,
   },
   {
-    title: 'Reportes',
+    title: 'Reportes Generales',
     href: '/admin/reportes',
     icon: FileBarChart,
+  },
+  {
+    title: 'Compras Pendientes',
+    href: '/admin/reportes/compras-pendientes',
+    icon: AlertCircle,
+  },
+  {
+    title: 'Hoja de Ruta',
+    href: '/admin/reportes/hoja-ruta',
+    icon: Truck,
+  },
+  {
+    title: 'Pedidos del Día',
+    href: '/admin/reportes/pedidos-dia',
+    icon: ClipboardList,
   },
 ]
 

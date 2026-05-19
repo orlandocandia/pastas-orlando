@@ -1,4 +1,4 @@
-// Pastas Orlando - Esquema de base de datos (Fase 11)
+// Pastas Orlando - Esquema de base de datos (Fase 13)
 
 generator client {
   provider = "prisma-client-js"
@@ -134,6 +134,7 @@ model Persona {
   reservasCliente  ReservaCliente[]
   ventas           Venta[]
   produccionesSupervisadas Produccion[] @relation("SupervisorProduccion")
+  presupuestos     Presupuesto[]
 
   @@index([tipo_persona])
   @@index([numero_documento])
@@ -453,6 +454,7 @@ model ProductoTerminado {
   detalleReservas ReservaCliente[]
   detalleVentas   DetalleVenta[]
   detalleProduccionGenerado DetalleProduccionGenerado[]
+  detallePresupuesto DetallePresupuesto[]
 
   @@index([codigo])
   @@index([nombre])
@@ -653,6 +655,7 @@ model PedidoCliente {
   reservas   ReservaCliente[]
   venta      Venta?
   entregas   Entrega[]
+  presupuesto Presupuesto?
 
   @@index([fecha_pedido])
   @@index([id_cliente])
@@ -1037,4 +1040,50 @@ model AlertaConfiguracion {
   ultimo_envio    DateTime?
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+}
+
+// ============================================
+// PRESUPUESTOS / COTIZACIONES (FASE 13)
+// ============================================
+
+model Presupuesto {
+  id              Int      @id @default(autoincrement())
+  id_cliente      Int
+  numero          String   @unique
+  fecha_creacion  DateTime @default(now())
+  fecha_validez   DateTime
+  subtotal        Float    @default(0)
+  iva             Float    @default(0)
+  total           Float    @default(0)
+  observaciones   String?
+  estado          String   @default("pendiente") // pendiente, aprobado, rechazado, expirado, convertido
+  id_pedido       Int?     @unique
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relaciones
+  cliente         Persona         @relation(fields: [id_cliente], references: [id])
+  pedido          PedidoCliente?  @relation(fields: [id_pedido], references: [id])
+  detalle         DetallePresupuesto[]
+
+  @@index([numero])
+  @@index([id_cliente])
+  @@index([estado])
+}
+
+model DetallePresupuesto {
+  id                    Int      @id @default(autoincrement())
+  id_presupuesto        Int
+  id_producto_terminado Int
+  cantidad              Float
+  precio_unitario       Float
+  subtotal              Float
+  observaciones         String?
+  createdAt             DateTime @default(now())
+
+  // Relaciones
+  presupuesto           Presupuesto       @relation(fields: [id_presupuesto], references: [id], onDelete: Cascade)
+  productoTerminado     ProductoTerminado @relation(fields: [id_producto_terminado], references: [id])
+
+  @@index([id_presupuesto])
 }
