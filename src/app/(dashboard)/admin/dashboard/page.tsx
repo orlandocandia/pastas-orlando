@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useSession } from 'next-auth/react'
 import { motion } from 'framer-motion'
-import { Package, MessageSquare, Phone, ArrowRight, UserCircle, Users, Leaf, PackageOpen, UtensilsCrossed } from 'lucide-react'
+import { Package, MessageSquare, Phone, ArrowRight, UserCircle, Users, Leaf, PackageOpen, UtensilsCrossed, ShoppingCart, ClipboardList, ArrowLeftRight } from 'lucide-react'
 import Link from 'next/link'
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -18,6 +18,9 @@ interface DashboardStats {
   totalMateriasPrimas: number
   totalInsumos: number
   totalProductosTerminados: number
+  totalCompras: number
+  totalPedidos: number
+  totalMovimientos: number
 }
 
 const cardVariants = {
@@ -26,7 +29,7 @@ const cardVariants = {
     opacity: 1,
     y: 0,
     transition: {
-      delay: i * 0.1,
+      delay: i * 0.08,
       duration: 0.5,
       ease: 'easeOut',
     },
@@ -44,13 +47,16 @@ export default function DashboardPage() {
     totalMateriasPrimas: 0,
     totalInsumos: 0,
     totalProductosTerminados: 0,
+    totalCompras: 0,
+    totalPedidos: 0,
+    totalMovimientos: 0,
   })
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     async function fetchStats() {
       try {
-        const [productosRes, opinionesRes, contactoRes, personasRes, usuariosRes, mpRes, insRes, ptRes] = await Promise.all([
+        const [productosRes, opinionesRes, contactoRes, personasRes, usuariosRes, mpRes, insRes, ptRes, comprasRes, pedidosRes, stockRes] = await Promise.all([
           fetch('/api/productos?stock=false'),
           fetch('/api/opiniones?admin=true&estado=pending'),
           fetch('/api/contacto?dias=30'),
@@ -59,6 +65,9 @@ export default function DashboardPage() {
           fetch('/api/materias-primas?limite=1'),
           fetch('/api/insumos?limite=1'),
           fetch('/api/productos-terminados?limite=1'),
+          fetch('/api/compras?limite=1'),
+          fetch('/api/pedidos-proveedores?limite=1'),
+          fetch('/api/stock-movements?limite=1'),
         ])
 
         const productos = await productosRes.json()
@@ -69,6 +78,9 @@ export default function DashboardPage() {
         const mpData = await mpRes.json()
         const insData = await insRes.json()
         const ptData = await ptRes.json()
+        const comprasData = await comprasRes.json()
+        const pedidosData = await pedidosRes.json()
+        const stockData = await stockRes.json()
 
         setStats({
           productosActivos: Array.isArray(productos)
@@ -81,6 +93,9 @@ export default function DashboardPage() {
           totalMateriasPrimas: mpData?.total || 0,
           totalInsumos: insData?.total || 0,
           totalProductosTerminados: ptData?.total || 0,
+          totalCompras: comprasData?.total || 0,
+          totalPedidos: pedidosData?.total || 0,
+          totalMovimientos: stockData?.total || 0,
         })
       } catch (error) {
         console.error('Error fetching stats:', error)
@@ -120,6 +135,27 @@ export default function DashboardPage() {
       icon: UtensilsCrossed,
       color: 'bg-rojo/10 text-rojo',
       href: '/admin/productos-terminados',
+    },
+    {
+      title: 'Compras',
+      value: stats.totalCompras,
+      icon: ShoppingCart,
+      color: 'bg-marron/10 text-marron',
+      href: '/admin/compras',
+    },
+    {
+      title: 'Pedidos Proveedores',
+      value: stats.totalPedidos,
+      icon: ClipboardList,
+      color: 'bg-mostaza/10 text-mostaza',
+      href: '/admin/pedidos-proveedores',
+    },
+    {
+      title: 'Mov. Stock',
+      value: stats.totalMovimientos,
+      icon: ArrowLeftRight,
+      color: 'bg-oliva/10 text-oliva',
+      href: '/admin/stock-movements',
     },
     {
       title: 'Opiniones Pendientes',
@@ -217,6 +253,30 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              <Link href="/admin/compras">
+                <Button
+                  variant="outline"
+                  className="w-full justify-start h-auto py-3 border-marron/10 hover:border-marron hover:bg-marron/5"
+                >
+                  <ShoppingCart className="mr-3 h-5 w-5 text-marron" />
+                  <div className="text-left">
+                    <div className="font-medium text-marron">Compras</div>
+                    <div className="text-xs text-muted-foreground">Registrar compras y actualizar stock</div>
+                  </div>
+                </Button>
+              </Link>
+              <Link href="/admin/pedidos-proveedores">
+                <Button
+                  variant="outline"
+                  className="w-full justify-start h-auto py-3 border-marron/10 hover:border-mostaza hover:bg-mostaza/5"
+                >
+                  <ClipboardList className="mr-3 h-5 w-5 text-mostaza" />
+                  <div className="text-left">
+                    <div className="font-medium text-marron">Pedidos a Proveedores</div>
+                    <div className="text-xs text-muted-foreground">Seguimiento de pedidos pendientes</div>
+                  </div>
+                </Button>
+              </Link>
               <Link href="/admin/materias-primas">
                 <Button
                   variant="outline"
@@ -250,6 +310,18 @@ export default function DashboardPage() {
                   <div className="text-left">
                     <div className="font-medium text-marron">Productos Terminados</div>
                     <div className="text-xs text-muted-foreground">Pastas para producción y venta</div>
+                  </div>
+                </Button>
+              </Link>
+              <Link href="/admin/stock-movements">
+                <Button
+                  variant="outline"
+                  className="w-full justify-start h-auto py-3 border-marron/10 hover:border-oliva hover:bg-oliva/5"
+                >
+                  <ArrowLeftRight className="mr-3 h-5 w-5 text-oliva" />
+                  <div className="text-left">
+                    <div className="font-medium text-marron">Movimientos de Stock</div>
+                    <div className="text-xs text-muted-foreground">Historial de entradas y salidas</div>
                   </div>
                 </Button>
               </Link>

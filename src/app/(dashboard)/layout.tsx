@@ -4,7 +4,7 @@ import { useEffect } from 'react'
 import { useSession, signOut } from 'next-auth/react'
 import { useRouter, usePathname } from 'next/navigation'
 import { useState } from 'react'
-import { Loader2, LogOut, LayoutDashboard, Package, MessageSquare, BarChart3, Users, UserCircle, Leaf, PackageOpen, UtensilsCrossed, FolderTree, Tag, Ruler, ChevronDown, ChevronRight } from 'lucide-react'
+import { Loader2, LogOut, LayoutDashboard, Package, MessageSquare, BarChart3, Users, UserCircle, Leaf, PackageOpen, UtensilsCrossed, FolderTree, Tag, Ruler, ChevronDown, ChevronRight, ShoppingCart, ClipboardList, ArrowLeftRight, Settings } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
 
@@ -57,6 +57,27 @@ const stockItems = [
   },
 ]
 
+const comprasItems = [
+  {
+    title: 'Compras',
+    href: '/admin/compras',
+    icon: ShoppingCart,
+  },
+  {
+    title: 'Pedidos a Proveedores',
+    href: '/admin/pedidos-proveedores',
+    icon: ClipboardList,
+  },
+]
+
+const stockMovimientoItems = [
+  {
+    title: 'Movimientos',
+    href: '/admin/stock-movements',
+    icon: ArrowLeftRight,
+  },
+]
+
 const configItems = [
   {
     title: 'Categorías',
@@ -72,6 +93,11 @@ const configItems = [
     title: 'Unidades de Medida',
     href: '/admin/unidades-medida',
     icon: Ruler,
+  },
+  {
+    title: 'General',
+    href: '/admin/configuracion',
+    icon: Settings,
   },
 ]
 
@@ -107,9 +133,13 @@ export default function DashboardLayout({
   const router = useRouter()
   const pathname = usePathname()
   const [stockOpen, setStockOpen] = useState(true)
+  const [comprasOpen, setComprasOpen] = useState(false)
+  const [stockMovOpen, setStockMovOpen] = useState(false)
   const [configOpen, setConfigOpen] = useState(false)
 
   const isStockActive = stockItems.some(item => pathname === item.href || pathname.startsWith(item.href + '/'))
+  const isComprasActive = comprasItems.some(item => pathname === item.href || pathname.startsWith(item.href + '/'))
+  const isStockMovActive = stockMovimientoItems.some(item => pathname === item.href || pathname.startsWith(item.href + '/'))
   const isConfigActive = configItems.some(item => pathname === item.href || pathname.startsWith(item.href + '/'))
 
   useEffect(() => {
@@ -117,6 +147,22 @@ export default function DashboardLayout({
       router.push('/admin/login')
     }
   }, [status, router])
+
+  // Toggle section handler
+  const toggleSection = (section: 'stock' | 'compras' | 'stockMov' | 'config', currentOpen: boolean) => {
+    switch (section) {
+      case 'stock': setStockOpen(!currentOpen); break
+      case 'compras': setComprasOpen(!currentOpen); break
+      case 'stockMov': setStockMovOpen(!currentOpen); break
+      case 'config': setConfigOpen(!currentOpen); break
+    }
+  }
+
+  // Auto-open active sections based on current pathname
+  const effectiveStockOpen = stockOpen || isStockActive
+  const effectiveComprasOpen = comprasOpen || isComprasActive
+  const effectiveStockMovOpen = stockMovOpen || isStockMovActive
+  const effectiveConfigOpen = configOpen || isConfigActive
 
   if (status === 'loading') {
     return (
@@ -132,6 +178,50 @@ export default function DashboardLayout({
   if (!session) {
     return null
   }
+
+  const renderCollapsibleSection = (
+    title: string,
+    icon: React.ReactNode,
+    items: typeof stockItems,
+    isOpen: boolean,
+    onToggle: () => void,
+    isActive: boolean
+  ) => (
+    <SidebarGroup>
+      <SidebarGroupContent>
+        <button
+          onClick={onToggle}
+          className={`flex w-full items-center gap-2 px-2 py-1.5 text-xs font-semibold uppercase tracking-wider hover:text-sidebar-foreground ${isActive ? 'text-sidebar-foreground' : 'text-sidebar-foreground/60'}`}
+        >
+          {icon}
+          <span className="flex-1 text-left">{title}</span>
+          {isOpen ? (
+            <ChevronDown className="h-3.5 w-3.5" />
+          ) : (
+            <ChevronRight className="h-3.5 w-3.5" />
+          )}
+        </button>
+        {isOpen && (
+          <SidebarMenu>
+            {items.map((item) => (
+              <SidebarMenuItem key={item.href}>
+                <SidebarMenuButton
+                  asChild
+                  isActive={pathname === item.href || pathname.startsWith(item.href + '/')}
+                  tooltip={item.title}
+                >
+                  <Link href={item.href}>
+                    <item.icon className="h-4 w-4" />
+                    <span>{item.title}</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            ))}
+          </SidebarMenu>
+        )}
+      </SidebarGroupContent>
+    </SidebarGroup>
+  )
 
   return (
     <SidebarProvider>
@@ -159,6 +249,7 @@ export default function DashboardLayout({
         </SidebarHeader>
         <SidebarSeparator />
         <SidebarContent>
+          {/* Main nav */}
           <SidebarGroup>
             <SidebarGroupContent>
               <SidebarMenu>
@@ -183,76 +274,44 @@ export default function DashboardLayout({
           <SidebarSeparator />
 
           {/* Stock & Producción */}
-          <SidebarGroup>
-            <SidebarGroupContent>
-              <button
-                onClick={() => setStockOpen(!stockOpen)}
-                className="flex w-full items-center gap-2 px-2 py-1.5 text-xs font-semibold text-sidebar-foreground/60 uppercase tracking-wider hover:text-sidebar-foreground"
-              >
-                <Package className="h-3.5 w-3.5" />
-                <span className="flex-1 text-left">Stock & Producción</span>
-                {stockOpen ? (
-                  <ChevronDown className="h-3.5 w-3.5" />
-                ) : (
-                  <ChevronRight className="h-3.5 w-3.5" />
-                )}
-              </button>
-              {stockOpen && (
-                <SidebarMenu>
-                  {stockItems.map((item) => (
-                    <SidebarMenuItem key={item.href}>
-                      <SidebarMenuButton
-                        asChild
-                        isActive={pathname === item.href || pathname.startsWith(item.href + '/')}
-                        tooltip={item.title}
-                      >
-                        <Link href={item.href}>
-                          <item.icon className="h-4 w-4" />
-                          <span>{item.title}</span>
-                        </Link>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  ))}
-                </SidebarMenu>
-              )}
-            </SidebarGroupContent>
-          </SidebarGroup>
+          {renderCollapsibleSection(
+            'Stock & Producción',
+            <Package className="h-3.5 w-3.5" />,
+            stockItems,
+            effectiveStockOpen,
+            () => toggleSection('stock', stockOpen),
+            isStockActive
+          )}
+
+          {/* Compras */}
+          {renderCollapsibleSection(
+            'Compras',
+            <ShoppingCart className="h-3.5 w-3.5" />,
+            comprasItems,
+            effectiveComprasOpen,
+            () => toggleSection('compras', comprasOpen),
+            isComprasActive
+          )}
+
+          {/* Stock Movements */}
+          {renderCollapsibleSection(
+            'Stock',
+            <ArrowLeftRight className="h-3.5 w-3.5" />,
+            stockMovimientoItems,
+            effectiveStockMovOpen,
+            () => toggleSection('stockMov', stockMovOpen),
+            isStockMovActive
+          )}
 
           {/* Configuración */}
-          <SidebarGroup>
-            <SidebarGroupContent>
-              <button
-                onClick={() => setConfigOpen(!configOpen)}
-                className={`flex w-full items-center gap-2 px-2 py-1.5 text-xs font-semibold uppercase tracking-wider hover:text-sidebar-foreground ${isConfigActive ? 'text-sidebar-foreground' : 'text-sidebar-foreground/60'}`}
-              >
-                <FolderTree className="h-3.5 w-3.5" />
-                <span className="flex-1 text-left">Configuración</span>
-                {configOpen ? (
-                  <ChevronDown className="h-3.5 w-3.5" />
-                ) : (
-                  <ChevronRight className="h-3.5 w-3.5" />
-                )}
-              </button>
-              {configOpen && (
-                <SidebarMenu>
-                  {configItems.map((item) => (
-                    <SidebarMenuItem key={item.href}>
-                      <SidebarMenuButton
-                        asChild
-                        isActive={pathname === item.href || pathname.startsWith(item.href + '/')}
-                        tooltip={item.title}
-                      >
-                        <Link href={item.href}>
-                          <item.icon className="h-4 w-4" />
-                          <span>{item.title}</span>
-                        </Link>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  ))}
-                </SidebarMenu>
-              )}
-            </SidebarGroupContent>
-          </SidebarGroup>
+          {renderCollapsibleSection(
+            'Configuración',
+            <Settings className="h-3.5 w-3.5" />,
+            configItems,
+            effectiveConfigOpen,
+            () => toggleSection('config', configOpen),
+            isConfigActive
+          )}
 
           <SidebarSeparator />
 

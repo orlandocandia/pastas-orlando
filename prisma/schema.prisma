@@ -1,4 +1,4 @@
-// Pastas Orlando - Esquema de base de datos (Fase 3)
+// Pastas Orlando - Esquema de base de datos (Fase 4)
 
 generator client {
   provider = "prisma-client-js"
@@ -122,6 +122,8 @@ model Persona {
   contactos        Contacto[]
   direcciones      Direccion[]
   usuario          Usuario?
+  compras          Compra[]
+  pedidosProveedor PedidoProveedor[]
 
   @@index([tipo_persona])
   @@index([numero_documento])
@@ -271,6 +273,8 @@ model UnidadMedida {
   materiasPrimas        MateriaPrima[]
   insumos               Insumo[]
   detalleRecetas        DetalleReceta[]
+  detalleCompras        DetalleCompra[]
+  detallePedidosProveedor DetallePedidoProveedor[]
   stockMovements        StockMovement[]
 }
 
@@ -312,6 +316,8 @@ model MateriaPrima {
   categoria       CategoriaMateriaPrima @relation(fields: [id_categoria], references: [id])
   unidadBase      UnidadMedida         @relation(fields: [id_unidad_base], references: [id])
   detalleRecetas  DetalleReceta[]
+  detalleCompras  DetalleCompra[]
+  detallePedidosProveedor DetallePedidoProveedor[]
   stockMovements  StockMovement[]
 
   @@index([codigo])
@@ -356,6 +362,8 @@ model Insumo {
   tipoInsumo      TipoInsumo   @relation(fields: [id_tipo_insumo], references: [id])
   unidadBase      UnidadMedida @relation(fields: [id_unidad_base], references: [id])
   detalleRecetas  DetalleReceta[]
+  detalleCompras  DetalleCompra[]
+  detallePedidosProveedor DetallePedidoProveedor[]
   stockMovements  StockMovement[]
 
   @@index([codigo])
@@ -372,6 +380,9 @@ model Marca {
   descripcion String?
   createdAt   DateTime  @default(now())
   updatedAt   DateTime? @updatedAt
+
+  // Relaciones
+  detalleCompras DetalleCompra[]
 }
 
 // ============================================
@@ -448,6 +459,135 @@ model DetalleReceta {
   materiaPrima MateriaPrima? @relation(fields: [id_materia_prima], references: [id])
   insumo       Insumo?       @relation(fields: [id_insumo], references: [id])
   unidad       UnidadMedida  @relation(fields: [id_unidad], references: [id])
+}
+
+// ============================================
+// FORMAS DE PAGO (FASE 4)
+// ============================================
+
+model FormaPago {
+  id                      Int      @id @default(autoincrement())
+  nombre_forma            String   @unique
+  requiere_identificacion Boolean  @default(false)
+  requiere_cuenta         Boolean  @default(false)
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime? @updatedAt
+
+  // Relaciones
+  compras Compra[]
+}
+
+// ============================================
+// ESTADOS GENERALES (FASE 4)
+// ============================================
+
+model EstadoGeneral {
+  id                Int      @id @default(autoincrement())
+  nombre_estado     String   @unique
+  entidad_aplicable String?
+  es_final          Boolean  @default(false)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime? @updatedAt
+
+  // Relaciones
+  compras Compra[]
+  pedidosProveedor PedidoProveedor[]
+}
+
+// ============================================
+// COMPRAS A PROVEEDORES (FASE 4)
+// ============================================
+
+model Compra {
+  id              Int      @id @default(autoincrement())
+  id_proveedor    Int
+  id_forma_pago   Int
+  numero_factura  String?
+  fecha_compra    DateTime
+  subtotal        Float    @default(0)
+  iva             Float    @default(0)
+  total           Float    @default(0)
+  id_estado       Int
+  observaciones   String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime? @updatedAt
+
+  // Relaciones
+  proveedor   Persona       @relation(fields: [id_proveedor], references: [id])
+  formaPago   FormaPago     @relation(fields: [id_forma_pago], references: [id])
+  estado      EstadoGeneral @relation(fields: [id_estado], references: [id])
+  detalle     DetalleCompra[]
+
+  @@index([fecha_compra])
+  @@index([id_proveedor])
+}
+
+model DetalleCompra {
+  id                      Int      @id @default(autoincrement())
+  id_compra               Int
+  id_materia_prima        Int?
+  id_insumo               Int?
+  id_marca                Int?
+  cantidad_comprada       Float
+  id_unidad_compra        Int
+  precio_unitario         Float
+  precio_total            Float
+  fecha_vencimiento       DateTime?
+  lote                    String?
+  cantidad_base           Float    @default(0)
+  precio_por_unidad_base  Float    @default(0)
+  createdAt               DateTime @default(now())
+
+  // Relaciones
+  compra        Compra        @relation(fields: [id_compra], references: [id], onDelete: Cascade)
+  materiaPrima  MateriaPrima? @relation(fields: [id_materia_prima], references: [id])
+  insumo        Insumo?       @relation(fields: [id_insumo], references: [id])
+  marca         Marca?        @relation(fields: [id_marca], references: [id])
+  unidadCompra  UnidadMedida  @relation(fields: [id_unidad_compra], references: [id])
+
+  @@index([id_compra])
+}
+
+// ============================================
+// PEDIDOS A PROVEEDORES (FASE 4)
+// ============================================
+
+model PedidoProveedor {
+  id                    Int       @id @default(autoincrement())
+  id_proveedor          Int
+  fecha_pedido          DateTime
+  fecha_entrega_estimada DateTime?
+  fecha_entrega_real    DateTime?
+  observaciones         String?
+  id_estado             Int
+  total_estimado        Float     @default(0)
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime? @updatedAt
+
+  // Relaciones
+  proveedor Persona         @relation(fields: [id_proveedor], references: [id])
+  estado    EstadoGeneral   @relation(fields: [id_estado], references: [id])
+  detalle   DetallePedidoProveedor[]
+
+  @@index([fecha_pedido])
+  @@index([id_proveedor])
+}
+
+model DetallePedidoProveedor {
+  id              Int      @id @default(autoincrement())
+  id_pedido       Int
+  id_materia_prima Int?
+  id_insumo       Int?
+  cantidad_pedida Float
+  id_unidad       Int
+  precio_estimado Float   @default(0)
+  createdAt       DateTime @default(now())
+
+  // Relaciones
+  pedido       PedidoProveedor @relation(fields: [id_pedido], references: [id], onDelete: Cascade)
+  materiaPrima MateriaPrima?   @relation(fields: [id_materia_prima], references: [id])
+  insumo       Insumo?         @relation(fields: [id_insumo], references: [id])
+  unidad       UnidadMedida    @relation(fields: [id_unidad], references: [id])
 }
 
 // ============================================

@@ -587,6 +587,67 @@ async function main() {
   }
   console.log(`✅ ${permisosFase3.length} permisos de Fase 3 creados y asignados a Admin`)
 
+  // ============================================
+  // FORMAS DE PAGO (FASE 4)
+  // ============================================
+  console.log('💳 Creando formas de pago...')
+
+  const formasPagoData = [
+    { nombre_forma: 'Efectivo', requiere_identificacion: false, requiere_cuenta: false },
+    { nombre_forma: 'Débito', requiere_identificacion: false, requiere_cuenta: false },
+    { nombre_forma: 'Crédito', requiere_identificacion: false, requiere_cuenta: false },
+    { nombre_forma: 'Mercado Pago', requiere_identificacion: false, requiere_cuenta: false },
+    { nombre_forma: 'Transferencia', requiere_identificacion: false, requiere_cuenta: false },
+  ]
+
+  for (const fp of formasPagoData) {
+    await prisma.formaPago.create({ data: fp })
+  }
+  console.log(`✅ ${formasPagoData.length} formas de pago creadas`)
+
+  // ============================================
+  // ESTADOS GENERALES (FASE 4)
+  // ============================================
+  console.log('📋 Creando estados generales...')
+
+  const estadosGeneralesData = [
+    { nombre_estado: 'pendiente', entidad_aplicable: 'compra,pedido', es_final: false },
+    { nombre_estado: 'confirmado', entidad_aplicable: 'pedido', es_final: false },
+    { nombre_estado: 'en_proceso', entidad_aplicable: 'compra', es_final: false },
+    { nombre_estado: 'completado', entidad_aplicable: 'compra', es_final: true },
+    { nombre_estado: 'recibido', entidad_aplicable: 'compra', es_final: true },
+    { nombre_estado: 'anulado', entidad_aplicable: 'compra,pedido', es_final: true },
+  ]
+
+  for (const eg of estadosGeneralesData) {
+    await prisma.estadoGeneral.create({ data: eg })
+  }
+  console.log(`✅ ${estadosGeneralesData.length} estados generales creados`)
+
+  // ============================================
+  // PERMISOS ADICIONALES FASE 4
+  // ============================================
+  const permisosFase4 = [
+    { nombre: 'compras.ver', descripcion: 'Ver compras' },
+    { nombre: 'compras.crear', descripcion: 'Crear compras' },
+    { nombre: 'compras.editar', descripcion: 'Editar compras' },
+    { nombre: 'compras.eliminar', descripcion: 'Eliminar compras' },
+    { nombre: 'pedidos-proveedores.ver', descripcion: 'Ver pedidos a proveedores' },
+    { nombre: 'pedidos-proveedores.crear', descripcion: 'Crear pedidos a proveedores' },
+    { nombre: 'pedidos-proveedores.editar', descripcion: 'Editar pedidos a proveedores' },
+    { nombre: 'stock.ver', descripcion: 'Ver movimientos de stock' },
+    { nombre: 'configuracion.ver', descripcion: 'Ver configuración' },
+    { nombre: 'configuracion.editar', descripcion: 'Editar configuración' },
+  ]
+
+  for (const perm of permisosFase4) {
+    const created = await prisma.permiso.create({ data: perm })
+    await prisma.rolPermiso.create({
+      data: { id_rol: rolAdmin.id, id_permiso: created.id },
+    })
+  }
+  console.log(`✅ ${permisosFase4.length} permisos de Fase 4 creados y asignados a Admin`)
+
   console.log('🎉 Base de datos sembrada exitosamente')
 }
 
