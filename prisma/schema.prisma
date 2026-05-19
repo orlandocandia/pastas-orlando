@@ -1,4 +1,4 @@
-// Pastas Orlando - Esquema de base de datos (Fase 8)
+// Pastas Orlando - Esquema de base de datos (Fase 9)
 
 generator client {
   provider = "prisma-client-js"
@@ -204,6 +204,9 @@ model Usuario {
   stockMovements   StockMovement[]
   ventas           Venta[]
   auditorias       Auditoria[]
+  twoFactor        Usuario2FA?
+  logsAcceso       LogAcceso[]
+  sesionesActivas  SesionActiva[]
 
   @@index([email])
 }
@@ -214,11 +217,13 @@ model Usuario {
 
 model Rol {
   id          Int          @id @default(autoincrement())
-  nombre      String       @unique
+  nombre      String       @unique  // admin, produccion, ventas, lectura
   descripcion String?
+  es_default  Boolean      @default(false)
   usuarios    UsuarioRol[]
   permisos    RolPermiso[]
   createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @default(now()) @updatedAt
 }
 
 model UsuarioRol {
@@ -232,10 +237,13 @@ model UsuarioRol {
 
 model Permiso {
   id          Int         @id @default(autoincrement())
-  nombre      String      @unique
+  nombre      String      @unique  // formato: modulo.accion (ej: productos.ver)
   descripcion String?
+  modulo      String      @default("general") // productos, compras, ventas, produccion, usuarios, auditoria, reportes, seguridad
   roles       RolPermiso[]
   createdAt   DateTime    @default(now())
+
+  @@index([modulo])
 }
 
 model RolPermiso {
@@ -825,6 +833,68 @@ model StockMovement {
   productoTerminado  ProductoTerminado? @relation(fields: [id_producto_terminado], references: [id])
   unidad             UnidadMedida      @relation(fields: [id_unidad], references: [id])
   usuario            Usuario?          @relation(fields: [id_usuario], references: [id])
+}
+
+// ============================================
+// AUTENTICACIÓN 2FA (FASE 9)
+// ============================================
+
+model Usuario2FA {
+  id               Int       @id @default(autoincrement())
+  id_usuario       Int       @unique
+  secret_2fa       String?   // secreto TOTP (null si no está activado)
+  activado         Boolean   @default(false)
+  codigos_respaldo String?   // códigos de respaldo (JSON array string)
+  fecha_activacion DateTime?
+  fecha_ultimo_uso DateTime?
+
+  usuario          Usuario   @relation(fields: [id_usuario], references: [id], onDelete: Cascade)
+}
+
+// ============================================
+// LOGS DE ACCESO (FASE 9)
+// ============================================
+
+model LogAcceso {
+  id                Int      @id @default(autoincrement())
+  id_usuario        Int?
+  email_intento     String?
+  resultado         String   // OK, FAIL, BLOCKED, 2FA_REQUIRED, 2FA_OK, 2FA_FAIL
+  ip                String?
+  user_agent        String?
+  navegador         String?
+  sistema_operativo String?
+  dispositivo       String?
+  pais              String?
+  ciudad            String?
+  motivo            String?
+  fecha             DateTime @default(now())
+
+  usuario           Usuario? @relation(fields: [id_usuario], references: [id])
+
+  @@index([fecha])
+  @@index([email_intento])
+  @@index([resultado])
+}
+
+// ============================================
+// SESIONES ACTIVAS (FASE 9)
+// ============================================
+
+model SesionActiva {
+  id_sesion        String   @id
+  id_usuario       Int
+  ip               String?
+  user_agent       String?
+  fecha_inicio     DateTime @default(now())
+  fecha_expiracion DateTime
+  fecha_fin        DateTime?
+  estado           String   @default("active") // active, expired, revoked
+
+  usuario          Usuario  @relation(fields: [id_usuario], references: [id], onDelete: Cascade)
+
+  @@index([id_usuario])
+  @@index([estado])
 }
 
 // ============================================

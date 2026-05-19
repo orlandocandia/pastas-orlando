@@ -760,6 +760,165 @@ async function main() {
   }
   console.log(`✅ ${permisosFase8.length} permisos de Fase 8 creados y asignados a Admin`)
 
+  // ============================================
+  // PERMISOS Y ROLES FASE 9 - SEGURIDAD AVANZADA
+  // ============================================
+  console.log('🔐 Creando permisos y roles de Fase 9...')
+
+  // Update existing roles with es_default
+  await prisma.rol.update({ where: { nombre: 'Admin' }, data: { es_default: false } })
+  await prisma.rol.update({ where: { nombre: 'Empleado' }, data: { es_default: false } })
+  await prisma.rol.update({ where: { nombre: 'Cliente' }, data: { es_default: false } })
+  await prisma.rol.update({ where: { nombre: 'Supervisor' }, data: { es_default: false } })
+
+  // Create additional roles for Phase 9
+  const rolProduccion = await prisma.rol.create({
+    data: { nombre: 'produccion', descripcion: 'Acceso a producción y stock', es_default: false },
+  })
+  const rolVentas = await prisma.rol.create({
+    data: { nombre: 'ventas', descripcion: 'Acceso a ventas y clientes', es_default: false },
+  })
+  const rolLectura = await prisma.rol.create({
+    data: { nombre: 'lectura', descripcion: 'Solo lectura', es_default: true },
+  })
+
+  // Phase 9 permissions
+  const permisosFase9 = [
+    { nombre: 'usuarios.roles', descripcion: 'Gestionar roles de usuarios', modulo: 'usuarios' },
+    { nombre: 'seguridad.ver', descripcion: 'Ver panel de seguridad', modulo: 'seguridad' },
+    { nombre: 'seguridad.logs-acceso', descripcion: 'Ver logs de acceso', modulo: 'seguridad' },
+    { nombre: 'seguridad.sesiones', descripcion: 'Gestionar sesiones activas', modulo: 'seguridad' },
+    { nombre: 'seguridad.2fa', descripcion: 'Gestionar autenticación 2FA', modulo: 'seguridad' },
+    { nombre: 'usuarios.2fa', descripcion: 'Activar/desactivar 2FA propio', modulo: 'usuarios' },
+  ]
+
+  for (const perm of permisosFase9) {
+    const existing = await prisma.permiso.findUnique({ where: { nombre: perm.nombre } })
+    if (!existing) {
+      const created = await prisma.permiso.create({ data: perm })
+      // Assign to Admin
+      await prisma.rolPermiso.create({
+        data: { id_rol: rolAdmin.id, id_permiso: created.id },
+      })
+    }
+  }
+
+  // Assign production permissions to produccion role
+  const permProduccion = await prisma.permiso.findMany({
+    where: { nombre: { in: ['dashboard.ver', 'productos.ver', 'materias-primas.ver', 'insumos.ver', 'productos-terminados.ver', 'recetas.ver', 'recetas.crear', 'recetas.editar', 'produccion.ver', 'produccion.crear', 'produccion.editar', 'stock.ver'] } }
+  })
+  for (const perm of permProduccion) {
+    const exists = await prisma.rolPermiso.findUnique({
+      where: { id_rol_id_permiso: { id_rol: rolProduccion.id, id_permiso: perm.id } }
+    })
+    if (!exists) {
+      await prisma.rolPermiso.create({
+        data: { id_rol: rolProduccion.id, id_permiso: perm.id },
+      })
+    }
+  }
+
+  // Assign sales permissions to ventas role
+  const permVentas = await prisma.permiso.findMany({
+    where: { nombre: { in: ['dashboard.ver', 'productos.ver', 'productos-terminados.ver', 'ventas.ver', 'ventas.crear', 'ventas.editar', 'pedidos-clientes.ver', 'pedidos-clientes.crear', 'pedidos-clientes.editar', 'reservas.ver', 'reservas.crear', 'personas.ver', 'personas.crear'] } }
+  })
+  for (const perm of permVentas) {
+    const exists = await prisma.rolPermiso.findUnique({
+      where: { id_rol_id_permiso: { id_rol: rolVentas.id, id_permiso: perm.id } }
+    })
+    if (!exists) {
+      await prisma.rolPermiso.create({
+        data: { id_rol: rolVentas.id, id_permiso: perm.id },
+      })
+    }
+  }
+
+  // Assign read-only permissions to lectura role
+  const permLectura = await prisma.permiso.findMany({
+    where: { nombre: { in: ['dashboard.ver', 'productos.ver', 'materias-primas.ver', 'insumos.ver', 'productos-terminados.ver', 'compras.ver', 'ventas.ver', 'produccion.ver', 'recetas.ver'] } }
+  })
+  for (const perm of permLectura) {
+    const exists = await prisma.rolPermiso.findUnique({
+      where: { id_rol_id_permiso: { id_rol: rolLectura.id, id_permiso: perm.id } }
+    })
+    if (!exists) {
+      await prisma.rolPermiso.create({
+        data: { id_rol: rolLectura.id, id_permiso: perm.id },
+      })
+    }
+  }
+
+  // Update modulo field for existing permissions
+  const moduloMapping: Record<string, string> = {
+    'dashboard.ver': 'general',
+    'productos.ver': 'productos',
+    'productos.crear': 'productos',
+    'productos.editar': 'productos',
+    'productos.eliminar': 'productos',
+    'opiniones.ver': 'opiniones',
+    'opiniones.moderar': 'opiniones',
+    'estadisticas.ver': 'general',
+    'personas.ver': 'personas',
+    'personas.crear': 'personas',
+    'personas.editar': 'personas',
+    'personas.eliminar': 'personas',
+    'usuarios.ver': 'usuarios',
+    'usuarios.crear': 'usuarios',
+    'usuarios.editar': 'usuarios',
+    'usuarios.eliminar': 'usuarios',
+    'materias-primas.ver': 'stock',
+    'materias-primas.crear': 'stock',
+    'materias-primas.editar': 'stock',
+    'materias-primas.eliminar': 'stock',
+    'insumos.ver': 'stock',
+    'insumos.crear': 'stock',
+    'insumos.editar': 'stock',
+    'insumos.eliminar': 'stock',
+    'productos-terminados.ver': 'stock',
+    'productos-terminados.crear': 'stock',
+    'productos-terminados.editar': 'stock',
+    'productos-terminados.eliminar': 'stock',
+    'productos-terminados.public': 'stock',
+    'compras.ver': 'compras',
+    'compras.crear': 'compras',
+    'compras.editar': 'compras',
+    'compras.eliminar': 'compras',
+    'pedidos-proveedores.ver': 'compras',
+    'pedidos-proveedores.crear': 'compras',
+    'pedidos-proveedores.editar': 'compras',
+    'stock.ver': 'stock',
+    'configuracion.ver': 'configuracion',
+    'configuracion.editar': 'configuracion',
+    'ventas.ver': 'ventas',
+    'ventas.crear': 'ventas',
+    'ventas.editar': 'ventas',
+    'ventas.eliminar': 'ventas',
+    'pedidos-clientes.ver': 'ventas',
+    'pedidos-clientes.crear': 'ventas',
+    'pedidos-clientes.editar': 'ventas',
+    'reservas.ver': 'ventas',
+    'reservas.crear': 'ventas',
+    'reservas.editar': 'ventas',
+    'recetas.ver': 'produccion',
+    'recetas.crear': 'produccion',
+    'recetas.editar': 'produccion',
+    'produccion.ver': 'produccion',
+    'produccion.crear': 'produccion',
+    'produccion.editar': 'produccion',
+    'auditoria.ver': 'auditoria',
+    'reportes.ver': 'reportes',
+    'reportes.exportar': 'reportes',
+  }
+
+  for (const [nombre, modulo] of Object.entries(moduloMapping)) {
+    await prisma.permiso.updateMany({
+      where: { nombre },
+      data: { modulo },
+    })
+  }
+
+  console.log(`✅ Permisos y roles de Fase 9 creados`)
+
   console.log('🎉 Base de datos sembrada exitosamente')
 }
 

@@ -7,7 +7,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { toast } from 'sonner'
-import { Loader2, Mail, Lock, ArrowLeft } from 'lucide-react'
+import { Loader2, Mail, Lock, ArrowLeft, KeyRound } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 
@@ -26,6 +26,7 @@ import {
 const loginSchema = z.object({
   email: z.string().email('Ingresá un email válido'),
   password: z.string().min(1, 'Ingresá tu contraseña'),
+  codigo2fa: z.string().optional(),
 })
 
 type LoginForm = z.infer<typeof loginSchema>
@@ -39,6 +40,7 @@ export default function LoginPage() {
     defaultValues: {
       email: '',
       password: '',
+      codigo2fa: '',
     },
   })
 
@@ -48,6 +50,7 @@ export default function LoginPage() {
       const result = await signIn('credentials', {
         email: data.email,
         password: data.password,
+        codigo2fa: data.codigo2fa || '',
         redirect: false,
       })
 
@@ -130,6 +133,28 @@ export default function LoginPage() {
                         type="password"
                         placeholder="••••••••"
                         className="pl-10 border-marron/20 focus:border-mostaza"
+                        {...field}
+                      />
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="codigo2fa"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-marron">Código 2FA (opcional)</FormLabel>
+                  <FormControl>
+                    <div className="relative">
+                      <KeyRound className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        type="text"
+                        placeholder="6 dígitos"
+                        maxLength={6}
+                        className="pl-10 border-marron/20 focus:border-mostaza tracking-widest font-mono"
                         {...field}
                       />
                     </div>

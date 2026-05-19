@@ -4,7 +4,7 @@ import { useEffect } from 'react'
 import { useSession, signOut } from 'next-auth/react'
 import { useRouter, usePathname } from 'next/navigation'
 import { useState } from 'react'
-import { Loader2, LogOut, LayoutDashboard, Package, MessageSquare, BarChart3, Users, UserCircle, Leaf, PackageOpen, UtensilsCrossed, FolderTree, Tag, Ruler, ChevronDown, ChevronRight, ShoppingCart, ClipboardList, ArrowLeftRight, Settings, Receipt, CalendarCheck, BookOpen, Factory, Shield, FileBarChart } from 'lucide-react'
+import { Loader2, LogOut, LayoutDashboard, Package, MessageSquare, BarChart3, Users, UserCircle, Leaf, PackageOpen, UtensilsCrossed, FolderTree, Tag, Ruler, ChevronDown, ChevronRight, ShoppingCart, ClipboardList, ArrowLeftRight, Settings, Receipt, CalendarCheck, BookOpen, Factory, Shield, FileBarChart, KeyRound, FileSearch, MonitorSmartphone } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
 
@@ -142,6 +142,29 @@ const auditoriaItems = [
   },
 ]
 
+const seguridadItems = [
+  {
+    title: 'Permisos',
+    href: '/admin/usuarios/permisos',
+    icon: Shield,
+  },
+  {
+    title: 'Mi 2FA',
+    href: '/admin/perfil/2fa',
+    icon: KeyRound,
+  },
+  {
+    title: 'Logs de Acceso',
+    href: '/admin/seguridad/logs-acceso',
+    icon: FileSearch,
+  },
+  {
+    title: 'Sesiones',
+    href: '/admin/seguridad/sesiones',
+    icon: MonitorSmartphone,
+  },
+]
+
 const otherItems = [
   {
     title: 'Personas',
@@ -179,6 +202,7 @@ export default function DashboardLayout({
   const [stockMovOpen, setStockMovOpen] = useState(false)
   const [configOpen, setConfigOpen] = useState(false)
   const [auditoriaOpen, setAuditoriaOpen] = useState(false)
+  const [seguridadOpen, setSeguridadOpen] = useState(false)
 
   const isStockActive = stockItems.some(item => pathname === item.href || pathname.startsWith(item.href + '/'))
   const isComprasActive = comprasItems.some(item => pathname === item.href || pathname.startsWith(item.href + '/'))
@@ -186,6 +210,7 @@ export default function DashboardLayout({
   const isStockMovActive = stockMovimientoItems.some(item => pathname === item.href || pathname.startsWith(item.href + '/'))
   const isConfigActive = configItems.some(item => pathname === item.href || pathname.startsWith(item.href + '/'))
   const isAuditoriaActive = auditoriaItems.some(item => pathname === item.href || pathname.startsWith(item.href + '/'))
+  const isSeguridadActive = seguridadItems.some(item => pathname === item.href || pathname.startsWith(item.href + '/'))
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -194,7 +219,7 @@ export default function DashboardLayout({
   }, [status, router])
 
   // Toggle section handler
-  const toggleSection = (section: 'stock' | 'compras' | 'ventas' | 'stockMov' | 'config' | 'auditoria', currentOpen: boolean) => {
+  const toggleSection = (section: 'stock' | 'compras' | 'ventas' | 'stockMov' | 'config' | 'auditoria' | 'seguridad', currentOpen: boolean) => {
     switch (section) {
       case 'stock': setStockOpen(!currentOpen); break
       case 'compras': setComprasOpen(!currentOpen); break
@@ -202,6 +227,7 @@ export default function DashboardLayout({
       case 'stockMov': setStockMovOpen(!currentOpen); break
       case 'config': setConfigOpen(!currentOpen); break
       case 'auditoria': setAuditoriaOpen(!currentOpen); break
+      case 'seguridad': setSeguridadOpen(!currentOpen); break
     }
   }
 
@@ -212,6 +238,7 @@ export default function DashboardLayout({
   const effectiveStockMovOpen = stockMovOpen || isStockMovActive
   const effectiveConfigOpen = configOpen || isConfigActive
   const effectiveAuditoriaOpen = auditoriaOpen || isAuditoriaActive
+  const effectiveSeguridadOpen = seguridadOpen || isSeguridadActive
 
   if (status === 'loading') {
     return (
@@ -382,6 +409,16 @@ export default function DashboardLayout({
             effectiveAuditoriaOpen,
             () => toggleSection('auditoria', auditoriaOpen),
             isAuditoriaActive
+          )}
+
+          {/* Seguridad */}
+          {renderCollapsibleSection(
+            'Seguridad',
+            <KeyRound className="h-3.5 w-3.5" />,
+            seguridadItems,
+            effectiveSeguridadOpen,
+            () => toggleSection('seguridad', seguridadOpen),
+            isSeguridadActive
           )}
 
           <SidebarSeparator />
