@@ -21,7 +21,7 @@ export default function Hero() {
   return (
     <section
       id="inicio"
-      className="relative min-h-screen flex items-center justify-center overflow-hidden"
+      className="hero-section relative min-h-screen flex items-center justify-center overflow-hidden"
     >
       {/* Parallax Background */}
       <div
@@ -29,43 +29,38 @@ export default function Hero() {
         style={{ backgroundImage: "url('/images/hero-bg.jpg')" }}
       />
 
-      {/* Dark Overlay - 50% black for legibility */}
+      {/* Dark Overlay */}
       <div className="absolute inset-0 z-1 bg-black/50" />
 
-      {/* Content */}
-      <div className="relative z-10 flex flex-col items-center text-center px-4 pt-20 sm:pt-24 md:pt-28 pb-20">
-        {/* 1. Logo - tamaño duplicado */}
-        <div className="mb-3">
+      {/* Content — padding reducido para notebooks cortas via CSS */}
+      <div className="hero-content relative z-10 flex flex-col items-center text-center px-4 py-16 sm:py-20">
+        {/* 1. Logo */}
+        <div className="hero-logo mb-3">
           <Image
             src="/images/logo.png"
             alt="Pastas Orlando"
             width={800}
             height={800}
-            className="h-96 w-96 sm:h-[28rem] sm:w-[28rem] md:h-[32rem] md:w-[32rem] lg:h-[38rem] lg:w-[38rem] object-contain drop-shadow-2xl"
+            className="h-96 w-96 sm:h-[28rem] sm:w-[28rem] md:h-[32rem] md:w-[32rem] lg:h-[38rem] lg:w-[38rem] object-contain drop-shadow-2xl hero-logo-img"
             priority
           />
         </div>
 
-        {/* 2. Línea dorada + Título agrupados para igualar ancho */}
+        {/* 2. Línea dorada + Título agrupados */}
         <div className="inline-flex flex-col items-center">
-          {/* Línea dorada decorativa - mismo ancho que el título */}
           <div className="gold-line-animate h-1.5 bg-mostaza w-full rounded-full" />
-
-          {/* Espacio */}
-          <div className="h-4 sm:h-6" />
-
-          {/* 3. Título principal - sin brillo, color crema sólido */}
-          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-crema mb-3 whitespace-nowrap">
+          <div className="h-4 sm:h-6 hero-line-gap" />
+          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-crema mb-3 whitespace-nowrap hero-titulo">
             Pastas artesanales
           </h1>
         </div>
 
-        {/* 4. Subtítulo */}
-        <p className="text-crema/80 text-lg sm:text-xl md:text-2xl font-light mb-10">
+        {/* 3. Subtítulo */}
+        <p className="text-crema/80 text-lg sm:text-xl md:text-2xl font-light mb-10 hero-subtitulo">
           Hechas con amor y tradición
         </p>
 
-        {/* 5. Íconos de beneficios con Lucide - Mobile: grid 3+2 */}
+        {/* 4. Íconos de beneficios — Mobile: grid 3+2 */}
         <div className="grid grid-cols-3 gap-x-4 gap-y-6 sm:hidden max-w-sm mx-auto mb-6">
           {beneficios.map((b, i) => {
             const Icon = b.icon
@@ -86,8 +81,8 @@ export default function Hero() {
           })}
         </div>
 
-        {/* Desktop/Tablet: flex row, una sola fila */}
-        <div className="hidden sm:flex sm:flex-row sm:flex-nowrap sm:justify-center sm:gap-6 md:gap-8 lg:gap-12 max-w-4xl mx-auto mb-6">
+        {/* Desktop/Tablet: flex row */}
+        <div className="hidden sm:flex sm:flex-row sm:flex-nowrap sm:justify-center sm:gap-6 md:gap-8 lg:gap-12 max-w-4xl mx-auto mb-6 hero-iconos">
           {beneficios.map((b, i) => {
             const Icon = b.icon
             return (
@@ -98,7 +93,7 @@ export default function Hero() {
                 <div className="flex items-center justify-center h-14 w-14 rounded-full bg-mostaza/15">
                   <Icon className="h-7 w-7 text-mostaza" strokeWidth={1.8} />
                 </div>
-                <span className="text-crema text-center leading-tight max-w-[120px] text-sm">
+                <span className="text-crema text-center leading-tight max-w-[120px] text-sm hero-icono-texto">
                   {b.texto}
                 </span>
               </div>
@@ -106,7 +101,7 @@ export default function Hero() {
           })}
         </div>
 
-        {/* 6. Flecha hacia abajo */}
+        {/* 5. Flecha hacia abajo */}
         <a
           href="#productos"
           className="animate-bounce-arrow mt-8 text-mostaza/70 hover:text-mostaza transition-colors"
