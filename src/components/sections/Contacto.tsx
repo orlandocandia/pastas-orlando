@@ -6,6 +6,10 @@ import {
   Mail,
   Instagram,
   Facebook,
+  Send,
+  CheckCircle2,
+  AlertCircle,
+  Phone,
 } from 'lucide-react'
 import QRCode from 'react-qr-code'
 import { Button } from '@/components/ui/button'
@@ -94,54 +98,61 @@ export default function Contacto() {
   }
 
   return (
-    <section id="contacto" className="py-16 sm:py-20 bg-white">
+    <section id="contacto" className="py-16 sm:py-24 bg-[#F8F7FF]">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <div className="text-center mb-12">
-          <h2 className="text-3xl sm:text-4xl font-bold text-[#5C3A21]">
+        {/* Header — Hominis style */}
+        <div className="text-center mb-14">
+          <span className="inline-block px-4 py-1.5 bg-[#6F57FF]/10 text-[#6F57FF] rounded-full text-sm font-semibold tracking-wide mb-4">
+            CONTACTO
+          </span>
+          <h2 className="text-3xl sm:text-4xl lg:text-[42px] font-bold text-[#3C3C3B] leading-tight">
             ¿Listo para hacer tu pedido?
           </h2>
-          <p className="mt-4 text-[#6B7280] max-w-2xl mx-auto text-base leading-relaxed">
+          <p className="mt-5 text-[#575756] max-w-2xl mx-auto text-base sm:text-[17px] leading-relaxed">
             Completá el formulario con tu pedido o tu consulta y me comunico con vos al instante.
             También podés contactarme directamente por los siguientes canales:
           </p>
         </div>
 
-        {/* Two columns */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Two columns — Hominis style */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-10">
 
           {/* LEFT COLUMN — Contact channels + QR */}
-          <div className="space-y-4">
+          <div className="space-y-5">
 
             {/* WhatsApp */}
             <button
               type="button"
               onClick={handleWhatsAppClick}
-              className="w-full flex items-center gap-4 bg-white border border-gray-200 rounded-2xl p-5 shadow-sm hover:shadow-md hover:border-green-300 transition-all group text-left"
+              className="w-full flex items-center gap-5 bg-white rounded-2xl p-5 shadow-[2px_2px_11px_1px_rgba(0,0,0,0.08)] hover:shadow-[2px_2px_16px_3px_rgba(37,211,102,0.2)] transition-all duration-300 group text-left border border-transparent hover:border-[#25D366]/30"
             >
-              <div className="w-12 h-12 rounded-full bg-[#25D366] flex items-center justify-center shrink-0">
-                <MessageCircle className="h-6 w-6 text-white" />
+              <div className="w-14 h-14 rounded-full bg-[#25D366] flex items-center justify-center shrink-0 shadow-md">
+                <MessageCircle className="h-7 w-7 text-white" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-[#374151]">WhatsApp Directo</p>
-                <p className="text-[#25D366] font-bold text-lg">3754-419324</p>
+                <p className="text-sm font-bold text-[#575756] uppercase tracking-wide">WhatsApp Directo</p>
+                <p className="text-[#25D366] font-extrabold text-xl mt-0.5">3754-419324</p>
               </div>
-              <svg className="h-5 w-5 text-gray-300 group-hover:text-[#25D366] transition-colors shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+              <div className="w-9 h-9 rounded-full bg-[#25D366]/10 flex items-center justify-center shrink-0 group-hover:bg-[#25D366]/20 transition-colors">
+                <svg className="h-4 w-4 text-[#25D366]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" /></svg>
+              </div>
             </button>
 
             {/* Email */}
             <a
               href="mailto:laspastasdeorlando@gmail.com"
-              className="w-full flex items-center gap-4 bg-white border border-gray-200 rounded-2xl p-5 shadow-sm hover:shadow-md hover:border-[#E1AD01] transition-all group"
+              className="w-full flex items-center gap-5 bg-white rounded-2xl p-5 shadow-[2px_2px_11px_1px_rgba(0,0,0,0.08)] hover:shadow-[2px_2px_16px_3px_rgba(111,87,255,0.2)] transition-all duration-300 group border border-transparent hover:border-[#6F57FF]/30"
             >
-              <div className="w-12 h-12 rounded-full bg-[#E1AD01] flex items-center justify-center shrink-0">
-                <Mail className="h-6 w-6 text-white" />
+              <div className="w-14 h-14 rounded-full bg-[#6F57FF] flex items-center justify-center shrink-0 shadow-md">
+                <Mail className="h-7 w-7 text-white" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-[#374151]">Email</p>
-                <p className="text-[#E1AD01] font-bold text-base truncate">laspastasdeorlando@gmail.com</p>
+                <p className="text-sm font-bold text-[#575756] uppercase tracking-wide">Email</p>
+                <p className="text-[#6F57FF] font-extrabold text-lg mt-0.5 truncate">laspastasdeorlando@gmail.com</p>
               </div>
-              <svg className="h-5 w-5 text-gray-300 group-hover:text-[#E1AD01] transition-colors shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+              <div className="w-9 h-9 rounded-full bg-[#6F57FF]/10 flex items-center justify-center shrink-0 group-hover:bg-[#6F57FF]/20 transition-colors">
+                <svg className="h-4 w-4 text-[#6F57FF]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" /></svg>
+              </div>
             </a>
 
             {/* Instagram */}
@@ -149,16 +160,18 @@ export default function Contacto() {
               href="https://instagram.com/laspastasdeorlando"
               target="_blank"
               rel="noopener noreferrer"
-              className="w-full flex items-center gap-4 bg-white border border-gray-200 rounded-2xl p-5 shadow-sm hover:shadow-md hover:border-[#E1306C] transition-all group"
+              className="w-full flex items-center gap-5 bg-white rounded-2xl p-5 shadow-[2px_2px_11px_1px_rgba(0,0,0,0.08)] hover:shadow-[2px_2px_16px_3px_rgba(225,48,108,0.2)] transition-all duration-300 group border border-transparent hover:border-[#E1306C]/30"
             >
-              <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-[#F58529] via-[#DD2A7B] to-[#8134AF] flex items-center justify-center shrink-0">
-                <Instagram className="h-6 w-6 text-white" />
+              <div className="w-14 h-14 rounded-full bg-gradient-to-tr from-[#F58529] via-[#DD2A7B] to-[#8134AF] flex items-center justify-center shrink-0 shadow-md">
+                <Instagram className="h-7 w-7 text-white" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-[#374151]">Instagram</p>
-                <p className="text-[#E1306C] font-bold text-lg">@laspastasdeorlando</p>
+                <p className="text-sm font-bold text-[#575756] uppercase tracking-wide">Instagram</p>
+                <p className="text-[#E1306C] font-extrabold text-xl mt-0.5">@laspastasdeorlando</p>
               </div>
-              <svg className="h-5 w-5 text-gray-300 group-hover:text-[#E1306C] transition-colors shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+              <div className="w-9 h-9 rounded-full bg-[#E1306C]/10 flex items-center justify-center shrink-0 group-hover:bg-[#E1306C]/20 transition-colors">
+                <svg className="h-4 w-4 text-[#E1306C]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" /></svg>
+              </div>
             </a>
 
             {/* Facebook */}
@@ -166,65 +179,83 @@ export default function Contacto() {
               href="https://facebook.com/laspastasdeorlando"
               target="_blank"
               rel="noopener noreferrer"
-              className="w-full flex items-center gap-4 bg-white border border-gray-200 rounded-2xl p-5 shadow-sm hover:shadow-md hover:border-[#1877F2] transition-all group"
+              className="w-full flex items-center gap-5 bg-white rounded-2xl p-5 shadow-[2px_2px_11px_1px_rgba(0,0,0,0.08)] hover:shadow-[2px_2px_16px_3px_rgba(24,119,242,0.2)] transition-all duration-300 group border border-transparent hover:border-[#1877F2]/30"
             >
-              <div className="w-12 h-12 rounded-full bg-[#1877F2] flex items-center justify-center shrink-0">
-                <Facebook className="h-6 w-6 text-white" />
+              <div className="w-14 h-14 rounded-full bg-[#1877F2] flex items-center justify-center shrink-0 shadow-md">
+                <Facebook className="h-7 w-7 text-white" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-[#374151]">Facebook</p>
-                <p className="text-[#1877F2] font-bold text-lg">laspastasdeorlando</p>
+                <p className="text-sm font-bold text-[#575756] uppercase tracking-wide">Facebook</p>
+                <p className="text-[#1877F2] font-extrabold text-xl mt-0.5">laspastasdeorlando</p>
               </div>
-              <svg className="h-5 w-5 text-gray-300 group-hover:text-[#1877F2] transition-colors shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+              <div className="w-9 h-9 rounded-full bg-[#1877F2]/10 flex items-center justify-center shrink-0 group-hover:bg-[#1877F2]/20 transition-colors">
+                <svg className="h-4 w-4 text-[#1877F2]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" /></svg>
+              </div>
             </a>
 
             {/* QR Code Card */}
             <div
-              className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm flex flex-col items-center mt-2"
+              className="bg-white rounded-2xl p-6 shadow-[2px_2px_11px_1px_rgba(0,0,0,0.08)] flex flex-col sm:flex-row items-center gap-6 mt-2 border border-gray-100"
               onMouseEnter={handleQRHover}
             >
-              <div className="bg-white rounded-xl p-2 shadow-inner border border-gray-100">
+              <div className="bg-white rounded-xl p-3 shadow-[inset_0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 shrink-0">
                 <QRCode
                   value={QR_LINK}
-                  size={120}
+                  size={130}
+                  bgColor="#FFFFFF"
+                  fgColor="#3C3C3B"
+                  level="M"
                 />
               </div>
-              <p className="mt-3 text-sm font-medium text-[#374151]">
-                Escaneá y escribile a Orlando
-              </p>
-              <p className="mt-1 text-xs text-[#6B7280]">
-                WhatsApp 3754-419324
-              </p>
+              <div className="text-center sm:text-left">
+                <div className="flex items-center justify-center sm:justify-start gap-2 mb-2">
+                  <Phone className="h-4 w-4 text-[#6F57FF]" />
+                  <p className="text-sm font-bold text-[#575756] uppercase tracking-wide">
+                    Escaneá y escribile a Orlando
+                  </p>
+                </div>
+                <p className="text-[#25D366] font-extrabold text-lg">
+                  WhatsApp 3754-419324
+                </p>
+                <p className="text-[#8B8B8A] text-xs mt-1">
+                  Apretá o escaneá el código QR
+                </p>
+              </div>
             </div>
           </div>
 
           {/* RIGHT COLUMN — Form */}
-          <div className="bg-white border border-gray-200 rounded-2xl p-6 sm:p-8 shadow-sm">
-            <h3 className="text-2xl font-bold text-[#5C3A21] mb-1">
-              Hacé tu consulta
-            </h3>
-            <p className="text-[#6B7280] text-sm mb-6">
+          <div className="bg-white rounded-2xl p-6 sm:p-8 shadow-[2px_2px_11px_1px_rgba(0,0,0,0.08)] border border-gray-100 self-start">
+            <div className="flex items-center gap-3 mb-1">
+              <div className="w-10 h-10 rounded-full bg-[#6F57FF]/10 flex items-center justify-center">
+                <Send className="h-5 w-5 text-[#6F57FF]" />
+              </div>
+              <h3 className="text-2xl font-bold text-[#3C3C3B]">
+                Hacé tu consulta
+              </h3>
+            </div>
+            <p className="text-[#575756] text-sm mb-7 ml-[52px]">
               Completá tus datos y te contacto a la brevedad
             </p>
 
             {success && (
-              <div className="mb-6 p-4 rounded-xl bg-green-50 border border-green-200 text-green-800 text-sm flex items-center gap-2">
-                <span className="text-green-500 text-lg">✓</span>
+              <div className="mb-6 p-4 rounded-xl bg-[#25D366]/10 border border-[#25D366]/30 text-[#1a7a36] text-sm flex items-center gap-3">
+                <CheckCircle2 className="h-5 w-5 shrink-0" />
                 Mensaje enviado correctamente. Te responderemos a la brevedad.
               </div>
             )}
 
             {error && (
-              <div className="mb-6 p-4 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm flex items-center gap-2">
-                <span className="text-red-500 text-lg">!</span>
+              <div className="mb-6 p-4 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm flex items-center gap-3">
+                <AlertCircle className="h-5 w-5 shrink-0" />
                 {error}
               </div>
             )}
 
             <form onSubmit={handleSubmit} className="space-y-5">
               <div>
-                <label htmlFor="nombre" className="block text-sm font-semibold text-[#374151] mb-1.5">
-                  Nombre completo <span className="text-[#C41E3A]">*</span>
+                <label htmlFor="nombre" className="block text-sm font-bold text-[#575756] mb-2">
+                  Nombre completo <span className="text-[#FF5A5F]">*</span>
                 </label>
                 <Input
                   id="nombre"
@@ -233,13 +264,13 @@ export default function Contacto() {
                   value={nombre}
                   onChange={(e) => setNombre(e.target.value)}
                   required
-                  className="bg-[#F9FAFB] border-gray-200 focus:border-[#E1AD01] focus:ring-[#E1AD01]/20 rounded-xl h-11"
+                  className="bg-[#FAFAFA] border-[#E0E0E0] focus:border-[#6F57FF] focus:ring-[#6F57FF]/20 rounded-xl h-[52px] text-[#575756] placeholder:text-[#BFBFBF] transition-colors"
                 />
               </div>
 
               <div>
-                <label htmlFor="email" className="block text-sm font-semibold text-[#374151] mb-1.5">
-                  Email <span className="text-[#C41E3A]">*</span>
+                <label htmlFor="email" className="block text-sm font-bold text-[#575756] mb-2">
+                  Email <span className="text-[#FF5A5F]">*</span>
                 </label>
                 <Input
                   id="email"
@@ -248,13 +279,13 @@ export default function Contacto() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="bg-[#F9FAFB] border-gray-200 focus:border-[#E1AD01] focus:ring-[#E1AD01]/20 rounded-xl h-11"
+                  className="bg-[#FAFAFA] border-[#E0E0E0] focus:border-[#6F57FF] focus:ring-[#6F57FF]/20 rounded-xl h-[52px] text-[#575756] placeholder:text-[#BFBFBF] transition-colors"
                 />
               </div>
 
               <div>
-                <label htmlFor="telefono" className="block text-sm font-semibold text-[#374151] mb-1.5">
-                  Teléfono / WhatsApp <span className="text-[#C41E3A]">*</span>
+                <label htmlFor="telefono" className="block text-sm font-bold text-[#575756] mb-2">
+                  Teléfono / WhatsApp <span className="text-[#FF5A5F]">*</span>
                 </label>
                 <Input
                   id="telefono"
@@ -263,13 +294,13 @@ export default function Contacto() {
                   value={telefono}
                   onChange={(e) => setTelefono(e.target.value)}
                   required
-                  className="bg-[#F9FAFB] border-gray-200 focus:border-[#E1AD01] focus:ring-[#E1AD01]/20 rounded-xl h-11"
+                  className="bg-[#FAFAFA] border-[#E0E0E0] focus:border-[#6F57FF] focus:ring-[#6F57FF]/20 rounded-xl h-[52px] text-[#575756] placeholder:text-[#BFBFBF] transition-colors"
                 />
               </div>
 
               <div>
-                <label htmlFor="mensaje" className="block text-sm font-semibold text-[#374151] mb-1.5">
-                  Mensaje <span className="text-[#C41E3A]">*</span>
+                <label htmlFor="mensaje" className="block text-sm font-bold text-[#575756] mb-2">
+                  Mensaje <span className="text-[#FF5A5F]">*</span>
                 </label>
                 <Textarea
                   id="mensaje"
@@ -277,15 +308,15 @@ export default function Contacto() {
                   value={mensaje}
                   onChange={(e) => setMensaje(e.target.value)}
                   required
-                  rows={4}
-                  className="bg-[#F9FAFB] border-gray-200 focus:border-[#E1AD01] focus:ring-[#E1AD01]/20 rounded-xl resize-none"
+                  rows={5}
+                  className="bg-[#FAFAFA] border-[#E0E0E0] focus:border-[#6F57FF] focus:ring-[#6F57FF]/20 rounded-xl resize-none text-[#575756] placeholder:text-[#BFBFBF] transition-colors"
                 />
               </div>
 
               <Button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-[#E1AD01] hover:bg-[#d4a300] text-[#5C3A21] font-bold text-base py-6 rounded-xl shadow-md hover:shadow-lg transition-all"
+                className="w-full bg-[#6F57FF] hover:bg-[#5B46CA] text-white font-semibold text-base py-[22px] rounded-xl shadow-[0_4px_14px_rgba(111,87,255,0.35)] hover:shadow-[0_6px_20px_rgba(111,87,255,0.45)] transition-all duration-300 tracking-wide"
               >
                 {loading ? (
                   <span className="flex items-center justify-center gap-2">
@@ -293,7 +324,10 @@ export default function Contacto() {
                     Enviando...
                   </span>
                 ) : (
-                  'Enviar Solicitud'
+                  <span className="flex items-center justify-center gap-2">
+                    <Send className="h-5 w-5" />
+                    Estoy listo para ser contactado
+                  </span>
                 )}
               </Button>
             </form>
