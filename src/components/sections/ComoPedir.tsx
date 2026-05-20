@@ -1,40 +1,66 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { MessageCircle, MapPin, UtensilsCrossed, ChefHat, RefreshCw } from 'lucide-react'
+import {
+  MessageCircle,
+  Banknote,
+  Truck,
+  ThumbsUp,
+  Heart,
+  ChefHat,
+  Snowflake,
+  Sun,
+} from 'lucide-react'
 
-const steps = [
+interface Step {
+  icons: React.ReactNode
+  title: string
+  description: string
+}
+
+const steps: Step[] = [
   {
-    icon: <MessageCircle className="h-8 w-8" />,
-    accent: <span className="text-mostaza text-2xl">💬</span>,
+    icons: (
+      <>
+        <MessageCircle size={28} className="text-[#25D366]" />
+        <span className="text-lg font-bold text-gray-300 mx-0.5">+</span>
+        <Banknote size={28} className="text-[#009EE3]" />
+      </>
+    ),
     title: 'Pedido y seña',
     description:
       'Consultás por WhatsApp, te confirmamos stock o tiempo al instante. Si hay, abonás la seña por Mercado Pago y agendamos tu pedido.',
   },
   {
-    icon: <MapPin className="h-8 w-8" />,
-    accent: <span className="text-mostaza text-2xl">📍</span>,
+    icons: <Truck size={32} className="text-mostaza" />,
     title: 'Coordinamos la entrega',
     description:
       'Con la seña lista, coordinamos lugar, horario y quién recibe. Envío GRATIS.',
   },
   {
-    icon: <UtensilsCrossed className="h-8 w-8" />,
-    accent: <span className="text-mostaza text-2xl">🍽️</span>,
+    icons: <ThumbsUp size={32} className="text-rojo" />,
     title: 'Disfrutás y volvés',
     description:
       'Recibís, pagás el resto, cocinás y disfrutás. ¿Te gustó? Dejá tu opinión.',
   },
   {
-    icon: <ChefHat className="h-8 w-8" />,
-    accent: <span className="text-mostaza text-2xl">👨‍🍳</span>,
+    icons: (
+      <>
+        <Heart size={26} className="text-marron" />
+        <ChefHat size={26} className="text-marron ml-1" />
+      </>
+    ),
     title: 'Elaboración artesanal',
     description:
       'Cada pasta se elabora a mano con materia prima fresca. Respetamos nuestras recetas y los tiempos.',
   },
   {
-    icon: <RefreshCw className="h-8 w-8" />,
-    accent: <span className="text-mostaza text-2xl">🔄</span>,
+    icons: (
+      <>
+        <Snowflake size={26} className="text-[#3B82F6]" />
+        <Sun size={26} className="text-mostaza ml-1" />
+      </>
+    ),
     title: 'Fresco o congelado',
     description:
       'Vos decidís: frescas o freezadas. El sabor se mantiene intacto.',
@@ -84,20 +110,20 @@ export default function ComoPedir() {
             <motion.div
               key={index}
               variants={cardVariants}
-              className="flex flex-col items-center text-center p-6 rounded-xl bg-crema/50 border border-border hover:border-mostaza/40 hover:shadow-md transition-all duration-300"
+              className="text-center p-6 bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300"
             >
-              {/* Icon */}
-              <div className="mb-4 flex items-center justify-center h-16 w-16 rounded-full bg-mostaza/15 text-mostaza">
-                {step.icon}
+              {/* Círculo decorativo con íconos */}
+              <div className="w-20 h-20 mx-auto mb-4 bg-white rounded-full shadow-md flex items-center justify-center hover:scale-105 hover:shadow-lg transition-all duration-300">
+                {step.icons}
               </div>
 
-              {/* Title */}
-              <h3 className="font-bold text-marron text-lg mb-2">
+              {/* Título del paso */}
+              <h3 className="text-lg font-bold text-marron mb-2">
                 {step.title}
               </h3>
 
-              {/* Description */}
-              <p className="text-muted-foreground text-sm leading-relaxed">
+              {/* Texto descriptivo */}
+              <p className="text-gray-600 text-sm leading-relaxed">
                 {step.description}
               </p>
             </motion.div>
