@@ -4,7 +4,6 @@ import './db-env'
 
 import { PrismaClient } from '@prisma/client'
 import { PrismaLibSQL } from '@prisma/adapter-libsql'
-import { createClient } from '@libsql/client'
 
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined
@@ -21,13 +20,14 @@ function createPrismaClient() {
     tursoUrl.startsWith('https://')
 
   if (isTurso) {
-    console.log(`[DB] Using Turso/libSQL adapter`)
+    console.log(`[DB] Using Turso/libSQL adapter (url: ${tursoUrl.substring(0, 30)}...)`)
 
-    const libsql = createClient({
+    // CRITICAL: In Prisma v6, PrismaLibSQL expects a CONFIG OBJECT, not a client instance.
+    // The adapter internally calls createClient(config) during connect().
+    const adapter = new PrismaLibSQL({
       url: tursoUrl,
       authToken: tursoAuthToken || undefined,
     })
-    const adapter = new PrismaLibSQL(libsql)
 
     return new PrismaClient({
       adapter,
