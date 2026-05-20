@@ -446,6 +446,24 @@ async function seedTurso(client: Client): Promise<string[]> {
   results.push(`${insumos.length} insumos`)
 
   // 27. PRODUCTOS LANDING
+  // Safety: ensure Producto table exists (may be missed by db-push-turso parser)
+  try {
+    await client.execute(`CREATE TABLE IF NOT EXISTS "Producto" (
+      "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+      "nombre" TEXT NOT NULL,
+      "descripcion" TEXT,
+      "categoria" TEXT NOT NULL,
+      "precio" REAL NOT NULL,
+      "peso" TEXT NOT NULL DEFAULT '500g',
+      "imagen" TEXT,
+      "stock" BOOLEAN NOT NULL DEFAULT true,
+      "destacado" BOOLEAN NOT NULL DEFAULT false,
+      "orden" INTEGER NOT NULL DEFAULT 0,
+      "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      "updatedAt" DATETIME NOT NULL
+    )`)
+  } catch { /* table already exists, skip */ }
+
   const productosLanding = [
     { id: 1, n: 'Sorrentinos de Jamón y Queso', d: 'Clásicos sorrentinos rellenos de jamón cocido y queso mozzarella, hechos con masa al huevo.', cat: 'Pastas rellenas', pr: 4500, pe: '500g', de: 1, o: 1 },
     { id: 2, n: 'Ravioles de Ricota y Espinaca', d: 'Ravioles suaves con relleno de ricota fresca y espinaca, ideal con salsa filetto.', cat: 'Pastas rellenas', pr: 4000, pe: '500g', de: 1, o: 2 },
