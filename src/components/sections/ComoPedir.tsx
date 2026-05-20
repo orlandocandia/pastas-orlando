@@ -123,7 +123,7 @@ export default function ComoPedir() {
             <motion.div
               key={index}
               variants={cardVariants}
-              className="min-h-[420px] flex flex-col text-center p-6 bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300"
+              className="tarjeta-paso h-full flex flex-col justify-between min-h-[480px] text-center p-6 bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300"
             >
               {/* 1. Círculo decorativo con ícono */}
               <div className="w-20 h-20 mx-auto mb-4 bg-white rounded-full shadow-md flex items-center justify-center hover:scale-105 hover:shadow-lg transition-all duration-300 flex-shrink-0">
@@ -135,19 +135,19 @@ export default function ComoPedir() {
                 {step.title}
               </h3>
 
-              {/* 3. Cuadro con imagen real — altura fija */}
-              <div className="w-full h-40 rounded-lg overflow-hidden shadow-sm my-2 flex-shrink-0">
+              {/* 3. Cuadro con imagen real — altura fija 180px, nunca se encoge */}
+              <div className="contenedor-imagen h-44 w-full my-3 flex-shrink-0 rounded-lg overflow-hidden shadow-sm">
                 <Image
                   src={step.image}
                   alt={step.imageAlt}
-                  width={400}
-                  height={160}
-                  className="w-full h-full object-cover"
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 20vw"
                 />
               </div>
 
-              {/* 4. Texto descriptivo — mt-auto para alinear abajo */}
-              <p className="text-gray-600 text-sm mt-auto leading-relaxed">
+              {/* 4. Texto descriptivo — ocupa espacio restante */}
+              <p className="texto-paso flex-grow text-gray-600 text-sm mt-2 leading-relaxed">
                 {step.description}
               </p>
             </motion.div>
