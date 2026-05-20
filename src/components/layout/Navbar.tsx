@@ -20,6 +20,8 @@ const navLinks = [
   { label: 'Contacto', href: '#contacto' },
 ]
 
+const NAVBAR_HEIGHT = 90
+
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false)
   const [open, setOpen] = useState(false)
@@ -32,8 +34,16 @@ export default function Navbar() {
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
-  const handleLinkClick = () => {
+  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    e.preventDefault()
     setOpen(false)
+
+    const element = document.querySelector(href)
+    if (element) {
+      const elementPosition = element.getBoundingClientRect().top
+      const offsetPosition = elementPosition + window.scrollY - NAVBAR_HEIGHT
+      window.scrollTo({ top: offsetPosition, behavior: 'smooth' })
+    }
   }
 
   return (
@@ -52,6 +62,7 @@ export default function Navbar() {
               <a
                 key={link.href}
                 href={link.href}
+                onClick={(e) => handleNavClick(e, link.href)}
                 className={`nav-link relative px-4 py-2 rounded-lg text-base font-semibold transition-all duration-200
                   ${scrolled ? 'text-marron' : 'text-white'}
                   hover:text-mostaza hover:bg-mostaza/10
@@ -90,7 +101,7 @@ export default function Navbar() {
                     <a
                       key={link.href}
                       href={link.href}
-                      onClick={handleLinkClick}
+                      onClick={(e) => handleNavClick(e, link.href)}
                       className="px-4 py-3 rounded-lg font-semibold transition-all duration-200 text-marron hover:bg-mostaza/10 hover:text-mostaza"
                     >
                       {link.label}

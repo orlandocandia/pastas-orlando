@@ -71,7 +71,7 @@ export default function Productos() {
   const hasMore = productos.length > 8
 
   return (
-    <section id="productos" className="min-h-[500px] flex flex-col justify-center py-16 sm:py-20 bg-crema">
+    <section id="productos" className="min-h-screen flex flex-col justify-center py-16 sm:py-20 bg-crema">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
         {/* Title */}
         <div className="text-center mb-12">
