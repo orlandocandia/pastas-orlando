@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import { motion } from 'framer-motion'
 import {
   MessageCircle,
@@ -15,6 +16,8 @@ import {
 interface Step {
   icons: React.ReactNode
   title: string
+  image: string
+  imageAlt: string
   description: string
 }
 
@@ -22,46 +25,56 @@ const steps: Step[] = [
   {
     icons: (
       <>
-        <MessageCircle size={28} className="text-[#25D366]" />
-        <span className="text-lg font-bold text-gray-300 mx-0.5">+</span>
-        <Banknote size={28} className="text-[#009EE3]" />
+        <MessageCircle size={40} className="text-[#25D366]" />
+        <span className="text-2xl font-bold text-gray-300 mx-0.5">+</span>
+        <Banknote size={40} className="text-[#009EE3]" />
       </>
     ),
     title: 'Pedido y seña',
+    image: '/images/pasos/pedido-sena.jpg',
+    imageAlt: 'Pedido y seña por WhatsApp y Mercado Pago',
     description:
       'Consultás por WhatsApp, te confirmamos stock o tiempo al instante. Si hay, abonás la seña por Mercado Pago y agendamos tu pedido.',
   },
   {
-    icons: <Truck size={32} className="text-mostaza" />,
+    icons: <Truck size={40} className="text-mostaza" />,
     title: 'Coordinamos la entrega',
+    image: '/images/pasos/coordinacion.jpg',
+    imageAlt: 'Coordinación de entrega a domicilio',
     description:
       'Con la seña lista, coordinamos lugar, horario y quién recibe. Envío GRATIS.',
   },
   {
-    icons: <ThumbsUp size={32} className="text-rojo" />,
+    icons: <ThumbsUp size={40} className="text-rojo" />,
     title: 'Disfrutás y volvés',
+    image: '/images/pasos/disfrute.jpg',
+    imageAlt: 'Familia disfrutando de las pastas',
     description:
       'Recibís, pagás el resto, cocinás y disfrutás. ¿Te gustó? Dejá tu opinión.',
   },
   {
     icons: (
       <>
-        <Heart size={26} className="text-marron" />
-        <ChefHat size={26} className="text-marron ml-1" />
+        <Heart size={32} className="text-marron" />
+        <ChefHat size={32} className="text-marron ml-1" />
       </>
     ),
     title: 'Elaboración artesanal',
+    image: '/images/pasos/elaboracion.jpg',
+    imageAlt: 'Elaboración artesanal de pastas',
     description:
       'Cada pasta se elabora a mano con materia prima fresca. Respetamos nuestras recetas y los tiempos.',
   },
   {
     icons: (
       <>
-        <Snowflake size={26} className="text-[#3B82F6]" />
-        <Sun size={26} className="text-mostaza ml-1" />
+        <Snowflake size={32} className="text-[#3B82F6]" />
+        <Sun size={32} className="text-mostaza ml-1" />
       </>
     ),
     title: 'Fresco o congelado',
+    image: '/images/pasos/fresco-congelado.jpg',
+    imageAlt: 'Pastas frescas o congeladas',
     description:
       'Vos decidís: frescas o freezadas. El sabor se mantiene intacto.',
   },
@@ -112,18 +125,29 @@ export default function ComoPedir() {
               variants={cardVariants}
               className="text-center p-6 bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300"
             >
-              {/* Círculo decorativo con íconos */}
+              {/* 1. Círculo decorativo con ícono */}
               <div className="w-20 h-20 mx-auto mb-4 bg-white rounded-full shadow-md flex items-center justify-center hover:scale-105 hover:shadow-lg transition-all duration-300">
                 {step.icons}
               </div>
 
-              {/* Título del paso */}
-              <h3 className="text-lg font-bold text-marron mb-2">
+              {/* 2. Título del paso */}
+              <h3 className="text-xl font-bold text-marron mb-3">
                 {step.title}
               </h3>
 
-              {/* Texto descriptivo */}
-              <p className="text-gray-600 text-sm leading-relaxed">
+              {/* 3. Cuadro con imagen real */}
+              <div className="w-full h-40 mb-3 rounded-lg overflow-hidden shadow-sm">
+                <Image
+                  src={step.image}
+                  alt={step.imageAlt}
+                  width={400}
+                  height={160}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+
+              {/* 4. Texto descriptivo */}
+              <p className="text-gray-600 text-sm mt-3 leading-relaxed">
                 {step.description}
               </p>
             </motion.div>
