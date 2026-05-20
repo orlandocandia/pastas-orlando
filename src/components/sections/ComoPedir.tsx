@@ -48,7 +48,7 @@ const steps: Step[] = [
     icons: <ThumbsUp size={40} className="text-rojo" />,
     title: 'Disfrutás y volvés',
     image: '/images/pasos/disfrute.jpg',
-    imageAlt: 'Familia disfrutando de las pastas',
+    imageAlt: 'Plato de pastas caseras',
     description:
       'Recibís, pagás el resto, cocinás y disfrutás. ¿Te gustó? Dejá tu opinión.',
   },
@@ -123,20 +123,20 @@ export default function ComoPedir() {
             <motion.div
               key={index}
               variants={cardVariants}
-              className="text-center p-6 bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300"
+              className="min-h-[420px] flex flex-col text-center p-6 bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300"
             >
               {/* 1. Círculo decorativo con ícono */}
-              <div className="w-20 h-20 mx-auto mb-4 bg-white rounded-full shadow-md flex items-center justify-center hover:scale-105 hover:shadow-lg transition-all duration-300">
+              <div className="w-20 h-20 mx-auto mb-4 bg-white rounded-full shadow-md flex items-center justify-center hover:scale-105 hover:shadow-lg transition-all duration-300 flex-shrink-0">
                 {step.icons}
               </div>
 
               {/* 2. Título del paso */}
-              <h3 className="text-xl font-bold text-marron mb-3">
+              <h3 className="text-xl font-bold text-marron mb-3 flex-shrink-0">
                 {step.title}
               </h3>
 
-              {/* 3. Cuadro con imagen real */}
-              <div className="w-full h-40 mb-3 rounded-lg overflow-hidden shadow-sm">
+              {/* 3. Cuadro con imagen real — altura fija */}
+              <div className="w-full h-40 rounded-lg overflow-hidden shadow-sm my-2 flex-shrink-0">
                 <Image
                   src={step.image}
                   alt={step.imageAlt}
@@ -146,8 +146,8 @@ export default function ComoPedir() {
                 />
               </div>
 
-              {/* 4. Texto descriptivo */}
-              <p className="text-gray-600 text-sm mt-3 leading-relaxed">
+              {/* 4. Texto descriptivo — mt-auto para alinear abajo */}
+              <p className="text-gray-600 text-sm mt-auto leading-relaxed">
                 {step.description}
               </p>
             </motion.div>
