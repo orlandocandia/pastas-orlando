@@ -32,7 +32,7 @@ export default function Hero() {
       {/* Dark Overlay */}
       <div className="absolute inset-0 z-1 bg-black/50" />
 
-      {/* Content — padding reducido para notebooks cortas via CSS */}
+      {/* Content */}
       <div className="hero-content relative z-10 flex flex-col items-center text-center px-4 py-16 sm:py-20">
         {/* 1. Logo */}
         <div className="hero-logo mb-3">
@@ -47,8 +47,8 @@ export default function Hero() {
         </div>
 
         {/* 2. Línea dorada + Título agrupados */}
-        <div className="inline-flex flex-col items-center">
-          <div className="gold-line-animate h-1.5 bg-mostaza w-full rounded-full" />
+        <div className="inline-flex flex-col items-center hero-linea-titulo">
+          <div className="gold-line-animate h-1.5 bg-mostaza w-full rounded-full hero-linea-dorada" />
           <div className="h-4 sm:h-6 hero-line-gap" />
           <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-crema mb-3 whitespace-nowrap hero-titulo">
             Pastas artesanales
@@ -61,19 +61,19 @@ export default function Hero() {
         </p>
 
         {/* 4. Íconos de beneficios — Mobile: grid 3+2 */}
-        <div className="grid grid-cols-3 gap-x-4 gap-y-6 sm:hidden max-w-sm mx-auto mb-6">
+        <div className="grid grid-cols-3 gap-x-4 gap-y-6 sm:hidden max-w-sm mx-auto mb-6 hero-iconos-mobile">
           {beneficios.map((b, i) => {
             const Icon = b.icon
             return (
               <div
                 key={i}
-                className="flex flex-col items-center gap-2"
+                className="flex flex-col items-center gap-2 hero-icono-item"
                 style={i === 3 ? { gridColumn: '1 / 2' } : i === 4 ? { gridColumn: '3 / 4' } : undefined}
               >
-                <div className="flex items-center justify-center h-12 w-12 rounded-full bg-mostaza/15">
-                  <Icon className="h-6 w-6 text-mostaza" strokeWidth={1.8} />
+                <div className="flex items-center justify-center h-12 w-12 rounded-full bg-mostaza/15 hero-icono-circulo">
+                  <Icon className="h-6 w-6 text-mostaza hero-icono-svg" strokeWidth={1.8} />
                 </div>
-                <span className="text-crema text-center leading-tight text-xs">
+                <span className="text-crema text-center leading-tight text-xs hero-icono-texto">
                   {b.texto}
                 </span>
               </div>
@@ -88,10 +88,10 @@ export default function Hero() {
             return (
               <div
                 key={i}
-                className="flex flex-col items-center gap-2.5 flex-shrink-0"
+                className="flex flex-col items-center gap-2.5 flex-shrink-0 hero-icono-item"
               >
-                <div className="flex items-center justify-center h-14 w-14 rounded-full bg-mostaza/15">
-                  <Icon className="h-7 w-7 text-mostaza" strokeWidth={1.8} />
+                <div className="flex items-center justify-center h-14 w-14 rounded-full bg-mostaza/15 hero-icono-circulo">
+                  <Icon className="h-7 w-7 text-mostaza hero-icono-svg" strokeWidth={1.8} />
                 </div>
                 <span className="text-crema text-center leading-tight max-w-[120px] text-sm hero-icono-texto">
                   {b.texto}
@@ -104,7 +104,7 @@ export default function Hero() {
         {/* 5. Flecha hacia abajo */}
         <a
           href="#productos"
-          className="animate-bounce-arrow mt-8 text-mostaza/70 hover:text-mostaza transition-colors"
+          className="animate-bounce-arrow mt-8 text-mostaza/70 hover:text-mostaza transition-colors hero-flecha"
           aria-label="Ver productos"
         >
           <ChevronDown className="h-8 w-8" />
