@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
+import { sendConsultaNotifications } from '@/lib/notifications'
 
 // GET /api/consultas - Listar consultas con filtros y paginación
 export async function GET(request: NextRequest) {
@@ -91,6 +92,9 @@ export async function POST(request: NextRequest) {
         respondido: false,
       },
     })
+
+    // Send email + WhatsApp notifications (fire-and-forget, won't block response)
+    sendConsultaNotifications({ nombre, email, telefono: telefono || '', mensaje }).catch(() => {})
 
     return NextResponse.json(consulta, { status: 201 })
   } catch (error) {
