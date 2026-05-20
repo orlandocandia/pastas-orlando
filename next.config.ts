@@ -7,6 +7,9 @@ const nextConfig: NextConfig = {
     ignoreBuildErrors: true,
   },
   reactStrictMode: false,
+  experimental: {
+    instrumentationHook: true,
+  },
   allowedDevOrigins: [
     // Sandbox preview panel origins
     ".space-z.ai",
