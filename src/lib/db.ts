@@ -7,14 +7,13 @@ const globalForPrisma = globalThis as unknown as {
 }
 
 function createPrismaClient() {
-  // At build time, DATABASE_URL is set to file:./dev.db (see package.json build script)
-  // At runtime on Vercel, DATABASE_URL is the real Turso URL (libsql://...)
-  // We also support TURSO_DATABASE_URL as a separate env var
-  const databaseUrl = process.env.DATABASE_URL || ''
+  // Read env vars - may have been set by instrumentation.ts or may be raw
+  let databaseUrl = process.env.DATABASE_URL || ''
   const tursoUrl = process.env.TURSO_DATABASE_URL || ''
   const tursoAuthToken = process.env.TURSO_AUTH_TOKEN || process.env.DATABASE_AUTH_TOKEN || ''
 
   // Determine if we need to use the libSQL adapter
+  // Check both DATABASE_URL and TURSO_DATABASE_URL for libsql protocol
   const isTurso =
     tursoUrl.startsWith('libsql://') ||
     tursoUrl.startsWith('http://') ||
@@ -23,23 +22,29 @@ function createPrismaClient() {
     databaseUrl.startsWith('http://')
 
   if (isTurso) {
+    // Use Turso URL from env var, or fall back to DATABASE_URL if it's a libsql URL
     const connectionUrl = tursoUrl || databaseUrl
-    
+
+    console.log(`[DB] Using Turso/libSQL adapter with URL: ${connectionUrl.substring(0, 30)}...`)
+
     const libsql = createClient({
       url: connectionUrl,
       authToken: tursoAuthToken || undefined,
     })
     const adapter = new PrismaLibSQL(libsql)
 
-    // Use a dummy file: URL for Prisma schema validation
-    // The adapter handles the actual connection
+    // CRITICAL: Override DATABASE_URL to file: protocol BEFORE creating PrismaClient
+    // Prisma validates DATABASE_URL at client construction time even with adapter
+    // The adapter handles the actual connection, so the URL just needs to pass validation
+    process.env.DATABASE_URL = 'file:./dev.db'
+
     return new PrismaClient({
       adapter,
-      datasourceUrl: 'file:./dev.db',
     })
   }
 
   // Local SQLite (file: protocol) - no adapter needed
+  console.log(`[DB] Using local SQLite with URL: ${databaseUrl.substring(0, 30)}...`)
   return new PrismaClient({
     log: process.env.NODE_ENV === 'development' ? ['query'] : [],
   })
