@@ -1,6 +1,488 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { createClient, type Client } from '@libsql/client'
 import { db } from '@/lib/db'
 import bcrypt from 'bcryptjs'
+
+// Helper: detect if running on Turso (libsql:// URL or TURSO_DATABASE_URL env var)
+function isTurso(): boolean {
+  const url = process.env.DATABASE_URL || ''
+  return url.startsWith('libsql://') || url.startsWith('http') || !!process.env.TURSO_DATABASE_URL
+}
+
+// Helper: create a libsql client for Turso
+function getTursoClient(): Client {
+  const url = process.env.TURSO_DATABASE_URL || process.env.DATABASE_URL || ''
+  const authToken = process.env.TURSO_AUTH_TOKEN || process.env.DATABASE_AUTH_TOKEN || ''
+  return createClient({ url, authToken: authToken || undefined })
+}
+
+// ============================================
+// TURSO-BASED SEED (using @libsql/client directly)
+// ============================================
+async function seedTurso(client: Client): Promise<string[]> {
+  const results: string[] = []
+
+  // 1. PAÍS
+  await client.execute("INSERT OR IGNORE INTO Pais (nombre) VALUES ('Argentina')")
+  const paisId = Number((await client.execute("SELECT id FROM Pais WHERE nombre = 'Argentina'")).rows[0]?.id)
+  results.push('País: Argentina')
+
+  // 2. PROVINCIAS
+  const provinciasData = [
+    'Buenos Aires', 'Catamarca', 'Chaco', 'Chubut', 'Ciudad Autónoma de Buenos Aires',
+    'Córdoba', 'Corrientes', 'Entre Ríos', 'Formosa', 'Jujuy',
+    'La Pampa', 'La Rioja', 'Mendoza', 'Misiones', 'Neuquén',
+    'Río Negro', 'Salta', 'San Juan', 'San Luis', 'Santa Cruz',
+    'Santa Fe', 'Santiago del Estero', 'Tierra del Fuego', 'Tucumán',
+  ]
+  const provIds: Record<string, number> = {}
+  for (const n of provinciasData) {
+    await client.execute({ sql: 'INSERT OR IGNORE INTO Provincia (id_pais,nombre) VALUES (?,?)', args: [paisId, n] })
+    provIds[n] = Number((await client.execute({ sql: "SELECT id FROM Provincia WHERE nombre=? AND id_pais=?", args: [n, paisId] })).rows[0]?.id)
+  }
+  results.push(`${provinciasData.length} provincias`)
+
+  // 3. DEPARTAMENTOS
+  const deptosData: { n: string; p: string }[] = [
+    { n: 'Capital', p: 'Corrientes' }, { n: 'General Paz', p: 'Corrientes' },
+    { n: 'San Cosme', p: 'Corrientes' }, { n: 'Itatí', p: 'Corrientes' },
+    { n: 'Bella Vista', p: 'Corrientes' }, { n: 'Empedrado', p: 'Corrientes' },
+    { n: 'Saladas', p: 'Corrientes' }, { n: 'Esquina', p: 'Corrientes' },
+    { n: 'Goya', p: 'Corrientes' }, { n: 'Lavalle', p: 'Corrientes' },
+    { n: 'Santo Tomé', p: 'Corrientes' }, { n: 'Paso de los Libres', p: 'Corrientes' },
+    { n: 'Monte Caseros', p: 'Corrientes' }, { n: 'Curuzú Cuatiá', p: 'Corrientes' },
+    { n: 'Mercedes', p: 'Corrientes' },
+    { n: 'Comuna 1', p: 'Ciudad Autónoma de Buenos Aires' },
+    { n: 'Comuna 2', p: 'Ciudad Autónoma de Buenos Aires' },
+    { n: 'Comuna 3', p: 'Ciudad Autónoma de Buenos Aires' },
+    { n: 'Comuna 4', p: 'Ciudad Autónoma de Buenos Aires' },
+    { n: 'Comuna 5', p: 'Ciudad Autónoma de Buenos Aires' },
+    { n: 'General San Martín', p: 'Buenos Aires' }, { n: 'La Matanza', p: 'Buenos Aires' },
+    { n: 'Lomas de Zamora', p: 'Buenos Aires' }, { n: 'Quilmes', p: 'Buenos Aires' },
+    { n: 'Almirante Brown', p: 'Buenos Aires' }, { n: 'Avellaneda', p: 'Buenos Aires' },
+    { n: 'Morón', p: 'Buenos Aires' }, { n: 'Tres de Febrero', p: 'Buenos Aires' },
+    { n: 'San Isidro', p: 'Buenos Aires' }, { n: 'Vicente López', p: 'Buenos Aires' },
+    { n: 'Capital', p: 'Córdoba' }, { n: 'Colón', p: 'Córdoba' }, { n: 'San Justo', p: 'Córdoba' },
+    { n: 'La Capital', p: 'Santa Fe' }, { n: 'Rosario', p: 'Santa Fe' },
+    { n: 'Capital', p: 'Mendoza' }, { n: 'Godoy Cruz', p: 'Mendoza' },
+    { n: 'Capital', p: 'Tucumán' }, { n: 'Cruz Alta', p: 'Tucumán' },
+    { n: 'Capital', p: 'Salta' },
+    { n: 'Paraná', p: 'Entre Ríos' }, { n: 'Concordia', p: 'Entre Ríos' },
+  ]
+  const depIds: Record<string, number> = {}
+  for (const d of deptosData) {
+    const idP = provIds[d.p]
+    if (!idP) continue
+    await client.execute({ sql: 'INSERT OR IGNORE INTO Departamento (id_provincia,nombre) VALUES (?,?)', args: [idP, d.n] })
+    depIds[`${d.p}-${d.n}`] = Number((await client.execute({ sql: "SELECT id FROM Departamento WHERE nombre=? AND id_provincia=?", args: [d.n, idP] })).rows[0]?.id)
+  }
+  results.push(`${Object.keys(depIds).length} departamentos`)
+
+  // 4. MUNICIPIOS
+  const munisData: { n: string; dk: string }[] = [
+    { n: 'Corrientes', dk: 'Corrientes-Capital' }, { n: 'Barrio Esperanza', dk: 'Corrientes-Capital' },
+    { n: 'Nuestra Señora del Rosario de Caa Catí', dk: 'Corrientes-General Paz' },
+    { n: 'San Cosme', dk: 'Corrientes-San Cosme' }, { n: 'Itatí', dk: 'Corrientes-Itatí' },
+    { n: 'Bella Vista', dk: 'Corrientes-Bella Vista' },
+    { n: 'Pedro Y. Cañete (Empedrado)', dk: 'Corrientes-Empedrado' },
+    { n: 'Goya', dk: 'Corrientes-Goya' }, { n: 'Esquina', dk: 'Corrientes-Esquina' },
+    { n: 'Mercedes', dk: 'Corrientes-Mercedes' },
+    { n: 'Paso de los Libres', dk: 'Corrientes-Paso de los Libres' },
+    { n: 'Monte Caseros', dk: 'Corrientes-Monte Caseros' },
+    { n: 'Curuzú Cuatiá', dk: 'Corrientes-Curuzú Cuatiá' },
+    { n: 'Santo Tomé', dk: 'Corrientes-Santo Tomé' },
+    { n: 'Retiro', dk: 'Ciudad Autónoma de Buenos Aires-Comuna 1' },
+    { n: 'San Nicolás', dk: 'Ciudad Autónoma de Buenos Aires-Comuna 1' },
+    { n: 'Puerto Madero', dk: 'Ciudad Autónoma de Buenos Aires-Comuna 1' },
+    { n: 'Recoleta', dk: 'Ciudad Autónoma de Buenos Aires-Comuna 2' },
+    { n: 'Palermo', dk: 'Ciudad Autónoma de Buenos Aires-Comuna 2' },
+    { n: 'Balvanera', dk: 'Ciudad Autónoma de Buenos Aires-Comuna 3' },
+    { n: 'San Martín', dk: 'Buenos Aires-General San Martín' },
+    { n: 'Ramos Mejía', dk: 'Buenos Aires-La Matanza' },
+    { n: 'Banfield', dk: 'Buenos Aires-Lomas de Zamora' },
+    { n: 'Quilmes', dk: 'Buenos Aires-Quilmes' },
+    { n: 'Adrogué', dk: 'Buenos Aires-Almirante Brown' },
+    { n: 'Avellaneda', dk: 'Buenos Aires-Avellaneda' },
+    { n: 'Morón', dk: 'Buenos Aires-Morón' },
+    { n: 'Caseros', dk: 'Buenos Aires-Tres de Febrero' },
+    { n: 'San Isidro', dk: 'Buenos Aires-San Isidro' },
+    { n: 'Olivos', dk: 'Buenos Aires-Vicente López' },
+    { n: 'Córdoba', dk: 'Córdoba-Capital' },
+    { n: 'Santa Fe', dk: 'Santa Fe-La Capital' }, { n: 'Rosario', dk: 'Santa Fe-Rosario' },
+    { n: 'Mendoza', dk: 'Mendoza-Capital' }, { n: 'Godoy Cruz', dk: 'Mendoza-Godoy Cruz' },
+    { n: 'San Miguel de Tucumán', dk: 'Tucumán-Capital' },
+    { n: 'Salta', dk: 'Salta-Capital' },
+    { n: 'Paraná', dk: 'Entre Ríos-Paraná' }, { n: 'Concordia', dk: 'Entre Ríos-Concordia' },
+  ]
+  for (const m of munisData) {
+    const idD = depIds[m.dk]
+    if (!idD) continue
+    await client.execute({ sql: 'INSERT OR IGNORE INTO Municipio (id_departamento,nombre) VALUES (?,?)', args: [idD, m.n] })
+  }
+  results.push(`${munisData.length} municipios`)
+
+  // 5-6. TIPOS DE DIRECCIÓN y CONTACTO
+  for (const v of ['particular', 'comercial', 'entrega']) await client.execute({ sql: 'INSERT OR IGNORE INTO TipoDireccion (nombre) VALUES (?)', args: [v] })
+  for (const v of ['email', 'teléfono', 'WhatsApp']) await client.execute({ sql: 'INSERT OR IGNORE INTO TipoContacto (nombre) VALUES (?)', args: [v] })
+  results.push('Tipos de dirección y contacto')
+
+  // 7. EMPRESAS TELEFÓNICAS
+  for (const e of [{ n: 'Personal', c: 'PER' }, { n: 'Claro', c: 'CLA' }, { n: 'Movistar', c: 'MOV' }, { n: 'Tuenti', c: 'TUE' }]) {
+    await client.execute({ sql: 'INSERT OR IGNORE INTO EmpresaTelefonica (nombre,codigo) VALUES (?,?)', args: [e.n, e.c] })
+  }
+  results.push('4 empresas telefónicas')
+
+  // 8. SERVICIOS DE CORREO ELECTRÓNICO
+  for (const s of [{ n: 'Gmail', d: 'gmail.com' }, { n: 'Outlook/Hotmail', d: 'outlook.com' }, { n: 'Yahoo', d: 'yahoo.com' }, { n: 'ICloud', d: 'icloud.com' }]) {
+    await client.execute({ sql: 'INSERT OR IGNORE INTO ServicioCorreoElectronico (nombre,dominio) VALUES (?,?)', args: [s.n, s.d] })
+  }
+  results.push('4 servicios de correo electrónico')
+
+  // 9. TIPOS DE PLATAFORMA
+  for (const t of [{ n: 'Web', d: 'Aplicación web' }, { n: 'Android', d: 'Aplicación móvil Android' }, { n: 'iOS', d: 'Aplicación móvil iOS' }, { n: 'API', d: 'Servicio API REST' }]) {
+    await client.execute({ sql: 'INSERT OR IGNORE INTO TipoPlataforma (nombre,descripcion) VALUES (?,?)', args: [t.n, t.d] })
+  }
+  results.push('4 tipos de plataforma')
+
+  // 10. TIPOS DE ENTIDAD
+  for (const t of [{ n: 'física', d: 'Persona física' }, { n: 'jurídica', d: 'Persona jurídica / Empresa' }]) {
+    await client.execute({ sql: 'INSERT OR IGNORE INTO TipoEntidad (nombre,descripcion) VALUES (?,?)', args: [t.n, t.d] })
+  }
+  results.push('2 tipos de entidad')
+
+  // 11. ESTADOS DE SESIÓN
+  for (const e of [{ n: 'activa', d: 'Sesión activa del usuario' }, { n: 'expirada', d: 'Sesión expirada por inactividad' }, { n: 'cerrada', d: 'Sesión cerrada por el usuario' }, { n: 'revocada', d: 'Sesión revocada por seguridad' }]) {
+    await client.execute({ sql: 'INSERT OR IGNORE INTO EstadoSesion (nombre,descripcion) VALUES (?,?)', args: [e.n, e.d] })
+  }
+  results.push('4 estados de sesión')
+
+  // 12. TIPOS DE PERSONA
+  for (const n of ['cliente', 'proveedor', 'empleado']) await client.execute({ sql: 'INSERT OR IGNORE INTO TipoPersona (nombre) VALUES (?)', args: [n] })
+  results.push('3 tipos de persona')
+
+  // 13. CATEGORÍAS DE MATERIAS PRIMAS
+  for (const c of [
+    { n: 'Harinas', d: 'Harinas de trigo, sémola y otros cereales' },
+    { n: 'Huevos y derivados', d: 'Huevos frescos, líquidos y derivados' },
+    { n: 'Lácteos', d: 'Quesos, cremas, manteca y leches' },
+    { n: 'Aceites y grasas', d: 'Aceites vegetales y grasas' },
+    { n: 'Condimentos y especias', d: 'Especias, sal, pimienta y hierbas' },
+    { n: 'Carnes', d: 'Carnes para rellenos (res, cerdo, pollo)' },
+    { n: 'Verduras', d: 'Verduras frescas para salsas y rellenos' },
+    { n: 'Salsas y conservas', d: 'Tomates, salsa de tomate, conservas' },
+    { n: 'Aditivos y suplementos', d: 'Colorantes, conservantes, mejoradores' },
+  ]) {
+    await client.execute({ sql: 'INSERT OR IGNORE INTO CategoriaMateriaPrima (nombre,descripcion) VALUES (?,?)', args: [c.n, c.d] })
+  }
+  results.push('9 categorías de materias primas')
+
+  // 14. TIPOS DE INSUMOS
+  for (const t of [
+    { n: 'Envases primarios', d: 'Bolsas, bandejas, film para contacto directo' },
+    { n: 'Envases secundarios', d: 'Cajas, cartones, etiquetas' },
+    { n: 'Materiales de limpieza', d: 'Productos de limpieza y sanitización' },
+    { n: 'Combustibles', d: 'Gas, leña, energía para producción' },
+    { n: 'Utensilios descartables', d: 'Guantes, cofias, delantales descartables' },
+    { n: 'Insumos de oficina', d: 'Papel, cartuchos, útiles' },
+  ]) {
+    await client.execute({ sql: 'INSERT OR IGNORE INTO TipoInsumo (nombre,descripcion) VALUES (?,?)', args: [t.n, t.d] })
+  }
+  results.push('6 tipos de insumos')
+
+  // 15. CATEGORÍAS DE PRODUCTOS TERMINADOS
+  for (const c of [
+    { n: 'Pastas frescas', d: 'Pastas frescas rellenas y al huevo' },
+    { n: 'Pastas secas', d: 'Pastas secas tipo fideos' },
+    { n: 'Salsas', d: 'Salsas para acompañar pastas' },
+    { n: 'Ñoquis', d: 'Ñoquis de papa, espinaca, etc.' },
+    { n: 'Lasagnas y canelones', d: 'Platos armados listos para hornear' },
+    { n: 'Postres', d: 'Postres a base de pasta' },
+  ]) {
+    await client.execute({ sql: 'INSERT OR IGNORE INTO CategoriaProductoTerminado (nombre,descripcion) VALUES (?,?)', args: [c.n, c.d] })
+  }
+  results.push('6 categorías de productos terminados')
+
+  // 16. MARCAS
+  for (const m of [
+    { n: 'Pastas Orlando', d: 'Marca propia' },
+    { n: 'Molinos Río de la Plata', d: 'Harinas y cereales' },
+    { n: 'Arcor', d: 'Alimentos generales' },
+    { n: 'Mastellone', d: 'Lácteos' },
+    { n: 'La Serenísima', d: 'Lácteos' },
+    { n: 'Molto', d: 'Harinas especiales' },
+    { n: 'Blancaflor', d: 'Harinas' },
+    { n: 'Canale', d: 'Alimentos' },
+    { n: 'Fargo', d: 'Alimentos' },
+    { n: 'Sin marca', d: 'Genérico / sin marca' },
+  ]) {
+    await client.execute({ sql: 'INSERT OR IGNORE INTO Marca (nombre,descripcion) VALUES (?,?)', args: [m.n, m.d] })
+  }
+  results.push('10 marcas')
+
+  // 17. UNIDADES DE MEDIDA
+  for (const u of [
+    { c: 'kg', n: 'Kilogramo', cb: 1, tm: 'peso' },
+    { c: 'g', n: 'Gramo', cb: 0.001, tm: 'peso' },
+    { c: 'mg', n: 'Miligramo', cb: 0.000001, tm: 'peso' },
+    { c: 'l', n: 'Litro', cb: 1, tm: 'volumen' },
+    { c: 'ml', n: 'Mililitro', cb: 0.001, tm: 'volumen' },
+    { c: 'cc', n: 'Centímetro cúbico', cb: 0.001, tm: 'volumen' },
+    { c: 'm', n: 'Metro', cb: 1, tm: 'longitud' },
+    { c: 'cm', n: 'Centímetro', cb: 0.01, tm: 'longitud' },
+    { c: 'mm', n: 'Milímetro', cb: 0.001, tm: 'longitud' },
+    { c: 'u', n: 'Unidad', cb: 1, tm: 'unidad' },
+    { c: 'doc', n: 'Docena', cb: 12, tm: 'unidad' },
+    { c: 'rollo', n: 'Rollo', cb: 1, tm: 'unidad' },
+    { c: 'paq', n: 'Paquete', cb: 1, tm: 'unidad' },
+    { c: 'bolsa', n: 'Bolsa', cb: 1, tm: 'unidad' },
+    { c: 'caja', n: 'Caja', cb: 1, tm: 'unidad' },
+  ]) {
+    await client.execute({ sql: 'INSERT OR IGNORE INTO UnidadMedida (codigo,nombre,conversion_a_base,tipo_medida) VALUES (?,?,?,?)', args: [u.c, u.n, u.cb, u.tm] })
+  }
+  results.push('15 unidades de medida')
+
+  // 18. FORMAS DE PAGO
+  for (const f of [
+    { n: 'Efectivo', ri: 0, rc: 0 },
+    { n: 'Mercado Pago', ri: 0, rc: 1 },
+    { n: 'Transferencia bancaria', ri: 1, rc: 1 },
+  ]) {
+    await client.execute({ sql: 'INSERT OR IGNORE INTO FormaPago (nombre_forma,requiere_identificacion,requiere_cuenta) VALUES (?,?,?)', args: [f.n, f.ri, f.rc] })
+  }
+  results.push('3 formas de pago')
+
+  // 19. ESTADOS GENERALES
+  for (const e of [
+    { n: 'pendiente', ea: 'general', ef: 0 },
+    { n: 'en_proceso', ea: 'general', ef: 0 },
+    { n: 'completado', ea: 'general', ef: 1 },
+    { n: 'cancelado', ea: 'general', ef: 1 },
+    { n: 'entregado', ea: 'pedidos', ef: 1 },
+    { n: 'en_camino', ea: 'entregas', ef: 0 },
+    { n: 'programado', ea: 'entregas', ef: 0 },
+    { n: 'pagado', ea: 'ventas', ef: 1 },
+    { n: 'activo', ea: 'produccion', ef: 0 },
+    { n: 'aprobado', ea: 'presupuestos', ef: 0 },
+    { n: 'rechazado', ea: 'presupuestos', ef: 1 },
+    { n: 'expirado', ea: 'presupuestos', ef: 1 },
+    { n: 'convertido', ea: 'presupuestos', ef: 1 },
+  ]) {
+    await client.execute({ sql: 'INSERT OR IGNORE INTO EstadoGeneral (nombre_estado,entidad_aplicable,es_final) VALUES (?,?,?)', args: [e.n, e.ea, e.ef] })
+  }
+  results.push('13 estados generales')
+
+  // 20-21. PERSONA + USUARIO ADMIN
+  await client.execute({
+    sql: "INSERT OR IGNORE INTO Persona (nombre,apellido,numero_documento,tipo_persona,observaciones) VALUES ('Orlando','Candia','00000000','empleado','Administrador del sistema')"
+  })
+  const personaId = Number((await client.execute("SELECT id FROM Persona WHERE numero_documento='00000000'")).rows[0]?.id)
+  const hashedPassword = await bcrypt.hash('Pastas2026!', 10)
+  await client.execute({
+    sql: 'INSERT OR IGNORE INTO Usuario (id_persona,email,password,estado) VALUES (?,?,?,?)',
+    args: [personaId, 'orlando.candia@gmail.com', hashedPassword, 1]
+  })
+  const usuarioId = Number((await client.execute("SELECT id FROM Usuario WHERE email='orlando.candia@gmail.com'")).rows[0]?.id)
+  results.push(`Admin: Orlando Candia (usuario_id=${usuarioId})`)
+
+  // Contacto email
+  const tipoEmailId = Number((await client.execute("SELECT id FROM TipoContacto WHERE nombre='email'")).rows[0]?.id)
+  if (tipoEmailId && personaId) {
+    await client.execute({
+      sql: 'INSERT OR IGNORE INTO Contacto (id_persona,id_tipo_contacto,valor,es_principal,verificado) VALUES (?,?,?,?,?)',
+      args: [personaId, tipoEmailId, 'orlando.candia@gmail.com', 1, 1]
+    })
+  }
+  results.push('Contacto email admin')
+
+  // 22. ROLES
+  for (const r of [
+    { n: 'admin', d: 'Administrador total del sistema', ed: 0 },
+    { n: 'produccion', d: 'Acceso a producción y stock', ed: 0 },
+    { n: 'ventas', d: 'Acceso a ventas y pedidos', ed: 0 },
+    { n: 'lectura', d: 'Solo lectura de datos', ed: 1 },
+  ]) {
+    await client.execute({ sql: 'INSERT OR IGNORE INTO Rol (nombre,descripcion,es_default) VALUES (?,?,?)', args: [r.n, r.d, r.ed] })
+  }
+  const rolAdminId = Number((await client.execute("SELECT id FROM Rol WHERE nombre='admin'")).rows[0]?.id)
+  if (usuarioId && rolAdminId) {
+    await client.execute({ sql: 'INSERT OR IGNORE INTO UsuarioRol (id_usuario,id_rol) VALUES (?,?)', args: [usuarioId, rolAdminId] })
+  }
+  results.push('4 roles + admin asignado')
+
+  // 23. PERMISOS
+  const mods = ['productos', 'compras', 'ventas', 'produccion', 'usuarios', 'auditoria', 'reportes', 'seguridad', 'logistica', 'presupuestos']
+  const accs = ['ver', 'crear', 'editar', 'eliminar']
+  for (const mod of mods) {
+    for (const acc of accs) {
+      await client.execute({ sql: 'INSERT OR IGNORE INTO Permiso (nombre,modulo,descripcion) VALUES (?,?,?)', args: [`${mod}.${acc}`, mod, `${acc} en ${mod}`] })
+    }
+  }
+  for (const n of ['dashboard.ver', 'configuracion.ver', 'configuracion.editar', 'opiniones.ver', 'opiniones.editar']) {
+    await client.execute({ sql: 'INSERT OR IGNORE INTO Permiso (nombre,modulo,descripcion) VALUES (?,?,?)', args: [n, n.split('.')[0], n] })
+  }
+
+  // Assign all permissions to admin role
+  const allPerms = await client.execute('SELECT id FROM Permiso')
+  for (const row of allPerms.rows) {
+    const pid = Number(row.id)
+    if (rolAdminId && pid) {
+      await client.execute({ sql: 'INSERT OR IGNORE INTO RolPermiso (id_rol,id_permiso) VALUES (?,?)', args: [rolAdminId, pid] })
+    }
+  }
+  results.push(`${allPerms.rows.length} permisos + asignados al rol admin`)
+
+  // Helper to get category/unit IDs by name/code
+  const catId = async (table: string, nombre: string) =>
+    Number((await client.execute({ sql: `SELECT id FROM ${table} WHERE nombre=?`, args: [nombre] })).rows[0]?.id) || 0
+  const umId = async (codigo: string) =>
+    Number((await client.execute({ sql: 'SELECT id FROM UnidadMedida WHERE codigo=?', args: [codigo] })).rows[0]?.id) || 0
+  const tiId = async (nombre: string) =>
+    Number((await client.execute({ sql: 'SELECT id FROM TipoInsumo WHERE nombre=?', args: [nombre] })).rows[0]?.id) || 0
+
+  // 24. PRODUCTOS TERMINADOS
+  const productos = [
+    { c: 'PF-001', n: 'Sorrentinos de Jamón y Queso', cat: 'Pastas frescas', p: 0.5, pr: 4500, sm: 10, de: 1, o: 1 },
+    { c: 'PF-002', n: 'Ravioles de Ricota y Espinaca', cat: 'Pastas frescas', p: 0.5, pr: 4000, sm: 10, de: 1, o: 2 },
+    { c: 'PF-003', n: 'Ravioles de Carne', cat: 'Pastas frescas', p: 0.5, pr: 4200, sm: 10, de: 1, o: 3 },
+    { c: 'PF-004', n: 'Cappelletti de Pollo', cat: 'Pastas frescas', p: 0.5, pr: 4600, sm: 10, de: 0, o: 4 },
+    { c: 'PF-005', n: 'Tortellini de Queso', cat: 'Pastas frescas', p: 0.4, pr: 4300, sm: 8, de: 0, o: 5 },
+    { c: 'PF-006', n: 'Agnolottis de Verdura', cat: 'Pastas frescas', p: 0.5, pr: 3900, sm: 8, de: 0, o: 6 },
+    { c: 'PF-007', n: 'Fettuccine al Huevo', cat: 'Pastas frescas', p: 0.4, pr: 3200, sm: 15, de: 1, o: 7 },
+    { c: 'PF-008', n: 'Tagliatelle al Huevo', cat: 'Pastas frescas', p: 0.4, pr: 3200, sm: 15, de: 0, o: 8 },
+    { c: 'PF-009', n: 'Pappardelle', cat: 'Pastas frescas', p: 0.4, pr: 3300, sm: 10, de: 0, o: 9 },
+    { c: 'PF-010', n: 'Masa para Empanadas', cat: 'Pastas frescas', p: 0.5, pr: 2800, sm: 20, de: 0, o: 10 },
+    { c: 'PS-001', n: 'Fideos Spaghetti', cat: 'Pastas secas', p: 0.5, pr: 2500, sm: 20, de: 1, o: 1 },
+    { c: 'PS-002', n: 'Fideos Penne Rigate', cat: 'Pastas secas', p: 0.5, pr: 2500, sm: 20, de: 0, o: 2 },
+    { c: 'PS-003', n: 'Fideos Tirabuzón', cat: 'Pastas secas', p: 0.5, pr: 2500, sm: 15, de: 0, o: 3 },
+    { c: 'PS-004', n: 'Mostacholes', cat: 'Pastas secas', p: 0.5, pr: 2500, sm: 15, de: 0, o: 4 },
+    { c: 'PS-005', n: 'Cintas', cat: 'Pastas secas', p: 0.5, pr: 2600, sm: 10, de: 0, o: 5 },
+    { c: 'SA-001', n: 'Salsa Filetto', cat: 'Salsas', p: 0.5, pr: 3000, sm: 10, de: 1, o: 1 },
+    { c: 'SA-002', n: 'Salsa Bolognesa', cat: 'Salsas', p: 0.5, pr: 3500, sm: 10, de: 1, o: 2 },
+    { c: 'SA-003', n: 'Salsa Crema', cat: 'Salsas', p: 0.5, pr: 3200, sm: 8, de: 0, o: 3 },
+    { c: 'SA-004', n: 'Salsa Pesto', cat: 'Salsas', p: 0.3, pr: 3800, sm: 8, de: 0, o: 4 },
+    { c: 'NQ-001', n: 'Ñoquis de Papa', cat: 'Ñoquis', p: 0.5, pr: 3500, sm: 15, de: 1, o: 1 },
+    { c: 'NQ-002', n: 'Ñoquis de Espinaca', cat: 'Ñoquis', p: 0.5, pr: 3700, sm: 10, de: 0, o: 2 },
+    { c: 'NQ-003', n: 'Ñoquis de Calabaza', cat: 'Ñoquis', p: 0.5, pr: 3700, sm: 10, de: 0, o: 3 },
+    { c: 'NQ-004', n: 'Ñoquis de Ricota', cat: 'Ñoquis', p: 0.5, pr: 3800, sm: 8, de: 0, o: 4 },
+    { c: 'LC-001', n: 'Lasagna de Carne', cat: 'Lasagnas y canelones', p: 1.0, pr: 8000, sm: 5, de: 1, o: 1 },
+    { c: 'LC-002', n: 'Lasagna de Verdura', cat: 'Lasagnas y canelones', p: 1.0, pr: 7500, sm: 5, de: 0, o: 2 },
+    { c: 'LC-003', n: 'Canelones de Jamón y Queso', cat: 'Lasagnas y canelones', p: 0.8, pr: 6500, sm: 5, de: 1, o: 3 },
+    { c: 'LC-004', n: 'Canelones de Ricota', cat: 'Lasagnas y canelones', p: 0.8, pr: 6000, sm: 5, de: 0, o: 4 },
+  ]
+  for (const pt of productos) {
+    const idCat = await catId('CategoriaProductoTerminado', pt.cat)
+    if (!idCat) continue
+    await client.execute({
+      sql: 'INSERT OR IGNORE INTO ProductoTerminado (codigo,nombre,id_categoria,peso_unitario_aprox,precio_venta,stock_minimo,destacado,orden,visible_en_landing,estado,stock_actual) VALUES (?,?,?,?,?,?,?,?,1,1,0)',
+      args: [pt.c, pt.n, idCat, pt.p, pt.pr, pt.sm, pt.de, pt.o]
+    })
+  }
+  results.push(`${productos.length} productos terminados`)
+
+  // 25. MATERIAS PRIMAS
+  const mps = [
+    { c: 'MP-001', n: 'Harina 000', cat: 'Harinas', um: 'kg', s: 50, sm: 20, pr: 1200 },
+    { c: 'MP-002', n: 'Harina 0000', cat: 'Harinas', um: 'kg', s: 30, sm: 15, pr: 1400 },
+    { c: 'MP-003', n: 'Sémola de trigo', cat: 'Harinas', um: 'kg', s: 20, sm: 10, pr: 1600 },
+    { c: 'MP-004', n: 'Huevos frescos', cat: 'Huevos y derivados', um: 'u', s: 120, sm: 60, pr: 250 },
+    { c: 'MP-005', n: 'Queso Ricota', cat: 'Lácteos', um: 'kg', s: 10, sm: 5, pr: 5000 },
+    { c: 'MP-006', n: 'Queso Mozzarella', cat: 'Lácteos', um: 'kg', s: 8, sm: 4, pr: 6000 },
+    { c: 'MP-007', n: 'Queso Parmesano', cat: 'Lácteos', um: 'kg', s: 5, sm: 2, pr: 12000 },
+    { c: 'MP-008', n: 'Manteca', cat: 'Lácteos', um: 'kg', s: 5, sm: 3, pr: 8000 },
+    { c: 'MP-009', n: 'Crema de leche', cat: 'Lácteos', um: 'l', s: 10, sm: 5, pr: 3000 },
+    { c: 'MP-010', n: 'Aceite de girasol', cat: 'Aceites y grasas', um: 'l', s: 10, sm: 5, pr: 2500 },
+    { c: 'MP-011', n: 'Aceite de oliva', cat: 'Aceites y grasas', um: 'l', s: 3, sm: 2, pr: 8000 },
+    { c: 'MP-012', n: 'Sal fina', cat: 'Condimentos y especias', um: 'kg', s: 10, sm: 5, pr: 800 },
+    { c: 'MP-013', n: 'Pimienta negra', cat: 'Condimentos y especias', um: 'kg', s: 1, sm: 0.5, pr: 15000 },
+    { c: 'MP-014', n: 'Nuez moscada', cat: 'Condimentos y especias', um: 'kg', s: 0.5, sm: 0.2, pr: 25000 },
+    { c: 'MP-015', n: 'Carne picada de res', cat: 'Carnes', um: 'kg', s: 15, sm: 8, pr: 7000 },
+    { c: 'MP-016', n: 'Jamón cocido', cat: 'Carnes', um: 'kg', s: 8, sm: 4, pr: 8000 },
+    { c: 'MP-017', n: 'Pollo desmenuzado', cat: 'Carnes', um: 'kg', s: 5, sm: 3, pr: 6500 },
+    { c: 'MP-018', n: 'Espinaca fresca', cat: 'Verduras', um: 'kg', s: 5, sm: 3, pr: 3500 },
+    { c: 'MP-019', n: 'Cebolla', cat: 'Verduras', um: 'kg', s: 10, sm: 5, pr: 1500 },
+    { c: 'MP-020', n: 'Ajo', cat: 'Verduras', um: 'kg', s: 2, sm: 1, pr: 5000 },
+    { c: 'MP-021', n: 'Calabaza', cat: 'Verduras', um: 'kg', s: 8, sm: 4, pr: 2000 },
+    { c: 'MP-022', n: 'Papa', cat: 'Verduras', um: 'kg', s: 20, sm: 10, pr: 1200 },
+    { c: 'MP-023', n: 'Tomate perita en lata', cat: 'Salsas y conservas', um: 'kg', s: 15, sm: 8, pr: 2500 },
+    { c: 'MP-024', n: 'Puré de tomate', cat: 'Salsas y conservas', um: 'kg', s: 10, sm: 5, pr: 2000 },
+    { c: 'MP-025', n: 'Albahaca fresca', cat: 'Verduras', um: 'kg', s: 1, sm: 0.5, pr: 8000 },
+    { c: 'MP-026', n: 'Colorante alimentario', cat: 'Aditivos y suplementos', um: 'kg', s: 0.5, sm: 0.2, pr: 12000 },
+    { c: 'MP-027', n: 'Agua', cat: 'Aditivos y suplementos', um: 'l', s: 100, sm: 50, pr: 100 },
+  ]
+  for (const mp of mps) {
+    const idCat = await catId('CategoriaMateriaPrima', mp.cat)
+    const idUm = await umId(mp.um)
+    if (!idCat || !idUm) continue
+    await client.execute({
+      sql: 'INSERT OR IGNORE INTO MateriaPrima (codigo,nombre,id_categoria,id_unidad_base,stock_actual,stock_minimo,precio_compra_referencia,estado) VALUES (?,?,?,?,?,?,?,1)',
+      args: [mp.c, mp.n, idCat, idUm, mp.s, mp.sm, mp.pr]
+    })
+  }
+  results.push(`${mps.length} materias primas`)
+
+  // 26. INSUMOS
+  const insumos = [
+    { c: 'IN-001', n: 'Bolsa de polietileno 500g', ti: 'Envases primarios', um: 'paq', s: 200, sm: 100, pr: 150 },
+    { c: 'IN-002', n: 'Bandeja de poliestireno', ti: 'Envases primarios', um: 'u', s: 150, sm: 80, pr: 200 },
+    { c: 'IN-003', n: 'Film plástico', ti: 'Envases primarios', um: 'rollo', s: 10, sm: 5, pr: 3500 },
+    { c: 'IN-004', n: 'Caja de cartón para pastas', ti: 'Envases secundarios', um: 'u', s: 100, sm: 50, pr: 500 },
+    { c: 'IN-005', n: 'Etiqueta adhesiva', ti: 'Envases secundarios', um: 'u', s: 500, sm: 200, pr: 50 },
+    { c: 'IN-006', n: 'Lavandina', ti: 'Materiales de limpieza', um: 'l', s: 10, sm: 5, pr: 800 },
+    { c: 'IN-007', n: 'Detergente', ti: 'Materiales de limpieza', um: 'l', s: 5, sm: 3, pr: 1500 },
+    { c: 'IN-008', n: 'Desengrasante', ti: 'Materiales de limpieza', um: 'l', s: 3, sm: 2, pr: 2500 },
+    { c: 'IN-009', n: 'Gas envaso', ti: 'Combustibles', um: 'kg', s: 30, sm: 15, pr: 3000 },
+    { c: 'IN-010', n: 'Guantes de latex', ti: 'Utensilios descartables', um: 'paq', s: 20, sm: 10, pr: 2500 },
+    { c: 'IN-011', n: 'Cofias descartables', ti: 'Utensilios descartables', um: 'paq', s: 15, sm: 8, pr: 1800 },
+    { c: 'IN-012', n: 'Delantal descartable', ti: 'Utensilios descartables', um: 'u', s: 50, sm: 25, pr: 300 },
+  ]
+  for (const ins of insumos) {
+    const idTi = await tiId(ins.ti)
+    const idUm = await umId(ins.um)
+    if (!idTi || !idUm) continue
+    await client.execute({
+      sql: 'INSERT OR IGNORE INTO Insumo (codigo,nombre,id_tipo_insumo,id_unidad_base,stock_actual,stock_minimo,precio_compra_referencia,estado) VALUES (?,?,?,?,?,?,?,1)',
+      args: [ins.c, ins.n, idTi, idUm, ins.s, ins.sm, ins.pr]
+    })
+  }
+  results.push(`${insumos.length} insumos`)
+
+  // 27. PRODUCTOS LANDING
+  const productosLanding = [
+    { id: 1, n: 'Sorrentinos de Jamón y Queso', d: 'Clásicos sorrentinos rellenos de jamón cocido y queso mozzarella, hechos con masa al huevo.', cat: 'Pastas rellenas', pr: 4500, pe: '500g', de: 1, o: 1 },
+    { id: 2, n: 'Ravioles de Ricota y Espinaca', d: 'Ravioles suaves con relleno de ricota fresca y espinaca, ideal con salsa filetto.', cat: 'Pastas rellenas', pr: 4000, pe: '500g', de: 1, o: 2 },
+    { id: 3, n: 'Ravioles de Carne', d: 'Ravioles con relleno de carne especiada, tradición familiar en cada bocado.', cat: 'Pastas rellenas', pr: 4200, pe: '500g', de: 1, o: 3 },
+    { id: 4, n: 'Ñoquis de Papa', d: 'Ñoquis suaves y esponjosos, hechos con papas naturales. ¡Tradición del 29!', cat: 'Ñoquis', pr: 3500, pe: '500g', de: 1, o: 4 },
+    { id: 5, n: 'Fettuccine al Huevo', d: 'Fettuccine de masa al huevo, ideales para salsas cremosas.', cat: 'Pastas largas', pr: 3200, pe: '400g', de: 1, o: 5 },
+    { id: 6, n: 'Spaghetti', d: 'Spaghetti secos de sémola de trigo, cocción perfecta al dente.', cat: 'Pastas secas', pr: 2500, pe: '500g', de: 0, o: 6 },
+    { id: 7, n: 'Salsa Filetto', d: 'Salsa de tomates frescos con albahaca, el clásico acompañamiento.', cat: 'Salsas', pr: 3000, pe: '500g', de: 1, o: 7 },
+    { id: 8, n: 'Salsa Bolognesa', d: 'Salsa con carne picada, tomate y vegetales, receta casera.', cat: 'Salsas', pr: 3500, pe: '500g', de: 0, o: 8 },
+    { id: 9, n: 'Lasagna de Carne', d: 'Lasagna armada con capas de pasta, carne, salsa bechamel y queso.', cat: 'Platos armados', pr: 8000, pe: '1kg', de: 1, o: 9 },
+    { id: 10, n: 'Canelones de Jamón y Queso', d: 'Canelones rellenos de jamón y queso, gratinados con salsa blanca.', cat: 'Platos armados', pr: 6500, pe: '800g', de: 0, o: 10 },
+  ]
+  for (const prod of productosLanding) {
+    await client.execute({
+      sql: 'INSERT OR IGNORE INTO Producto (id,nombre,descripcion,categoria,precio,peso,destacado,orden,imagen,stock) VALUES (?,?,?,?,?,?,?,?,NULL,1)',
+      args: [prod.id, prod.n, prod.d, prod.cat, prod.pr, prod.pe, prod.de, prod.o]
+    })
+  }
+  results.push(`${productosLanding.length} productos landing`)
+
+  // 28. PUNTOS DE ENCUENTRO
+  const puntosEncuentro = [
+    { id: 1, n: 'Centro - Corrientes', d: 'Av. 9 de Julio 1200, Corrientes', la: -27.4756, lo: -58.8314, h: '{"lunes_viernes": "8:00-18:00", "sabados": "8:00-13:00"}' },
+    { id: 2, n: 'Barrio Esperanza', d: 'Av. Sargento Cabral 500, Corrientes', la: -27.4600, lo: -58.8100, h: '{"lunes_viernes": "9:00-17:00", "sabados": "9:00-12:00"}' },
+    { id: 3, n: 'Plaza Italia', d: 'Plaza Italia, Corrientes', la: -27.4690, lo: -58.8350, h: '{"sabados": "8:00-12:00"}' },
+  ]
+  for (const pe of puntosEncuentro) {
+    await client.execute({
+      sql: 'INSERT OR IGNORE INTO PuntoEncuentro (id,nombre,direccion,latitud,longitud,horarios,activo) VALUES (?,?,?,?,?,?,1)',
+      args: [pe.id, pe.n, pe.d, pe.la, pe.lo, pe.h]
+    })
+  }
+  results.push(`${puntosEncuentro.length} puntos de encuentro`)
+
+  return results
+}
 
 // POST /api/seed - Initialize database with ALL default data
 // This endpoint should be called once to set up the initial data
@@ -10,9 +492,30 @@ export async function POST(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     const secret = searchParams.get('secret')
     if (secret !== process.env.SEED_SECRET && secret !== 'pastas-orlando-seed-2026') {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      return NextResponse.json({ error: 'Unauthorized', version: 'v3-turso-fix' }, { status: 401 })
     }
 
+    // Detect Turso and use @libsql/client directly
+    if (isTurso()) {
+      const client = getTursoClient()
+      const results = await seedTurso(client)
+      return NextResponse.json({
+        success: true,
+        version: 'v3-turso-fix',
+        message: 'Seed COMPLETO exitoso (Turso/libsql) - Todas las tablas pobladas',
+        backend: 'libsql',
+        results,
+        credentials: {
+          email: 'orlando.candia@gmail.com',
+          password: 'Pastas2026!',
+          login_url: '/admin/login',
+        },
+      })
+    }
+
+    // ============================================
+    // LOCAL SQLite PATH (Prisma-based)
+    // ============================================
     const results: string[] = []
 
     // ============================================
@@ -678,7 +1181,9 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
+      version: 'v3-turso-fix',
       message: 'Seed COMPLETO exitoso - Todas las tablas pobladas',
+      backend: 'prisma',
       results,
       credentials: {
         email: 'orlando.candia@gmail.com',
@@ -689,7 +1194,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Seed error:', error)
     return NextResponse.json(
-      { error: 'Error al ejecutar seed', details: String(error) },
+      { error: 'Error al ejecutar seed', details: String(error), version: 'v3-turso-fix' },
       { status: 500 }
     )
   }
@@ -699,6 +1204,45 @@ export async function POST(request: NextRequest) {
 export async function GET() {
   try {
     const tables = [
+      'Pais', 'Provincia', 'Departamento', 'Municipio', 'TipoDireccion',
+      'TipoContacto', 'TipoPersona', 'EmpresaTelefonica', 'ServicioCorreoElectronico',
+      'TipoPlataforma', 'TipoEntidad', 'EstadoSesion', 'CategoriaMateriaPrima',
+      'TipoInsumo', 'CategoriaProductoTerminado', 'Marca', 'UnidadMedida',
+      'FormaPago', 'EstadoGeneral', 'Rol', 'Permiso', 'Usuario', 'Persona',
+      'ProductoTerminado', 'MateriaPrima', 'Insumo', 'Producto', 'PuntoEncuentro',
+    ]
+
+    // Use @libsql/client directly when on Turso
+    if (isTurso()) {
+      const client = getTursoClient()
+      const results: Record<string, number> = {}
+      let emptyTables = 0
+
+      for (const table of tables) {
+        try {
+          const res = await client.execute(`SELECT COUNT(*) as c FROM ${table}`)
+          results[table] = Number(res.rows[0]?.c || 0)
+          if (results[table] === 0) emptyTables++
+        } catch {
+          results[table] = -1
+          emptyTables++
+        }
+      }
+
+      return NextResponse.json({
+        version: 'v3-turso-fix',
+        backend: 'libsql',
+        totalTables: tables.length,
+        populatedTables: tables.length - emptyTables,
+        emptyTables,
+        results,
+        status: emptyTables === 0 ? 'ALL_OK' : 'NEEDS_SEED',
+        seedCommand: 'POST /api/seed?secret=pastas-orlando-seed-2026',
+      })
+    }
+
+    // Local SQLite path (Prisma-based)
+    const prismaTables = [
       { name: 'pais', model: 'pais' },
       { name: 'provincia', model: 'provincia' },
       { name: 'departamento', model: 'departamento' },
@@ -732,7 +1276,7 @@ export async function GET() {
     const results: Record<string, number> = {}
     let emptyTables = 0
 
-    for (const table of tables) {
+    for (const table of prismaTables) {
       try {
         const count = await (db as any)[table.model].count()
         results[table.name] = count
@@ -744,8 +1288,10 @@ export async function GET() {
     }
 
     return NextResponse.json({
-      totalTables: tables.length,
-      populatedTables: tables.length - emptyTables,
+      version: 'v3-turso-fix',
+      backend: 'prisma',
+      totalTables: prismaTables.length,
+      populatedTables: prismaTables.length - emptyTables,
       emptyTables,
       results,
       status: emptyTables === 0 ? 'ALL_OK' : 'NEEDS_SEED',
@@ -753,7 +1299,7 @@ export async function GET() {
     })
   } catch (error) {
     return NextResponse.json(
-      { error: 'Error al verificar', details: String(error) },
+      { error: 'Error al verificar', details: String(error), version: 'v3-turso-fix' },
       { status: 500 }
     )
   }
