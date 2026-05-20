@@ -1,5 +1,8 @@
 import type { NextConfig } from "next";
 
+// CRITICAL: Prisma reads DATABASE_URL_FILE from schema.prisma
+// We need DATABASE_URL_FILE to always be a valid file: URL for Prisma
+// The actual Turso connection URL is in DATABASE_URL (runtime) or TURSO_DATABASE_URL
 const nextConfig: NextConfig = {
   output: "standalone",
   typescript: {
@@ -11,12 +14,9 @@ const nextConfig: NextConfig = {
     "localhost",
   ],
   env: {
-    // Prisma reads DATABASE_URL_FILE from the schema (instead of DATABASE_URL)
-    // This separates the Prisma validation URL (must be file:) from the actual
-    // Turso connection URL (libsql://) which is used by the adapter in db.ts
-    DATABASE_URL_FILE: process.env.DATABASE_URL?.startsWith('libsql://') || process.env.DATABASE_URL?.startsWith('http')
-      ? 'file:./dev.db'
-      : (process.env.DATABASE_URL || 'file:./db/custom.db'),
+    // Always set DATABASE_URL_FILE to a valid file: URL for Prisma validation
+    // At runtime, the Turso adapter in db.ts handles the actual connection
+    DATABASE_URL_FILE: 'file:./dev.db',
   },
 };
 
