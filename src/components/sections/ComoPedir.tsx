@@ -62,7 +62,7 @@ const cardVariants = {
 
 export default function ComoPedir() {
   return (
-    <section id="como-pedir" className="py-16 sm:py-20 bg-white">
+    <section id="como-pedir" className="min-h-[500px] flex flex-col justify-center py-16 sm:py-20 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Title */}
         <div className="text-center mb-12">
