@@ -2,13 +2,10 @@
 
 import { useState } from 'react'
 import {
-  Star,
-  Truck,
-  MapPin,
-  Phone,
-  Mail,
-  Clock,
   MessageCircle,
+  Mail,
+  Instagram,
+  Facebook,
 } from 'lucide-react'
 import QRCode from 'react-qr-code'
 import { Button } from '@/components/ui/button'
@@ -17,6 +14,9 @@ import { Textarea } from '@/components/ui/textarea'
 
 const WHATSAPP_LINK =
   'https://wa.me/5493754419324?text=Hola!%20Quiero%20hacer%20un%20pedido%20de%20pastas'
+
+const QR_LINK =
+  'https://wa.me/5493754419324?text=Hola%20Orlando%2C%20vengo%20de%20la%20web%20(QR)%20y%20quiero%20hacer%20un%20pedido'
 
 async function trackInteraction(tipo: string) {
   try {
@@ -60,7 +60,6 @@ export default function Contacto() {
     setError('')
     setSuccess(false)
 
-    // Validation
     if (!nombre.trim() || !email.trim() || !telefono.trim() || !mensaje.trim()) {
       setError('Todos los campos son obligatorios.')
       return
@@ -80,9 +79,7 @@ export default function Contacto() {
         body: JSON.stringify({ nombre, email, telefono, mensaje }),
       })
 
-      if (!res.ok) {
-        throw new Error('Error al enviar')
-      }
+      if (!res.ok) throw new Error('Error al enviar')
 
       setSuccess(true)
       setNombre('')
@@ -98,137 +95,136 @@ export default function Contacto() {
 
   return (
     <section id="contacto" className="py-16 sm:py-20 bg-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Título */}
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Header */}
         <div className="text-center mb-12">
-          <h2 className="text-3xl sm:text-4xl font-bold text-marron">
-            <span className="text-rojo">Contacto</span>
+          <h2 className="text-3xl sm:text-4xl font-bold text-[#5C3A21]">
+            ¿Listo para hacer tu pedido?
           </h2>
-          <div className="h-1 w-20 bg-mostaza mx-auto mt-4 rounded-full" />
+          <p className="mt-4 text-[#6B7280] max-w-2xl mx-auto text-base leading-relaxed">
+            Completá el formulario con tu pedido o tu consulta y me comunico con vos al instante.
+            También podés contactarme directamente por los siguientes canales:
+          </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-          {/* Columna izquierda - Información */}
-          <div className="space-y-5">
-            <h3 className="text-2xl font-bold text-marron mb-2">
-              El amigo de las pastas
-            </h3>
+        {/* Two columns */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
 
-            <div className="flex items-start gap-3">
-              <Star className="h-5 w-5 text-mostaza shrink-0 mt-0.5" />
-              <div>
-                <p className="font-semibold text-marron">El amigo de las pastas</p>
-              </div>
-            </div>
+          {/* LEFT COLUMN — Contact channels + QR */}
+          <div className="space-y-4">
 
-            <div className="flex items-start gap-3">
-              <Truck className="h-5 w-5 text-mostaza shrink-0 mt-0.5" />
-              <div>
-                <p className="text-muted-foreground">
-                  Envío <strong className="text-marron">GRATIS</strong> con seña
-                </p>
-                <p className="text-muted-foreground text-sm">
-                  No contamos con local a la calle
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-start gap-3">
-              <MapPin className="h-5 w-5 text-mostaza shrink-0 mt-0.5" />
-              <div>
-                <p className="text-marron font-medium">Zona de cobertura</p>
-                <p className="text-muted-foreground text-sm">
-                  Corrientes: envío gratis
-                </p>
-                <p className="text-muted-foreground text-sm">
-                  Alrededores: consultanos
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-start gap-3">
-              <Phone className="h-5 w-5 text-mostaza shrink-0 mt-0.5" />
-              <div>
-                <a
-                  href="tel:3754419324"
-                  className="text-marron font-medium hover:text-mostaza transition-colors text-lg"
-                >
-                  3754-419324
-                </a>
-              </div>
-            </div>
-
-            <div className="flex items-start gap-3">
-              <Mail className="h-5 w-5 text-mostaza shrink-0 mt-0.5" />
-              <div>
-                <a
-                  href="mailto:laspastasdeorlando@gmail.com"
-                  className="text-muted-foreground hover:text-mostaza transition-colors"
-                >
-                  laspastasdeorlando@gmail.com
-                </a>
-              </div>
-            </div>
-
-            <div className="flex items-start gap-3">
-              <Clock className="h-5 w-5 text-mostaza shrink-0 mt-0.5" />
-              <div>
-                <p className="text-marron font-medium">Pedidos con anticipación</p>
-                <p className="text-muted-foreground text-sm">
-                  Eventos, instituciones, grandes cantidades: consultanos cuando quieras, incluso fines de semana.
-                </p>
-              </div>
-            </div>
-
-            {/* Botón WhatsApp */}
-            <Button
+            {/* WhatsApp */}
+            <button
+              type="button"
               onClick={handleWhatsAppClick}
-              size="lg"
-              className="w-full bg-green-600 hover:bg-green-700 text-white font-bold text-base px-8 py-6 mt-4"
+              className="w-full flex items-center gap-4 bg-white border border-gray-200 rounded-2xl p-5 shadow-sm hover:shadow-md hover:border-green-300 transition-all group text-left"
             >
-              <MessageCircle className="h-5 w-5 mr-2" />
-              📲 PEDIR POR WHATSAPP
-            </Button>
+              <div className="w-12 h-12 rounded-full bg-[#25D366] flex items-center justify-center shrink-0">
+                <MessageCircle className="h-6 w-6 text-white" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-[#374151]">WhatsApp Directo</p>
+                <p className="text-[#25D366] font-bold text-lg">3754-419324</p>
+              </div>
+              <svg className="h-5 w-5 text-gray-300 group-hover:text-[#25D366] transition-colors shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+            </button>
 
-            {/* Código QR */}
+            {/* Email */}
+            <a
+              href="mailto:laspastasdeorlando@gmail.com"
+              className="w-full flex items-center gap-4 bg-white border border-gray-200 rounded-2xl p-5 shadow-sm hover:shadow-md hover:border-[#E1AD01] transition-all group"
+            >
+              <div className="w-12 h-12 rounded-full bg-[#E1AD01] flex items-center justify-center shrink-0">
+                <Mail className="h-6 w-6 text-white" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-[#374151]">Email</p>
+                <p className="text-[#E1AD01] font-bold text-base truncate">laspastasdeorlando@gmail.com</p>
+              </div>
+              <svg className="h-5 w-5 text-gray-300 group-hover:text-[#E1AD01] transition-colors shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+            </a>
+
+            {/* Instagram */}
+            <a
+              href="https://instagram.com/laspastasdeorlando"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full flex items-center gap-4 bg-white border border-gray-200 rounded-2xl p-5 shadow-sm hover:shadow-md hover:border-[#E1306C] transition-all group"
+            >
+              <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-[#F58529] via-[#DD2A7B] to-[#8134AF] flex items-center justify-center shrink-0">
+                <Instagram className="h-6 w-6 text-white" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-[#374151]">Instagram</p>
+                <p className="text-[#E1306C] font-bold text-lg">@laspastasdeorlando</p>
+              </div>
+              <svg className="h-5 w-5 text-gray-300 group-hover:text-[#E1306C] transition-colors shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+            </a>
+
+            {/* Facebook */}
+            <a
+              href="https://facebook.com/laspastasdeorlando"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full flex items-center gap-4 bg-white border border-gray-200 rounded-2xl p-5 shadow-sm hover:shadow-md hover:border-[#1877F2] transition-all group"
+            >
+              <div className="w-12 h-12 rounded-full bg-[#1877F2] flex items-center justify-center shrink-0">
+                <Facebook className="h-6 w-6 text-white" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-[#374151]">Facebook</p>
+                <p className="text-[#1877F2] font-bold text-lg">laspastasdeorlando</p>
+              </div>
+              <svg className="h-5 w-5 text-gray-300 group-hover:text-[#1877F2] transition-colors shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+            </a>
+
+            {/* QR Code Card */}
             <div
-              className="mt-6 flex flex-col items-center"
+              className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm flex flex-col items-center mt-2"
               onMouseEnter={handleQRHover}
             >
-              <div className="bg-white rounded-xl border border-border p-3 shadow-sm">
+              <div className="bg-white rounded-xl p-2 shadow-inner border border-gray-100">
                 <QRCode
-                  value="https://wa.me/5493754419324?text=Hola%20Orlando%2C%20vengo%20de%20la%20web%20(QR)%20y%20quiero%20hacer%20un%20pedido"
+                  value={QR_LINK}
                   size={120}
                 />
               </div>
-              <p className="text-xs text-muted-foreground mt-2">
-                Escaneá y escribí a Orlando
+              <p className="mt-3 text-sm font-medium text-[#374151]">
+                Escaneá y escribile a Orlando
+              </p>
+              <p className="mt-1 text-xs text-[#6B7280]">
+                WhatsApp 3754-419324
               </p>
             </div>
           </div>
 
-          {/* Columna derecha - Formulario */}
-          <div className="bg-crema/50 rounded-xl border border-border p-6 sm:p-8">
-            <h3 className="text-xl font-bold text-marron mb-6">
-              Envianos tu consulta
+          {/* RIGHT COLUMN — Form */}
+          <div className="bg-white border border-gray-200 rounded-2xl p-6 sm:p-8 shadow-sm">
+            <h3 className="text-2xl font-bold text-[#5C3A21] mb-1">
+              Hacé tu consulta
             </h3>
+            <p className="text-[#6B7280] text-sm mb-6">
+              Completá tus datos y te contacto a la brevedad
+            </p>
 
             {success && (
-              <div className="mb-6 p-4 rounded-lg bg-green-50 border border-green-200 text-green-800 text-sm">
-                ✅ Mensaje enviado. Te responderemos a la brevedad.
+              <div className="mb-6 p-4 rounded-xl bg-green-50 border border-green-200 text-green-800 text-sm flex items-center gap-2">
+                <span className="text-green-500 text-lg">✓</span>
+                Mensaje enviado correctamente. Te responderemos a la brevedad.
               </div>
             )}
 
             {error && (
-              <div className="mb-6 p-4 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm">
+              <div className="mb-6 p-4 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm flex items-center gap-2">
+                <span className="text-red-500 text-lg">!</span>
                 {error}
               </div>
             )}
 
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-5">
               <div>
-                <label htmlFor="nombre" className="block text-sm font-medium text-marron mb-1">
-                  Nombre y apellido <span className="text-rojo">*</span>
+                <label htmlFor="nombre" className="block text-sm font-semibold text-[#374151] mb-1.5">
+                  Nombre completo <span className="text-[#C41E3A]">*</span>
                 </label>
                 <Input
                   id="nombre"
@@ -237,13 +233,13 @@ export default function Contacto() {
                   value={nombre}
                   onChange={(e) => setNombre(e.target.value)}
                   required
-                  className="bg-white"
+                  className="bg-[#F9FAFB] border-gray-200 focus:border-[#E1AD01] focus:ring-[#E1AD01]/20 rounded-xl h-11"
                 />
               </div>
 
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-marron mb-1">
-                  Email <span className="text-rojo">*</span>
+                <label htmlFor="email" className="block text-sm font-semibold text-[#374151] mb-1.5">
+                  Email <span className="text-[#C41E3A]">*</span>
                 </label>
                 <Input
                   id="email"
@@ -252,13 +248,13 @@ export default function Contacto() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="bg-white"
+                  className="bg-[#F9FAFB] border-gray-200 focus:border-[#E1AD01] focus:ring-[#E1AD01]/20 rounded-xl h-11"
                 />
               </div>
 
               <div>
-                <label htmlFor="telefono" className="block text-sm font-medium text-marron mb-1">
-                  Teléfono / WhatsApp <span className="text-rojo">*</span>
+                <label htmlFor="telefono" className="block text-sm font-semibold text-[#374151] mb-1.5">
+                  Teléfono / WhatsApp <span className="text-[#C41E3A]">*</span>
                 </label>
                 <Input
                   id="telefono"
@@ -267,31 +263,38 @@ export default function Contacto() {
                   value={telefono}
                   onChange={(e) => setTelefono(e.target.value)}
                   required
-                  className="bg-white"
+                  className="bg-[#F9FAFB] border-gray-200 focus:border-[#E1AD01] focus:ring-[#E1AD01]/20 rounded-xl h-11"
                 />
               </div>
 
               <div>
-                <label htmlFor="mensaje" className="block text-sm font-medium text-marron mb-1">
-                  Mensaje <span className="text-rojo">*</span>
+                <label htmlFor="mensaje" className="block text-sm font-semibold text-[#374151] mb-1.5">
+                  Mensaje <span className="text-[#C41E3A]">*</span>
                 </label>
                 <Textarea
                   id="mensaje"
-                  placeholder="Escribí tu consulta..."
+                  placeholder="Escribí tu consulta o pedido..."
                   value={mensaje}
                   onChange={(e) => setMensaje(e.target.value)}
                   required
                   rows={4}
-                  className="bg-white resize-none"
+                  className="bg-[#F9FAFB] border-gray-200 focus:border-[#E1AD01] focus:ring-[#E1AD01]/20 rounded-xl resize-none"
                 />
               </div>
 
               <Button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-mostaza hover:bg-mostaza/90 text-marron font-bold text-base py-6"
+                className="w-full bg-[#E1AD01] hover:bg-[#d4a300] text-[#5C3A21] font-bold text-base py-6 rounded-xl shadow-md hover:shadow-lg transition-all"
               >
-                {loading ? 'Enviando...' : 'Enviar Solicitud'}
+                {loading ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>
+                    Enviando...
+                  </span>
+                ) : (
+                  'Enviar Solicitud'
+                )}
               </Button>
             </form>
           </div>
