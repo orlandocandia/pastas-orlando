@@ -3,7 +3,7 @@
 import Image from 'next/image'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { MessageCircle } from 'lucide-react'
+import { MessageCircle, Package } from 'lucide-react'
 
 interface ProductCardProps {
   producto: {
@@ -42,18 +42,18 @@ export default function ProductCard({ producto }: ProductCardProps) {
 
   return (
     <div
-      className={`group rounded-xl border border-border bg-card overflow-hidden shadow-sm hover:shadow-lg transition-shadow duration-300 ${
+      className={`group rounded-xl border border-border bg-card overflow-hidden shadow-md hover:shadow-xl hover:-translate-y-1 hover:border-mostaza/40 transition-all duration-300 ${
         sinStock ? 'opacity-80' : ''
       }`}
     >
-      {/* Image */}
+      {/* Image — overflow-hidden for zoom containment */}
       <div className="relative h-48 bg-muted overflow-hidden">
         {producto.imagen ? (
           <Image
             src={producto.imagen}
             alt={producto.nombre}
             fill
-            className={`object-cover group-hover:scale-105 transition-transform duration-300 ${
+            className={`object-cover group-hover:scale-105 transition-transform duration-500 ${
               sinStock ? 'grayscale-[50%]' : ''
             }`}
             sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 25vw"
@@ -64,19 +64,13 @@ export default function ProductCard({ producto }: ProductCardProps) {
           />
         ) : (
           <div className="flex items-center justify-center h-full text-muted-foreground">
-            <span className="text-4xl">🍝</span>
-          </div>
-        )}
-        {/* Fallback overlay */}
-        {!producto.imagen && (
-          <div className="absolute inset-0 flex items-center justify-center bg-muted">
-            <span className="text-5xl">🍝</span>
+            <Package className="h-12 w-12 text-mostaza/40" strokeWidth={1.2} />
           </div>
         )}
 
-        {/* SIN STOCK Badge */}
+        {/* SIN STOCK overlay */}
         {sinStock && (
-          <div className="absolute top-3 right-3 z-10">
+          <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-10">
             <Badge className="bg-rojo text-white text-xs font-bold px-3 py-1 shadow-md border-0">
               SIN STOCK
             </Badge>
@@ -127,7 +121,7 @@ export default function ProductCard({ producto }: ProductCardProps) {
             >
               <Button
                 size="sm"
-                className="bg-whatsapp hover:bg-whatsapp/90 text-white font-semibold gap-1.5"
+                className="bg-whatsapp hover:bg-[#1DA851] text-white font-semibold gap-1.5 transition-colors duration-300"
               >
                 <MessageCircle className="h-4 w-4" />
                 Consultar
