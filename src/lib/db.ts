@@ -1,5 +1,5 @@
 import { PrismaClient } from '@prisma/client'
-import { PrismaLibSQL } from '@prisma/adapter-libsql'
+import { PrismaLibSql } from '@prisma/adapter-libsql'
 import { createClient } from '@libsql/client'
 
 const globalForPrisma = globalThis as unknown as {
@@ -34,7 +34,7 @@ function createPrismaClient() {
       url: connectionUrl,
       authToken: tursoAuthToken || undefined,
     })
-    const adapter = new PrismaLibSQL(libsql)
+    const adapter = new PrismaLibSql(libsql)
 
     // CRITICAL: Set DATABASE_URL to file: protocol BEFORE creating PrismaClient
     // Prisma validates this env var even when using an adapter
