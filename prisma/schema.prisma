@@ -1,8 +1,7 @@
 // Pastas Orlando - Esquema de base de datos (Fase 13)
 
 generator client {
-  provider        = "prisma-client-js"
-  previewFeatures = ["driverAdapters"]
+  provider = "prisma-client-js"
 }
 
 datasource db {

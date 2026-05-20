@@ -65,29 +65,39 @@ export const authOptions: NextAuthOptions = {
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
+          console.warn('[AUTH] Login attempt without email or password')
           return null
         }
 
-        const usuario = await db.usuario.findUnique({
-          where: { email: credentials.email },
-          include: {
-            persona: true,
-            roles: {
-              include: {
-                rol: {
-                  include: {
-                    permisos: {
-                      include: { permiso: true },
+        console.log(`[AUTH] Login attempt for: ${credentials.email}`)
+
+        let usuario
+        try {
+          usuario = await db.usuario.findUnique({
+            where: { email: credentials.email },
+            include: {
+              persona: true,
+              roles: {
+                include: {
+                  rol: {
+                    include: {
+                      permisos: {
+                        include: { permiso: true },
+                      },
                     },
                   },
                 },
               },
+              twoFactor: true,
             },
-            twoFactor: true,
-          },
-        })
+          })
+        } catch (dbError) {
+          console.error('[AUTH] Database error during findUnique:', dbError)
+          return null
+        }
 
         if (!usuario) {
+          console.warn(`[AUTH] User not found: ${credentials.email}`)
           await logAcceso({
             email_intento: credentials.email,
             resultado: 'FAIL',
@@ -96,7 +106,10 @@ export const authOptions: NextAuthOptions = {
           return null
         }
 
+        console.log(`[AUTH] User found: id=${usuario.id}, estado=${usuario.estado}`)
+
         if (!usuario.estado) {
+          console.warn(`[AUTH] User deactivated: ${credentials.email}`)
           await logAcceso({
             id_usuario: usuario.id,
             email_intento: credentials.email,
@@ -106,9 +119,16 @@ export const authOptions: NextAuthOptions = {
           return null
         }
 
-        const isValid = await bcrypt.compare(credentials.password, usuario.password)
+        let isValid
+        try {
+          isValid = await bcrypt.compare(credentials.password, usuario.password)
+        } catch (bcryptError) {
+          console.error('[AUTH] bcrypt compare error:', bcryptError)
+          return null
+        }
 
         if (!isValid) {
+          console.warn(`[AUTH] Invalid password for: ${credentials.email}`)
           await logAcceso({
             id_usuario: usuario.id,
             email_intento: credentials.email,
@@ -117,6 +137,8 @@ export const authOptions: NextAuthOptions = {
           })
           return null
         }
+
+        console.log(`[AUTH] Password valid for: ${credentials.email}`)
 
         // Check if 2FA is activated
         if (usuario.twoFactor?.activado) {
