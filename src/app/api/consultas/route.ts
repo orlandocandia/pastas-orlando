@@ -68,7 +68,7 @@ export async function GET(request: NextRequest) {
     })
   } catch (error) {
     console.error('Error al obtener consultas:', error)
-    return NextResponse.json({ error: 'Error al obtener consultas' }, { status: 500 })
+    return NextResponse.json({ error: 'Error al obtener consultas', details: error instanceof Error ? error.message : String(error) }, { status: 500 })
   }
 }
 
@@ -99,6 +99,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(consulta, { status: 201 })
   } catch (error) {
     console.error('Error al crear consulta:', error)
-    return NextResponse.json({ error: 'Error al crear consulta' }, { status: 500 })
+    return NextResponse.json({ error: 'Error al crear consulta', details: error instanceof Error ? error.message : String(error) }, { status: 500 })
   }
 }
