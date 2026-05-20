@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient, type Client } from '@libsql/client'
-import { db } from '@/lib/db'
 import bcrypt from 'bcryptjs'
 
 // Helper: detect if running on Turso (libsql:// URL or TURSO_DATABASE_URL env var)
@@ -516,6 +515,7 @@ export async function POST(request: NextRequest) {
     // ============================================
     // LOCAL SQLite PATH (Prisma-based)
     // ============================================
+    const { db } = await import('@/lib/db')
     const results: string[] = []
 
     // ============================================
@@ -1242,6 +1242,7 @@ export async function GET() {
     }
 
     // Local SQLite path (Prisma-based)
+    const { db } = await import('@/lib/db')
     const prismaTables = [
       { name: 'pais', model: 'pais' },
       { name: 'provincia', model: 'provincia' },
