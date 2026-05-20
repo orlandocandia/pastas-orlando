@@ -7,29 +7,32 @@ const globalForPrisma = globalThis as unknown as {
 }
 
 function createPrismaClient() {
+  // At build time, DATABASE_URL is set to file:./dev.db (see package.json build script)
+  // At runtime on Vercel, DATABASE_URL is the real Turso URL (libsql://...)
+  // We also support TURSO_DATABASE_URL as a separate env var
   const databaseUrl = process.env.DATABASE_URL || ''
   const tursoUrl = process.env.TURSO_DATABASE_URL || ''
-  const tursoAuthToken = process.env.TURSO_AUTH_TOKEN || ''
+  const tursoAuthToken = process.env.TURSO_AUTH_TOKEN || process.env.DATABASE_AUTH_TOKEN || ''
 
-  // Determine the actual libSQL/Turso URL
-  const actualLibsqlUrl =
-    tursoUrl.startsWith('libsql://') || tursoUrl.startsWith('http')
-      ? tursoUrl
-      : databaseUrl.startsWith('libsql://') || databaseUrl.startsWith('http')
-        ? databaseUrl
-        : ''
+  // Determine if we need to use the libSQL adapter
+  const isTurso =
+    tursoUrl.startsWith('libsql://') ||
+    tursoUrl.startsWith('http://') ||
+    tursoUrl.startsWith('https://') ||
+    databaseUrl.startsWith('libsql://') ||
+    databaseUrl.startsWith('http://')
 
-  if (actualLibsqlUrl) {
-    // Create the libSQL client for Turso
+  if (isTurso) {
+    const connectionUrl = tursoUrl || databaseUrl
+    
     const libsql = createClient({
-      url: actualLibsqlUrl,
+      url: connectionUrl,
       authToken: tursoAuthToken || undefined,
     })
     const adapter = new PrismaLibSQL(libsql)
 
-    // Use datasourceUrl to override the URL validation
-    // The adapter handles the actual connection, but Prisma still validates the URL
-    // Passing a dummy file: URL satisfies the SQLite provider validation
+    // Use a dummy file: URL for Prisma schema validation
+    // The adapter handles the actual connection
     return new PrismaClient({
       adapter,
       datasourceUrl: 'file:./dev.db',
