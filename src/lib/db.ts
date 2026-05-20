@@ -7,7 +7,6 @@ const globalForPrisma = globalThis as unknown as {
 }
 
 function createPrismaClient() {
-  // Read env vars - check both DATABASE_URL and TURSO_DATABASE_URL
   const databaseUrl = process.env.DATABASE_URL || ''
   const tursoUrl = process.env.TURSO_DATABASE_URL || ''
   const tursoAuthToken = process.env.TURSO_AUTH_TOKEN || process.env.DATABASE_AUTH_TOKEN || ''
@@ -31,11 +30,8 @@ function createPrismaClient() {
     })
     const adapter = new PrismaLibSql(libsql)
 
-    // Use datasourceUrl to override the schema's DATABASE_URL
-    // This is the official Prisma way to override the connection URL
     return new PrismaClient({
       adapter,
-      datasourceUrl: 'file:./dev.db',
     })
   }
 
