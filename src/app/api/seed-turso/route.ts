@@ -92,9 +92,11 @@ export async function POST(request: NextRequest) {
     await client.execute({sql:"INSERT OR IGNORE INTO Persona (nombre,apellido,numero_documento,tipo_persona,observaciones) VALUES ('Orlando','Candia','00000000','empleado','Administrador del sistema')"})
     const personaId = Number((await client.execute("SELECT id FROM Persona WHERE numero_documento='00000000'")).rows[0]?.id)
     const hashedPassword = await bcrypt.hash('Pastas2026!', 10)
+    // INSERT OR IGNORE won't update password if user already exists, so we also UPDATE
     await client.execute({sql:'INSERT OR IGNORE INTO Usuario (id_persona,email,password,estado) VALUES (?,?,?,?)',args:[personaId,'orlando.candia@gmail.com',hashedPassword,1]})
+    await client.execute({sql:'UPDATE Usuario SET password = ?, estado = 1 WHERE email = ?',args:[hashedPassword,'orlando.candia@gmail.com']})
     const usuarioId = Number((await client.execute("SELECT id FROM Usuario WHERE email='orlando.candia@gmail.com'")).rows[0]?.id)
-    results.push(`Admin: Orlando Candia (usuario_id=${usuarioId})`)
+    results.push(`Admin: Orlando Candia (usuario_id=${usuarioId}, password updated)`)
 
     // 21. CONTACTO EMAIL
     const tipoEmailId = Number((await client.execute("SELECT id FROM TipoContacto WHERE nombre='email'")).rows[0]?.id)
