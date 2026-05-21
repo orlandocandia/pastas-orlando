@@ -73,7 +73,7 @@ export default function Opiniones() {
                 {Array.from({ length: 3 }).map((_, i) => (
                   <div
                     key={i}
-                    className="bg-white rounded-xl shadow-md p-5 animate-pulse"
+                    className="bg-crema rounded-xl shadow-md p-5 animate-pulse"
                   >
                     <div className="h-5 w-32 bg-muted rounded mb-2" />
                     <div className="h-4 w-24 bg-muted rounded mb-3" />
