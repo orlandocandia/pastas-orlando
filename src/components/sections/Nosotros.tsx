@@ -33,7 +33,7 @@ const carteles: Cartel[] = [
     image: '/images/nosotros/artesanal.jpg',
     imageAlt: 'Elaboración artesanal de pastas',
     description:
-      'Elaboramos nuestras pastas combinando la tradición familiar con el uso de maquinaria específica (sobadora, pastalinda, cortantes). Respetamos los tiempos de cada preparación para lograr la textura y el sabor que nos distinguen.',
+      'Elaboramos nuestras pastas combinando la tradición familiar con el uso de maquinaria específica. Respetamos los tiempos de cada preparación para lograr la textura y el sabor que nos distinguen.',
   },
   {
     icons: <Clock size={40} className="text-mostaza" />,
@@ -62,7 +62,7 @@ const carteles: Cartel[] = [
     image: '/images/nosotros/fresco-congelado.jpg',
     imageAlt: 'Pastas frescas o congeladas',
     description:
-      'Trabajamos con pastas frescas, ideales para cocinar en el momento. También ofrecemos opciones congeladas, manteniendo intactos el sabor y la calidad, para que tengas siempre una comida casera lista cuando la necesites.',
+      'Trabajamos con pastas frescas, ideales para cocinar en el momento. También ofrecemos opciones freezadas, manteniendo intactos el sabor y la calidad, para que tengas siempre una comida casera lista cuando la necesites.',
   },
 ]
 
