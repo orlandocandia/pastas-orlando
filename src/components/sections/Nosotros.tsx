@@ -1,7 +1,9 @@
 'use client'
 
+import { useState } from 'react'
+import Image from 'next/image'
 import { motion } from 'framer-motion'
-import { Palette, Clock, Award, Leaf } from 'lucide-react'
+import { Palette, Clock, Award, Leaf, Heart, ChefHat, Snowflake, Sun, ImageIcon } from 'lucide-react'
 
 const values = [
   {
@@ -27,6 +29,35 @@ const values = [
     title: 'Frescura',
     description:
       'Ingredientes frescos de productores locales. De la huerta a tu mesa, sin intermediarios.',
+  },
+]
+
+const destacados = [
+  {
+    icons: (
+      <>
+        <Heart size={32} className="text-marron" />
+        <ChefHat size={32} className="text-marron ml-1" />
+      </>
+    ),
+    title: 'Elaboración artesanal',
+    image: '/images/nosotros/elaboracion.jpg',
+    imageAlt: 'Elaboración artesanal de pastas',
+    description:
+      'Cada pasta se elabora a mano con materia prima fresca. Respetamos nuestras recetas y los tiempos para que llegue con el sabor que te merecés.',
+  },
+  {
+    icons: (
+      <>
+        <Snowflake size={32} className="text-[#3B82F6]" />
+        <Sun size={32} className="text-mostaza ml-1" />
+      </>
+    ),
+    title: 'Fresco o congelado',
+    image: '/images/nosotros/fresco-congelado.jpg',
+    imageAlt: 'Pastas frescas o congeladas',
+    description:
+      'Vos decidís: si querés las pastas frescas, te las preparamos coordinando el tiempo de elaboración. Si preferís freezadas, te las entregamos listas para guardar. El sabor se mantiene intacto.',
   },
 ]
 
@@ -58,6 +89,30 @@ const textVariants = {
   },
 }
 
+function DestacadoImage({ src, alt }: { src: string; alt: string }) {
+  const [error, setError] = useState(false)
+
+  if (error) {
+    return (
+      <div className="w-full h-full flex flex-col items-center justify-center bg-gray-100 text-gray-400 gap-2">
+        <ImageIcon className="h-8 w-8" strokeWidth={1.2} />
+        <span className="text-xs">Imagen no disponible</span>
+      </div>
+    )
+  }
+
+  return (
+    <Image
+      src={src}
+      alt={alt}
+      fill
+      className="object-cover"
+      sizes="(max-width: 768px) 100vw, 50vw"
+      onError={() => setError(true)}
+    />
+  )
+}
+
 export default function Nosotros() {
   return (
     <section id="nosotros" className="min-h-screen flex flex-col justify-center py-12 sm:py-16 md:py-20 bg-crema">
@@ -70,7 +125,7 @@ export default function Nosotros() {
           <div className="h-1 w-20 bg-mostaza mx-auto mt-4 rounded-full" />
         </div>
 
-        {/* Story */}
+        {/* Story — Texto actualizado */}
         <motion.div
           className="max-w-3xl mx-auto text-center mb-14"
           variants={textVariants}
@@ -79,17 +134,16 @@ export default function Nosotros() {
           viewport={{ once: true }}
         >
           <p className="text-muted-foreground text-base sm:text-lg leading-relaxed mb-4">
-            <strong className="text-marron">Pastas Orlando</strong> nació como
-            un emprendimiento de una sola persona con una pasión inquebrantable
-            por la pasta artesanal. Con maquinaria de verdad y la dedicación que
-            solo da el amor por lo que uno hace, cada producto se elabora
-            cuidando cada detalle.
+            <strong className="text-marron">Hace más de diez años comenzamos este camino con una idea simple: salir adelante haciendo las cosas con dedicación, responsabilidad y pasión.</strong>
+          </p>
+          <p className="text-muted-foreground text-base sm:text-lg leading-relaxed mb-4">
+            Después de atravesar momentos difíciles y buscando reinventarnos laboralmente, encontramos en la elaboración de pastas frescas un oficio que terminó convirtiéndose en nuestra vocación. Gracias a la enseñanza familiar, la capacitación constante y el esfuerzo diario, nació Las Pastas de Orlando.
+          </p>
+          <p className="text-muted-foreground text-base sm:text-lg leading-relaxed mb-4">
+            Hoy seguimos creciendo junto a un pequeño equipo comprometido con ofrecer productos frescos, artesanales y de calidad, manteniendo siempre el sabor casero y la atención cercana que nos identifica desde el primer día.
           </p>
           <p className="text-muted-foreground text-base sm:text-lg leading-relaxed">
-            Trabajamos con productores locales de Posadas y la zona para
-            conseguir la materia prima más fresca: huevos de campo, harinas
-            selectas y verduras de estación. Porque creemos que una buena pasta
-            empieza mucho antes de la mesa.
+            <strong className="text-marron">Creemos en el trabajo honesto, en los detalles y en llevar a cada mesa una experiencia hecha con dedicación.</strong>
           </p>
         </motion.div>
 
@@ -116,6 +170,45 @@ export default function Nosotros() {
               <p className="text-muted-foreground text-sm leading-relaxed">
                 {value.description}
               </p>
+            </motion.div>
+          ))}
+        </motion.div>
+
+        {/* Tarjetas destacadas: Elaboración artesanal + Fresco o congelado */}
+        <motion.div
+          className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-12"
+          variants={containerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: '-50px' }}
+        >
+          {destacados.map((item, index) => (
+            <motion.div
+              key={index}
+              variants={cardVariants}
+              className="flex flex-col bg-white rounded-xl shadow-md hover:shadow-lg hover:-translate-y-1 transition-all duration-300 p-4 sm:p-6"
+            >
+              {/* Ícono */}
+              <div className="flex-shrink-0 text-center pb-3">
+                <div className="w-20 h-20 mx-auto mb-3 bg-crema rounded-full shadow-md flex items-center justify-center">
+                  {item.icons}
+                </div>
+                <h3 className="text-lg sm:text-xl font-bold text-marron">
+                  {item.title}
+                </h3>
+              </div>
+
+              {/* Imagen */}
+              <div className="relative h-40 sm:h-48 w-full my-3 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
+                <DestacadoImage src={item.image} alt={item.imageAlt} />
+              </div>
+
+              {/* Texto */}
+              <div className="flex-grow mt-2">
+                <p className="text-gray-600 text-sm text-center leading-relaxed">
+                  {item.description}
+                </p>
+              </div>
             </motion.div>
           ))}
         </motion.div>
