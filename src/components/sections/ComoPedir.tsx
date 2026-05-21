@@ -149,27 +149,40 @@ export default function ComoPedir() {
             <motion.div
               key={index}
               variants={cardVariants}
-              className="h-full flex flex-col justify-between min-h-[480px] min-w-[250px] max-w-full text-center p-6 bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300"
+              /*
+                DEFINITIVE FIX: CSS Grid con filas explícitas en lugar de flexbox.
+                - Fila 1 (auto): ícono + título → se adapta al contenido
+                - Fila 2 (11rem): imagen → SIEMPRE 176px, posición fija
+                - Fila 3 (1fr): texto → ocupa el espacio restante
+
+                A diferencia de flexbox con justify-between (que distribuye
+                espacio extra entre items), CSS Grid mantiene la imagen
+                exactamente en la misma posición vertical en todas las tarjetas.
+              */
+              className="grid bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 p-6 min-h-[480px]"
+              style={{ gridTemplateRows: 'auto 11rem 1fr' }}
             >
-              {/* Bloque superior: ícono + título */}
-              <div>
-                <div className="w-20 h-20 mx-auto mb-4 bg-white rounded-full shadow-md flex items-center justify-center hover:scale-105 hover:shadow-lg transition-all duration-300">
+              {/* Fila 1: Ícono + Título */}
+              <div className="text-center pb-3">
+                <div className="w-20 h-20 mx-auto mb-3 bg-white rounded-full shadow-md flex items-center justify-center hover:scale-105 hover:shadow-lg transition-all duration-300">
                   {step.icons}
                 </div>
-                <h3 className="text-lg md:text-xl font-bold text-marron text-center mb-4 whitespace-nowrap px-2">
+                <h3 className="text-lg md:text-xl font-bold text-marron whitespace-nowrap px-2">
                   {step.title}
                 </h3>
               </div>
 
-              {/* Imagen: contenedor con relative + altura fija h-44 */}
-              <div className="relative h-44 w-full my-3 rounded-lg overflow-hidden bg-gray-100">
+              {/* Fila 2: Imagen — altura fija 11rem, misma posición en TODAS las tarjetas */}
+              <div className="relative w-full rounded-lg overflow-hidden bg-gray-100 my-3">
                 <StepImage src={step.image} alt={step.imageAlt} />
               </div>
 
-              {/* Texto: altura variable */}
-              <p className="text-gray-600 text-sm text-center mt-2 leading-relaxed">
-                {step.description}
-              </p>
+              {/* Fila 3: Texto — ocupa espacio restante */}
+              <div className="flex items-start pt-1">
+                <p className="text-gray-600 text-sm text-center leading-relaxed">
+                  {step.description}
+                </p>
+              </div>
             </motion.div>
           ))}
         </motion.div>
