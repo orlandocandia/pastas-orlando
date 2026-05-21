@@ -1,12 +1,11 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
 import {
   Carousel,
   CarouselContent,
   CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
 } from '@/components/ui/carousel'
 import type { CarouselApi } from '@/components/ui/carousel'
 import OpinionCard from './OpinionCard'
@@ -41,7 +40,6 @@ export default function OpinionCarousel({ opiniones }: OpinionCarouselProps) {
     api.on('select', handleSelect)
     api.on('reInit', handleSelect)
 
-    // Initialize on first render via microtask to avoid synchronous setState in effect
     if (!initialized.current) {
       initialized.current = true
       queueMicrotask(() => {
@@ -65,46 +63,65 @@ export default function OpinionCarousel({ opiniones }: OpinionCarouselProps) {
   }, [api])
 
   return (
-    <div className="relative max-w-5xl mx-auto pl-4 md:pl-8">
-      <Carousel
-        setApi={setApi}
-        opts={{
-          align: 'start',
-          loop: true,
-        }}
-        className="w-full"
+    <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-4">
+      {/* Flecha izquierda — fuera del contenedor */}
+      <button
+        onClick={() => api?.scrollPrev()}
+        className="w-10 h-10 rounded-full bg-white shadow-md flex items-center justify-center text-mostaza hover:bg-mostaza hover:text-white transition-colors flex-shrink-0 order-1 sm:order-1"
+        aria-label="Opinión anterior"
       >
-        <CarouselContent className="-ml-4">
-          {opiniones.map((opinion) => (
-            <CarouselItem key={opinion.id} className="pl-4 md:basis-1/2 lg:basis-1/3">
-              <OpinionCard
-                nombre={opinion.nombre}
-                calificacion={opinion.calificacion}
-                comentario={opinion.comentario}
-                fecha={opinion.fecha}
-              />
-            </CarouselItem>
-          ))}
-        </CarouselContent>
-        <CarouselPrevious className="hidden sm:flex left-2 bg-mostaza text-marron border-mostaza hover:bg-mostaza/90" />
-        <CarouselNext className="hidden sm:flex right-2 bg-mostaza text-marron border-mostaza hover:bg-mostaza/90" />
-      </Carousel>
+        <ChevronLeft className="h-6 w-6" />
+      </button>
 
-      {/* Dots */}
-      <div className="flex items-center justify-center gap-2 mt-6">
-        {Array.from({ length: count }).map((_, index) => (
-          <button
-            key={index}
-            onClick={() => api?.scrollTo(index)}
-            className={`h-2.5 rounded-full transition-all duration-300 ${
-              index === current
-                ? 'bg-mostaza w-6'
-                : 'bg-muted-foreground/30 w-2.5 hover:bg-muted-foreground/50'
-            }`}
-            aria-label={`Ir a opinión ${index + 1}`}
-          />
-        ))}
+      {/* Contenedor del carrusel */}
+      <div className="flex-1 w-full order-2">
+        <Carousel
+          setApi={setApi}
+          opts={{
+            align: 'start',
+            loop: true,
+          }}
+          className="w-full"
+        >
+          <CarouselContent className="-ml-4">
+            {opiniones.map((opinion) => (
+              <CarouselItem key={opinion.id} className="pl-4 md:basis-1/2 lg:basis-1/3">
+                <OpinionCard
+                  nombre={opinion.nombre}
+                  calificacion={opinion.calificacion}
+                  comentario={opinion.comentario}
+                  fecha={opinion.fecha}
+                />
+              </CarouselItem>
+            ))}
+          </CarouselContent>
+        </Carousel>
+
+        {/* Dots */}
+        <div className="flex items-center justify-center gap-2 mt-6">
+          {Array.from({ length: count }).map((_, index) => (
+            <button
+              key={index}
+              onClick={() => api?.scrollTo(index)}
+              className={`h-2.5 rounded-full transition-all duration-300 ${
+                index === current
+                  ? 'bg-mostaza w-6'
+                  : 'bg-muted-foreground/30 w-2.5 hover:bg-muted-foreground/50'
+              }`}
+              aria-label={`Ir a opinión ${index + 1}`}
+            />
+          ))}
+        </div>
       </div>
+
+      {/* Flecha derecha — fuera del contenedor */}
+      <button
+        onClick={() => api?.scrollNext()}
+        className="w-10 h-10 rounded-full bg-white shadow-md flex items-center justify-center text-mostaza hover:bg-mostaza hover:text-white transition-colors flex-shrink-0 order-3"
+        aria-label="Siguiente opinión"
+      >
+        <ChevronRight className="h-6 w-6" />
+      </button>
     </div>
   )
 }

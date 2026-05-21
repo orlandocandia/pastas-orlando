@@ -62,7 +62,7 @@ export default function Opiniones() {
 
           {/* Opinions Display */}
           <motion.div
-            className="lg:col-span-2 pl-4 md:pl-8"
+            className="lg:col-span-2"
             initial={{ opacity: 0, x: 20 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
