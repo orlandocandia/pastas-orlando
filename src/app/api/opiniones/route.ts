@@ -35,7 +35,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { nombre, calificacion, comentario } = body
+    const { nombre, email, calificacion, comentario } = body
 
     if (!nombre || !calificacion || !comentario) {
       return NextResponse.json({ error: 'Todos los campos son requeridos' }, { status: 400 })
@@ -52,6 +52,7 @@ export async function POST(request: NextRequest) {
     const opinion = await db.opinion.create({
       data: {
         nombre,
+        email: email || null,
         calificacion: parseInt(calificacion),
         comentario,
         ip,

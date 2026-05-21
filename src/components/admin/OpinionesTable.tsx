@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import { toast } from 'sonner'
-import { Search, Loader2, Check, X, Eye, Trash2 } from 'lucide-react'
+import { Search, Loader2, Check, X, Eye, Trash2, Mail } from 'lucide-react'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 
@@ -27,6 +27,7 @@ import {
 interface Opinion {
   id: number
   nombre: string
+  email: string | null
   calificacion: number
   comentario: string
   estado: string
@@ -117,7 +118,8 @@ export default function OpinionesTable({ estado }: OpinionesTableProps) {
   const filteredOpiniones = opiniones.filter((o) => {
     const matchesSearch =
       o.nombre.toLowerCase().includes(search.toLowerCase()) ||
-      o.comentario.toLowerCase().includes(search.toLowerCase())
+      o.comentario.toLowerCase().includes(search.toLowerCase()) ||
+      (o.email && o.email.toLowerCase().includes(search.toLowerCase()))
     const matchesCalificacion =
       calificacionFilter === 'all' || o.calificacion === parseInt(calificacionFilter)
     return matchesSearch && matchesCalificacion
@@ -172,6 +174,7 @@ export default function OpinionesTable({ estado }: OpinionesTableProps) {
             <TableHeader>
               <TableRow className="bg-muted/50">
                 <TableHead>Nombre</TableHead>
+                <TableHead className="hidden md:table-cell">Email</TableHead>
                 <TableHead>Calificación</TableHead>
                 <TableHead className="hidden md:table-cell">Comentario</TableHead>
                 <TableHead className="hidden sm:table-cell">Fecha</TableHead>
@@ -181,7 +184,7 @@ export default function OpinionesTable({ estado }: OpinionesTableProps) {
             <TableBody>
               {filteredOpiniones.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
+                  <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
                     {search || calificacionFilter !== 'all'
                       ? 'No se encontraron opiniones'
                       : estado === 'pending'
@@ -197,6 +200,9 @@ export default function OpinionesTable({ estado }: OpinionesTableProps) {
                     <TableCell className="font-medium text-marron">
                       {opinion.nombre}
                     </TableCell>
+                    <TableCell className="hidden md:table-cell text-sm text-muted-foreground">
+                      {opinion.email || '—'}
+                    </TableCell>
                     <TableCell>
                       <StarRating rating={opinion.calificacion} />
                     </TableCell>
@@ -210,6 +216,17 @@ export default function OpinionesTable({ estado }: OpinionesTableProps) {
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-1">
+                        {/* === Responder por email (si tiene email) === */}
+                        {opinion.email && (
+                          <a
+                            href={`mailto:${opinion.email}`}
+                            className="inline-flex items-center h-8 px-2 text-sm text-blue-600 hover:bg-blue-50 hover:text-blue-700 rounded-md transition-colors"
+                          >
+                            <Mail className="h-4 w-4 mr-1" />
+                            <span className="hidden sm:inline">Responder</span>
+                          </a>
+                        )}
+
                         {/* === PENDIENTES: Aprobar + Rechazar === */}
                         {estado === 'pending' && (
                           <>

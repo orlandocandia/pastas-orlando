@@ -10,6 +10,7 @@ import StarRating from './StarRating'
 
 export default function OpinionForm() {
   const [nombre, setNombre] = useState('')
+  const [email, setEmail] = useState('')
   const [calificacion, setCalificacion] = useState(0)
   const [comentario, setComentario] = useState('')
   const [submitting, setSubmitting] = useState(false)
@@ -38,6 +39,7 @@ export default function OpinionForm() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           nombre: nombre.trim(),
+          email: email.trim() || null,
           calificacion,
           comentario: comentario.trim(),
         }),
@@ -46,6 +48,7 @@ export default function OpinionForm() {
       if (res.ok) {
         toast.success('¡Gracias por tu opinión! Se revisará antes de publicarse.')
         setNombre('')
+        setEmail('')
         setCalificacion(0)
         setComentario('')
       } else {
@@ -82,6 +85,22 @@ export default function OpinionForm() {
           placeholder="Tu nombre"
           className="border-border focus:border-mostaza focus:ring-mostaza/30"
           maxLength={50}
+        />
+      </div>
+
+      {/* Email (opcional) */}
+      <div className="mb-4">
+        <label htmlFor="opinion-email" className="block text-sm font-medium text-marron mb-1">
+          Email <span className="text-muted-foreground font-normal">(opcional)</span>
+        </label>
+        <Input
+          id="opinion-email"
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="tu@email.com (opcional)"
+          className="border-border focus:border-mostaza focus:ring-mostaza/30"
+          maxLength={255}
         />
       </div>
 
