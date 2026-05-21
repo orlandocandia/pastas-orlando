@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, Fragment } from 'react'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
 import {
@@ -13,6 +13,8 @@ import {
   Snowflake,
   Sun,
   ImageIcon,
+  ChevronRight,
+  ChevronDown,
 } from 'lucide-react'
 
 interface Step {
@@ -137,53 +139,64 @@ export default function ComoPedir() {
           <div className="h-1 w-20 bg-mostaza mx-auto mt-4 rounded-full" />
         </div>
 
-        {/* Steps Grid */}
+        {/* Steps with arrows — flex wrapper for arrow alignment */}
         <motion.div
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+          className="flex flex-wrap justify-center items-center gap-4 lg:gap-2"
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: '-50px' }}
         >
           {steps.map((step, index) => (
-            <motion.div
-              key={index}
-              variants={cardVariants}
-              /*
-                DEFINITIVE FIX: CSS Grid con filas explícitas en lugar de flexbox.
-                - Fila 1 (auto): ícono + título → se adapta al contenido
-                - Fila 2 (11rem): imagen → SIEMPRE 176px, posición fija
-                - Fila 3 (1fr): texto → ocupa el espacio restante
-
-                A diferencia de flexbox con justify-between (que distribuye
-                espacio extra entre items), CSS Grid mantiene la imagen
-                exactamente en la misma posición vertical en todas las tarjetas.
-              */
-              className="grid bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 p-6 min-h-[480px]"
-              style={{ gridTemplateRows: 'auto 11rem 1fr' }}
-            >
-              {/* Fila 1: Ícono + Título */}
-              <div className="text-center pb-3">
-                <div className="w-20 h-20 mx-auto mb-3 bg-white rounded-full shadow-md flex items-center justify-center hover:scale-105 hover:shadow-lg transition-all duration-300">
-                  {step.icons}
+            <Fragment key={index}>
+              {/* Tarjeta */}
+              <motion.div
+                variants={cardVariants}
+                className="grid bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 p-6 min-h-[480px] w-full md:w-[calc(50%-1rem)] lg:w-[calc(33.333%-1rem)]"
+                style={{ gridTemplateRows: 'auto 11rem 1fr' }}
+              >
+                {/* Fila 1: Número + Ícono + Título */}
+                <div className="text-center pb-3">
+                  {/* Numeración */}
+                  <div className="w-8 h-8 mx-auto mb-2 bg-mostaza rounded-full flex items-center justify-center text-white font-bold text-sm">
+                    {index + 1}
+                  </div>
+                  {/* Ícono */}
+                  <div className="w-20 h-20 mx-auto mb-3 bg-white rounded-full shadow-md flex items-center justify-center hover:scale-105 hover:shadow-lg transition-all duration-300">
+                    {step.icons}
+                  </div>
+                  <h3 className="text-lg md:text-xl font-bold text-marron whitespace-nowrap px-2">
+                    {step.title}
+                  </h3>
                 </div>
-                <h3 className="text-lg md:text-xl font-bold text-marron whitespace-nowrap px-2">
-                  {step.title}
-                </h3>
-              </div>
 
-              {/* Fila 2: Imagen — altura fija h-48, misma posición en TODAS las tarjetas */}
-              <div className="relative h-48 w-full my-3 rounded-lg overflow-hidden bg-gray-100">
-                <StepImage src={step.image} alt={step.imageAlt} />
-              </div>
+                {/* Fila 2: Imagen */}
+                <div className="relative h-48 w-full my-3 rounded-lg overflow-hidden bg-gray-100">
+                  <StepImage src={step.image} alt={step.imageAlt} />
+                </div>
 
-              {/* Fila 3: Texto — ocupa espacio restante */}
-              <div className="flex items-start pt-1">
-                <p className="text-gray-600 text-sm text-center leading-relaxed">
-                  {step.description}
-                </p>
-              </div>
-            </motion.div>
+                {/* Fila 3: Texto */}
+                <div className="flex items-start pt-1">
+                  <p className="text-gray-600 text-sm text-center leading-relaxed">
+                    {step.description}
+                  </p>
+                </div>
+              </motion.div>
+
+              {/* Flecha entre tarjetas — no después de la última */}
+              {index < steps.length - 1 && (
+                <div className="hidden lg:flex items-center justify-center text-mostaza/60 mx-1">
+                  <ChevronRight className="h-6 w-6" />
+                </div>
+              )}
+
+              {/* Flecha vertical en mobile — no después de la última */}
+              {index < steps.length - 1 && (
+                <div className="flex lg:hidden items-center justify-center text-mostaza/60 my-1 w-full">
+                  <ChevronDown className="h-6 w-6" />
+                </div>
+              )}
+            </Fragment>
           ))}
         </motion.div>
       </div>
