@@ -33,7 +33,7 @@ const carteles: Cartel[] = [
     image: '/images/nosotros/artesanal.jpg',
     imageAlt: 'Elaboración artesanal de pastas',
     description:
-      'Cada pasta se estira, se corta y se rellena a mano, respetando las técnicas tradicionales.',
+      'Elaboramos nuestras pastas combinando la tradición familiar con el uso de maquinaria específica (sobadora, pastalinda, cortantes). Respetamos los tiempos de cada preparación para lograr la textura y el sabor que nos distinguen.',
   },
   {
     icons: <Clock size={40} className="text-mostaza" />,
@@ -49,7 +49,7 @@ const carteles: Cartel[] = [
     image: '/images/nosotros/calidad.jpg',
     imageAlt: 'Ingredientes frescos y de calidad',
     description:
-      'Materia prima seleccionada y maquinaria de verdad para garantizar la mejor textura y sabor.',
+      'Seleccionamos cuidadosamente cada materia prima: harinas de primera calidad, huevos frescos, verduras de estación y productores locales. Creemos que una buena pasta empieza mucho antes de la mesa.',
   },
   {
     icons: (
@@ -62,7 +62,7 @@ const carteles: Cartel[] = [
     image: '/images/nosotros/fresco-congelado.jpg',
     imageAlt: 'Pastas frescas o congeladas',
     description:
-      'Ingredientes frescos de productores locales. De la huerta a tu mesa, sin intermediarios. Y también ofrecemos opciones congeladas para que disfrutes cuando quieras.',
+      'Trabajamos con pastas frescas, ideales para cocinar en el momento. También ofrecemos opciones congeladas, manteniendo intactos el sabor y la calidad, para que tengas siempre una comida casera lista cuando la necesites.',
   },
 ]
 
