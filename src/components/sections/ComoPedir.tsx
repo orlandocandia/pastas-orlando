@@ -139,7 +139,7 @@ export default function ComoPedir() {
 
         {/* Steps Grid */}
         <motion.div
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"
@@ -149,14 +149,14 @@ export default function ComoPedir() {
             <motion.div
               key={index}
               variants={cardVariants}
-              className="h-full flex flex-col justify-between min-h-[520px] text-center p-6 bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300"
+              className="h-full flex flex-col justify-between min-h-[480px] min-w-[250px] max-w-full text-center p-6 bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300"
             >
               {/* Bloque superior: ícono + título */}
               <div>
                 <div className="w-20 h-20 mx-auto mb-4 bg-white rounded-full shadow-md flex items-center justify-center hover:scale-105 hover:shadow-lg transition-all duration-300">
                   {step.icons}
                 </div>
-                <h3 className="text-xl font-bold text-marron text-center mb-4">
+                <h3 className="text-lg md:text-xl font-bold text-marron text-center mb-4 whitespace-nowrap px-2">
                   {step.title}
                 </h3>
               </div>
