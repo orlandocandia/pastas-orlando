@@ -99,7 +99,7 @@ function StepImage({ src, alt }: { src: string; alt: string }) {
 
 export default function ComoPedir() {
   return (
-    <section id="como-pedir" className="min-h-screen flex flex-col justify-center py-16 sm:py-20 bg-white">
+    <section id="como-pedir" className="min-h-screen flex flex-col justify-center py-12 sm:py-16 md:py-20 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Title */}
         <div className="text-center mb-12">
@@ -122,7 +122,7 @@ export default function ComoPedir() {
               {/* Tarjeta */}
               <motion.div
                 variants={cardVariants}
-                className="grid bg-crema rounded-xl shadow-md hover:shadow-lg hover:-translate-y-1 transition-all duration-300 p-6 min-h-[550px] w-full md:flex-1"
+                className="grid bg-crema rounded-xl shadow-md hover:shadow-lg hover:-translate-y-1 transition-all duration-300 p-4 sm:p-6 min-h-[420px] sm:min-h-[480px] md:min-h-[550px] w-full md:flex-1"
                 style={{ gridTemplateRows: 'auto 11rem 1fr' }}
               >
                 {/* Fila 1: Número + Ícono + Título */}
@@ -135,7 +135,7 @@ export default function ComoPedir() {
                   <div className="w-20 h-20 mx-auto mb-3 bg-white rounded-full shadow-md flex items-center justify-center hover:scale-105 hover:shadow-lg transition-all duration-300">
                     {step.icons}
                   </div>
-                  <h3 className="text-lg md:text-xl font-bold text-marron whitespace-nowrap px-2">
+                  <h3 className="text-base sm:text-lg md:text-xl font-bold text-marron whitespace-nowrap px-2">
                     {step.title}
                   </h3>
                 </div>

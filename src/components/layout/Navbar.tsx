@@ -20,7 +20,7 @@ const navLinks = [
   { label: 'Contacto', href: '#contacto' },
 ]
 
-const NAVBAR_HEIGHT = 90
+const NAVBAR_HEIGHT = 64
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false)
@@ -54,16 +54,23 @@ export default function Navbar() {
           : 'bg-transparent'
       }`}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-center h-16 sm:h-20">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-14 sm:h-16 lg:h-20">
+          {/* Logo on mobile — visible only on small screens */}
+          {scrolled && (
+            <div className="lg:hidden flex items-center">
+              <span className="font-bold text-marron text-sm">Pastas Orlando</span>
+            </div>
+          )}
+
           {/* Desktop Navigation - centered */}
-          <div className="hidden lg:flex items-center gap-1">
+          <div className="hidden lg:flex items-center justify-center w-full gap-1">
             {navLinks.map((link) => (
               <a
                 key={link.href}
                 href={link.href}
                 onClick={(e) => handleNavClick(e, link.href)}
-                className={`nav-link relative px-4 py-2 rounded-lg text-base font-semibold transition-all duration-200
+                className={`nav-link relative px-3 xl:px-4 py-2 rounded-lg text-sm xl:text-base font-semibold transition-all duration-200 min-h-[44px] flex items-center
                   ${scrolled ? 'text-marron' : 'text-white'}
                   hover:text-mostaza hover:bg-mostaza/10
                 `}
@@ -76,13 +83,13 @@ export default function Navbar() {
           </div>
 
           {/* Mobile Menu Button */}
-          <div className="lg:hidden flex items-center justify-end w-full">
+          <div className="lg:hidden flex items-center">
             <Sheet open={open} onOpenChange={setOpen}>
               <SheetTrigger asChild>
                 <Button
                   variant="ghost"
                   size="icon"
-                  className={`transition-colors ${
+                  className={`min-w-[44px] min-h-[44px] transition-colors ${
                     scrolled
                       ? 'text-marron hover:text-mostaza'
                       : 'text-white hover:text-mostaza'
@@ -96,13 +103,13 @@ export default function Navbar() {
                 <SheetTitle className="text-marron font-bold text-xl px-4 pt-2">
                   Menú
                 </SheetTitle>
-                <div className="flex flex-col gap-1 px-4 mt-4">
+                <div className="flex flex-col gap-1 px-2 mt-4">
                   {navLinks.map((link) => (
                     <a
                       key={link.href}
                       href={link.href}
                       onClick={(e) => handleNavClick(e, link.href)}
-                      className="px-4 py-3 rounded-lg font-semibold transition-all duration-200 text-marron hover:bg-mostaza/10 hover:text-mostaza"
+                      className="px-4 py-3 rounded-lg font-semibold text-base min-h-[44px] flex items-center transition-all duration-200 text-marron hover:bg-mostaza/10 hover:text-mostaza"
                     >
                       {link.label}
                     </a>

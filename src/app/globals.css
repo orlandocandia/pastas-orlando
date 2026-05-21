@@ -128,7 +128,8 @@
   }
   html {
     scroll-behavior: smooth;
-    scroll-padding-top: 90px;
+    scroll-padding-top: 64px;
+    overflow-x: hidden;
   }
 }
 
@@ -218,9 +219,10 @@
 
 /* ============================================
    HERO — Responsive para notebooks (1366×768)
-   Altura de viewport ≤ 800px
+   Solo se aplica en pantallas con ancho ≥ 640px
+   para evitar duplicar íconos en celulares
    ============================================ */
-@media (max-height: 800px) {
+@media (max-height: 800px) and (min-width: 640px) {
   .hero-section {
     min-height: 100vh;
     height: auto;
@@ -304,8 +306,8 @@
   }
 }
 
-/* Ajuste extra para viewports muy bajos (≤ 650px alto) */
-@media (max-height: 650px) {
+/* Ajuste extra para viewports muy bajos (≤ 650px alto) — solo notebooks */
+@media (max-height: 650px) and (min-width: 640px) {
   .hero-content {
     padding: 1rem 1rem 0.5rem 1rem !important;
   }

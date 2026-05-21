@@ -38,7 +38,7 @@ export default function Opiniones() {
   }, [])
 
   return (
-    <section id="opiniones" className="min-h-screen flex flex-col justify-center py-16 sm:py-20 bg-white">
+    <section id="opiniones" className="min-h-screen flex flex-col justify-center py-12 sm:py-16 md:py-20 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Title */}
         <div className="text-center mb-12">
