@@ -122,7 +122,7 @@ export default function ComoPedir() {
               {/* Tarjeta */}
               <motion.div
                 variants={cardVariants}
-                className="grid bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 p-6 min-h-[550px] w-full md:flex-1"
+                className="grid bg-crema rounded-xl shadow-md hover:shadow-lg hover:-translate-y-1 transition-all duration-300 p-6 min-h-[550px] w-full md:flex-1"
                 style={{ gridTemplateRows: 'auto 11rem 1fr' }}
               >
                 {/* Fila 1: Número + Ícono + Título */}
