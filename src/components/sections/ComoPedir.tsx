@@ -109,9 +109,9 @@ export default function ComoPedir() {
           <div className="h-1 w-20 bg-mostaza mx-auto mt-4 rounded-full" />
         </div>
 
-        {/* Steps with arrows — flex wrapper for arrow alignment */}
+        {/* Steps with arrows — flex wrapper for horizontal alignment */}
         <motion.div
-          className="flex flex-wrap justify-center items-center gap-4 lg:gap-2"
+          className="flex flex-wrap md:flex-nowrap justify-center items-stretch gap-6"
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"
@@ -122,7 +122,7 @@ export default function ComoPedir() {
               {/* Tarjeta */}
               <motion.div
                 variants={cardVariants}
-                className="grid bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 p-6 min-h-[480px] w-full md:w-[calc(50%-1rem)] lg:w-[calc(33.333%-1rem)]"
+                className="grid bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 p-6 min-h-[550px] w-full md:flex-1"
                 style={{ gridTemplateRows: 'auto 11rem 1fr' }}
               >
                 {/* Fila 1: Número + Ícono + Título */}
@@ -153,17 +153,17 @@ export default function ComoPedir() {
                 </div>
               </motion.div>
 
-              {/* Flecha entre tarjetas — no después de la última */}
+              {/* Flecha horizontal en desktop — no después de la última */}
               {index < steps.length - 1 && (
-                <div className="hidden lg:flex items-center justify-center text-mostaza/60 mx-1">
-                  <ChevronRight className="h-6 w-6" />
+                <div className="hidden md:flex items-center justify-center text-marron/50">
+                  <ChevronRight className="h-8 w-8" />
                 </div>
               )}
 
               {/* Flecha vertical en mobile — no después de la última */}
               {index < steps.length - 1 && (
-                <div className="flex lg:hidden items-center justify-center text-mostaza/60 my-1 w-full">
-                  <ChevronDown className="h-6 w-6" />
+                <div className="flex md:hidden items-center justify-center text-marron/50 w-full">
+                  <ChevronDown className="h-8 w-8" />
                 </div>
               )}
             </Fragment>
