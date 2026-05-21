@@ -3,48 +3,53 @@
 import { useState } from 'react'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
-import { Palette, Clock, Award, Leaf, Heart, ChefHat, Snowflake, Sun, ImageIcon } from 'lucide-react'
+import {
+  Heart,
+  Hand,
+  Clock,
+  Medal,
+  Snowflake,
+  Sun,
+  ImageIcon,
+} from 'lucide-react'
 
-const values = [
+interface Cartel {
+  icons: React.ReactNode
+  title: string
+  image: string
+  imageAlt: string
+  description: string
+}
+
+const carteles: Cartel[] = [
   {
-    icon: <Palette className="h-7 w-7" />,
+    icons: (
+      <>
+        <Heart size={32} className="text-rojo" />
+        <Hand size={32} className="text-rojo ml-1" />
+      </>
+    ),
     title: 'Artesanal',
+    image: '/images/nosotros/artesanal.jpg',
+    imageAlt: 'Elaboración artesanal de pastas',
     description:
       'Cada pasta se estira, se corta y se rellena a mano, respetando las técnicas tradicionales.',
   },
   {
-    icon: <Clock className="h-7 w-7" />,
+    icons: <Clock size={40} className="text-mostaza" />,
     title: 'Tradición',
+    image: '/images/nosotros/tradicion.jpg',
+    imageAlt: 'Recetas tradicionales de pasta',
     description:
       'Recetas heredadas que se perfeccionan con cada vuelta de masa, manteniendo la esencia.',
   },
   {
-    icon: <Award className="h-7 w-7" />,
+    icons: <Medal size={40} className="text-mostaza" />,
     title: 'Calidad',
+    image: '/images/nosotros/calidad.jpg',
+    imageAlt: 'Ingredientes frescos y de calidad',
     description:
       'Materia prima seleccionada y maquinaria de verdad para garantizar la mejor textura y sabor.',
-  },
-  {
-    icon: <Leaf className="h-7 w-7" />,
-    title: 'Frescura',
-    description:
-      'Ingredientes frescos de productores locales. De la huerta a tu mesa, sin intermediarios.',
-  },
-]
-
-const destacados = [
-  {
-    icons: (
-      <>
-        <Heart size={32} className="text-marron" />
-        <ChefHat size={32} className="text-marron ml-1" />
-      </>
-    ),
-    title: 'Elaboración artesanal',
-    image: '/images/nosotros/elaboracion.jpg',
-    imageAlt: 'Elaboración artesanal de pastas',
-    description:
-      'Cada pasta se elabora a mano con materia prima fresca. Respetamos nuestras recetas y los tiempos para que llegue con el sabor que te merecés.',
   },
   {
     icons: (
@@ -57,7 +62,7 @@ const destacados = [
     image: '/images/nosotros/fresco-congelado.jpg',
     imageAlt: 'Pastas frescas o congeladas',
     description:
-      'Vos decidís: si querés las pastas frescas, te las preparamos coordinando el tiempo de elaboración. Si preferís freezadas, te las entregamos listas para guardar. El sabor se mantiene intacto.',
+      'Ingredientes frescos de productores locales. De la huerta a tu mesa, sin intermediarios. Y también ofrecemos opciones congeladas para que disfrutes cuando quieras.',
   },
 ]
 
@@ -66,7 +71,7 @@ const containerVariants = {
   visible: {
     opacity: 1,
     transition: {
-      staggerChildren: 0.15,
+      staggerChildren: 0.12,
     },
   },
 }
@@ -89,7 +94,7 @@ const textVariants = {
   },
 }
 
-function DestacadoImage({ src, alt }: { src: string; alt: string }) {
+function CartelImage({ src, alt }: { src: string; alt: string }) {
   const [error, setError] = useState(false)
 
   if (error) {
@@ -107,7 +112,7 @@ function DestacadoImage({ src, alt }: { src: string; alt: string }) {
       alt={alt}
       fill
       className="object-cover"
-      sizes="(max-width: 768px) 100vw, 50vw"
+      sizes="(max-width: 768px) 100vw, 25vw"
       onError={() => setError(true)}
     />
   )
@@ -125,7 +130,7 @@ export default function Nosotros() {
           <div className="h-1 w-20 bg-mostaza mx-auto mt-4 rounded-full" />
         </div>
 
-        {/* Story — Texto actualizado */}
+        {/* Story */}
         <motion.div
           className="max-w-3xl mx-auto text-center mb-14"
           variants={textVariants}
@@ -147,42 +152,15 @@ export default function Nosotros() {
           </p>
         </motion.div>
 
-        {/* Values Grid */}
+        {/* 4 Carteles con íconos + imagen + texto */}
         <motion.div
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: '-50px' }}
         >
-          {values.map((value, index) => (
-            <motion.div
-              key={index}
-              variants={cardVariants}
-              className="flex flex-col items-center text-center p-6 rounded-xl bg-white border border-border hover:border-mostaza/40 hover:shadow-md transition-all duration-300"
-            >
-              <div className="mb-4 flex items-center justify-center h-14 w-14 rounded-full bg-mostaza/15 text-mostaza">
-                {value.icon}
-              </div>
-              <h3 className="font-bold text-marron text-lg mb-2">
-                {value.title}
-              </h3>
-              <p className="text-muted-foreground text-sm leading-relaxed">
-                {value.description}
-              </p>
-            </motion.div>
-          ))}
-        </motion.div>
-
-        {/* Tarjetas destacadas: Elaboración artesanal + Fresco o congelado */}
-        <motion.div
-          className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-12"
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: '-50px' }}
-        >
-          {destacados.map((item, index) => (
+          {carteles.map((cartel, index) => (
             <motion.div
               key={index}
               variants={cardVariants}
@@ -191,22 +169,22 @@ export default function Nosotros() {
               {/* Ícono */}
               <div className="flex-shrink-0 text-center pb-3">
                 <div className="w-20 h-20 mx-auto mb-3 bg-crema rounded-full shadow-md flex items-center justify-center">
-                  {item.icons}
+                  {cartel.icons}
                 </div>
                 <h3 className="text-lg sm:text-xl font-bold text-marron">
-                  {item.title}
+                  {cartel.title}
                 </h3>
               </div>
 
               {/* Imagen */}
-              <div className="relative h-40 sm:h-48 w-full my-3 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
-                <DestacadoImage src={item.image} alt={item.imageAlt} />
+              <div className="relative h-36 sm:h-44 w-full my-3 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
+                <CartelImage src={cartel.image} alt={cartel.imageAlt} />
               </div>
 
               {/* Texto */}
               <div className="flex-grow mt-2">
                 <p className="text-gray-600 text-sm text-center leading-relaxed">
-                  {item.description}
+                  {cartel.description}
                 </p>
               </div>
             </motion.div>
