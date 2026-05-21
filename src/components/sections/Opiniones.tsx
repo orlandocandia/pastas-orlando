@@ -38,7 +38,7 @@ export default function Opiniones() {
   }, [])
 
   return (
-    <section id="opiniones" className="min-h-screen flex flex-col justify-center py-12 sm:py-16 md:py-20 bg-white">
+    <section id="opiniones" className="min-h-screen flex flex-col justify-center py-12 sm:py-16 md:py-20 bg-crema">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Title */}
         <div className="text-center mb-12">
@@ -73,7 +73,7 @@ export default function Opiniones() {
                 {Array.from({ length: 3 }).map((_, i) => (
                   <div
                     key={i}
-                    className="bg-crema/50 rounded-xl p-5 animate-pulse"
+                    className="bg-white rounded-xl shadow-md p-5 animate-pulse"
                   >
                     <div className="h-5 w-32 bg-muted rounded mb-2" />
                     <div className="h-4 w-24 bg-muted rounded mb-3" />

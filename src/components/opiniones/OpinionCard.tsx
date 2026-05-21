@@ -31,7 +31,7 @@ export default function OpinionCard({
   })
 
   return (
-    <div className="bg-white rounded-xl border border-border p-5 shadow-sm hover:shadow-md transition-shadow duration-300">
+    <div className="bg-white rounded-xl shadow-md p-5 hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
       <div className="flex items-center gap-3 mb-3">
         {/* Avatar por iniciales */}
         <div className="w-10 h-10 rounded-full bg-mostaza flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
