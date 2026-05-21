@@ -172,8 +172,8 @@ export default function ComoPedir() {
                 </h3>
               </div>
 
-              {/* Fila 2: Imagen — altura fija 11rem, misma posición en TODAS las tarjetas */}
-              <div className="relative w-full rounded-lg overflow-hidden bg-gray-100 my-3">
+              {/* Fila 2: Imagen — altura fija h-48, misma posición en TODAS las tarjetas */}
+              <div className="relative h-48 w-full my-3 rounded-lg overflow-hidden bg-gray-100">
                 <StepImage src={step.image} alt={step.imageAlt} />
               </div>
 
