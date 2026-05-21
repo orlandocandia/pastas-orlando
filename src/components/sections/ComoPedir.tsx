@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
 import {
@@ -11,6 +12,7 @@ import {
   ChefHat,
   Snowflake,
   Sun,
+  ImageIcon,
 } from 'lucide-react'
 
 interface Step {
@@ -99,6 +101,30 @@ const cardVariants = {
   },
 }
 
+function StepImage({ src, alt }: { src: string; alt: string }) {
+  const [error, setError] = useState(false)
+
+  if (error) {
+    return (
+      <div className="w-full h-full flex flex-col items-center justify-center bg-gray-100 text-gray-400 gap-2">
+        <ImageIcon className="h-8 w-8" strokeWidth={1.2} />
+        <span className="text-xs">Imagen no disponible</span>
+      </div>
+    )
+  }
+
+  return (
+    <Image
+      src={src}
+      alt={alt}
+      fill
+      className="object-cover"
+      sizes="(max-width: 768px) 100vw, 33vw"
+      onError={() => setError(true)}
+    />
+  )
+}
+
 export default function ComoPedir() {
   return (
     <section id="como-pedir" className="min-h-screen flex flex-col justify-center py-16 sm:py-20 bg-white">
@@ -135,15 +161,9 @@ export default function ComoPedir() {
                 </h3>
               </div>
 
-              {/* Imagen: altura fija h-44 (176px) */}
-              <div className="h-44 w-full my-3 rounded-lg overflow-hidden relative">
-                <Image
-                  src={step.image}
-                  alt={step.imageAlt}
-                  fill
-                  className="object-cover"
-                  sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 20vw"
-                />
+              {/* Imagen: contenedor con relative + altura fija h-44 */}
+              <div className="relative h-44 w-full my-3 rounded-lg overflow-hidden bg-gray-100">
+                <StepImage src={step.image} alt={step.imageAlt} />
               </div>
 
               {/* Texto: altura variable */}
