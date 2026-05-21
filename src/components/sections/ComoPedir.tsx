@@ -8,10 +8,6 @@ import {
   Banknote,
   Truck,
   ThumbsUp,
-  Heart,
-  ChefHat,
-  Snowflake,
-  Sun,
   ImageIcon,
   ChevronRight,
   ChevronDown,
@@ -55,32 +51,6 @@ const steps: Step[] = [
     imageAlt: 'Plato de pastas caseras',
     description:
       'Recibís, pagás el resto, cocinás y disfrutás. ¿Te gustó? Dejá tu opinión.',
-  },
-  {
-    icons: (
-      <>
-        <Heart size={32} className="text-marron" />
-        <ChefHat size={32} className="text-marron ml-1" />
-      </>
-    ),
-    title: 'Elaboración artesanal',
-    image: '/images/pasos/elaboracion.jpg',
-    imageAlt: 'Elaboración artesanal de pastas',
-    description:
-      'Cada pasta se elabora a mano con materia prima fresca. Respetamos nuestras recetas y los tiempos.',
-  },
-  {
-    icons: (
-      <>
-        <Snowflake size={32} className="text-[#3B82F6]" />
-        <Sun size={32} className="text-mostaza ml-1" />
-      </>
-    ),
-    title: 'Fresco o congelado',
-    image: '/images/pasos/fresco-congelado.jpg',
-    imageAlt: 'Pastas frescas o congeladas',
-    description:
-      'Vos decidís: frescas o freezadas. El sabor se mantiene intacto.',
   },
 ]
 
