@@ -21,6 +21,7 @@ CREATE TABLE "Producto" (
 CREATE TABLE "Opinion" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     "nombre" TEXT NOT NULL,
+    "email" TEXT,
     "calificacion" INTEGER NOT NULL,
     "comentario" TEXT NOT NULL,
     "estado" TEXT NOT NULL DEFAULT 'pending',
@@ -1190,7 +1191,29 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // 5. Return result
+    // 5. Run ALTER TABLE migrations for existing databases
+    const migrations = [
+      { sql: 'ALTER TABLE "Opinion" ADD COLUMN "email" TEXT', description: 'Add email column to Opinion table' },
+    ]
+
+    for (const migration of migrations) {
+      try {
+        await client.execute(migration.sql)
+        results.push({ statement: migration.description, status: 'ok' })
+        created++
+      } catch (err: unknown) {
+        const errMsg = err instanceof Error ? err.message : String(err)
+        if (errMsg.includes('duplicate column name') || errMsg.includes('already exists')) {
+          results.push({ statement: migration.description, status: 'skipped', error: errMsg })
+          skipped++
+        } else {
+          results.push({ statement: migration.description, status: 'error', error: errMsg })
+          errors++
+        }
+      }
+    }
+
+    // 6. Return result
     return NextResponse.json({
       success: errors === 0,
       message: `DDL push complete: ${created} created, ${skipped} skipped (already exist), ${errors} errors`,

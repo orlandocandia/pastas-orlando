@@ -161,8 +161,30 @@ export async function POST(request: NextRequest) {
 
     // Verify
     const counts: Record<string,number> = {}
-    for (const t of ['Pais','Provincia','Departamento','Municipio','TipoPersona','TipoContacto','TipoDireccion','Marca','UnidadMedida','FormaPago','EstadoGeneral','Usuario','Rol','Permiso','ProductoTerminado','MateriaPrima','Consulta']) {
+    for (const t of ['Pais','Provincia','Departamento','Municipio','TipoPersona','TipoContacto','TipoDireccion','Marca','UnidadMedida','FormaPago','EstadoGeneral','Usuario','Rol','Permiso','ProductoTerminado','MateriaPrima','Consulta','Opinion']) {
       try { counts[t] = Number((await client.execute(`SELECT COUNT(*) as c FROM ${t}`)).rows[0]?.c || 0) } catch { counts[t] = -1 }
+    }
+
+    // 26. SEED OPINIONES (solo si no hay ninguna aprobada)
+    const approvedOpinions = Number((await client.execute("SELECT COUNT(*) as c FROM Opinion WHERE estado = 'approved'")).rows[0]?.c || 0)
+    if (approvedOpinions === 0) {
+      const opiniones = [
+        { nombre: 'María González', email: 'maria.gonzalez@email.com', calificacion: 5, comentario: 'Las mejores sorrentinos que probé en mi vida. El relleno es generoso y la masa casera se nota. Súper recomendable!', estado: 'approved', destacado: 1 },
+        { nombre: 'Carlos Ramírez', email: 'carlos.r@email.com', calificacion: 5, comentario: 'Hace años que les compro ravioles y la calidad siempre es impecable. Los de carne son mi favorito, muy bien sazonados.', estado: 'approved', destacado: 1 },
+        { nombre: 'Laura Martínez', email: null, calificacion: 4, comentario: 'Muy ricos los ñoquis de papa, se nota que son hechos con amor. La entrega fue puntual y el trato excelente.', estado: 'approved', destacado: 0 },
+        { nombre: 'Roberto Silva', email: null, calificacion: 5, comentario: 'La lasagna de carne es espectacular. La pido para cada reunión familiar y todos quedan encantados. No tiene competencia!', estado: 'approved', destacado: 1 },
+        { nombre: 'Ana Pereyra', email: 'ana.p@email.com', calificacion: 4, comentario: 'Probé los fettuccine al huevo y estaban buenísimos. Me gustó que puedo elegir recibirlos frescos o congelados.', estado: 'approved', destacado: 0 },
+        { nombre: 'Diego Fernández', email: null, calificacion: 5, comentario: 'Excelente atención y calidad. Las salsas caseras acompañan perfecto. Ya soy cliente habitual!', estado: 'approved', destacado: 0 },
+      ]
+      for (const op of opiniones) {
+        await client.execute({
+          sql: 'INSERT INTO Opinion (nombre, email, calificacion, comentario, estado, destacado, fecha, fecha_aprobacion) VALUES (?, ?, ?, ?, ?, ?, datetime("now", "-7 days"), datetime("now", "-6 days"))',
+          args: [op.nombre, op.email, op.calificacion, op.comentario, op.estado, op.destacado]
+        })
+      }
+      results.push(`${opiniones.length} opiniones aprobadas seed`)
+    } else {
+      results.push(`Opiniones aprobadas ya existen (${approvedOpinions})`)
     }
 
     return NextResponse.json({ success: true, message: 'Seed Turso OK', results, counts })
