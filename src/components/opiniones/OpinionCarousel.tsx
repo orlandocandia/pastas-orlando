@@ -65,7 +65,7 @@ export default function OpinionCarousel({ opiniones }: OpinionCarouselProps) {
   }, [api])
 
   return (
-    <div className="relative max-w-5xl mx-auto">
+    <div className="relative max-w-5xl mx-auto pl-4 md:pl-8">
       <Carousel
         setApi={setApi}
         opts={{
@@ -86,8 +86,8 @@ export default function OpinionCarousel({ opiniones }: OpinionCarouselProps) {
             </CarouselItem>
           ))}
         </CarouselContent>
-        <CarouselPrevious className="hidden sm:flex -left-12 bg-mostaza text-marron border-mostaza hover:bg-mostaza/90" />
-        <CarouselNext className="hidden sm:flex -right-12 bg-mostaza text-marron border-mostaza hover:bg-mostaza/90" />
+        <CarouselPrevious className="hidden sm:flex left-2 bg-mostaza text-marron border-mostaza hover:bg-mostaza/90" />
+        <CarouselNext className="hidden sm:flex right-2 bg-mostaza text-marron border-mostaza hover:bg-mostaza/90" />
       </Carousel>
 
       {/* Dots */}
