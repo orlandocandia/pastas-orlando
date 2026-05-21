@@ -123,20 +123,20 @@ export default function ComoPedir() {
             <motion.div
               key={index}
               variants={cardVariants}
-              className="tarjeta-paso h-full flex flex-col justify-between min-h-[480px] text-center p-6 bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300"
+              className="h-full flex flex-col justify-between min-h-[520px] text-center p-6 bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300"
             >
-              {/* 1. Círculo decorativo con ícono */}
-              <div className="w-20 h-20 mx-auto mb-4 bg-white rounded-full shadow-md flex items-center justify-center hover:scale-105 hover:shadow-lg transition-all duration-300 flex-shrink-0">
-                {step.icons}
+              {/* Bloque superior: ícono + título */}
+              <div>
+                <div className="w-20 h-20 mx-auto mb-4 bg-white rounded-full shadow-md flex items-center justify-center hover:scale-105 hover:shadow-lg transition-all duration-300">
+                  {step.icons}
+                </div>
+                <h3 className="text-xl font-bold text-marron text-center mb-4">
+                  {step.title}
+                </h3>
               </div>
 
-              {/* 2. Título del paso */}
-              <h3 className="text-xl font-bold text-marron mb-3 flex-shrink-0">
-                {step.title}
-              </h3>
-
-              {/* 3. Cuadro con imagen real — altura fija 180px, nunca se encoge */}
-              <div className="contenedor-imagen h-44 w-full my-3 flex-shrink-0 rounded-lg overflow-hidden shadow-sm">
+              {/* Imagen: altura fija h-44 (176px) */}
+              <div className="h-44 w-full my-3 rounded-lg overflow-hidden relative">
                 <Image
                   src={step.image}
                   alt={step.imageAlt}
@@ -146,8 +146,8 @@ export default function ComoPedir() {
                 />
               </div>
 
-              {/* 4. Texto descriptivo — ocupa espacio restante */}
-              <p className="texto-paso flex-grow text-gray-600 text-sm mt-2 leading-relaxed">
+              {/* Texto: altura variable */}
+              <p className="text-gray-600 text-sm text-center mt-2 leading-relaxed">
                 {step.description}
               </p>
             </motion.div>
