@@ -2,13 +2,12 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import { toast } from 'sonner'
-import { Search, Loader2, Check, X, Eye } from 'lucide-react'
+import { Search, Loader2, Check, X, Eye, Trash2 } from 'lucide-react'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Badge } from '@/components/ui/badge'
 import {
   Table,
   TableBody,
@@ -60,6 +59,7 @@ export default function OpinionesTable({ estado }: OpinionesTableProps) {
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [calificacionFilter, setCalificacionFilter] = useState<string>('all')
+  const [deleting, setDeleting] = useState<number | null>(null)
 
   const fetchOpiniones = useCallback(async () => {
     setLoading(true)
@@ -89,11 +89,28 @@ export default function OpinionesTable({ estado }: OpinionesTableProps) {
 
       if (!res.ok) throw new Error('Error al actualizar')
 
-      const actionLabel = nuevoEstado === 'approved' ? 'aprobada' : nuevoEstado === 'rejected' ? 'rechazada' : 'actualizada'
+      const actionLabel = nuevoEstado === 'approved' ? 'aprobada' : nuevoEstado === 'rejected' ? 'ocultada' : 'actualizada'
       toast.success(`Opinión ${actionLabel}`)
       fetchOpiniones()
     } catch {
       toast.error('Error al actualizar opinión')
+    }
+  }
+
+  const eliminarOpinion = async (id: number, nombre: string) => {
+    if (!confirm(`¿Eliminar permanentemente la opinión de "${nombre}"? Esta acción no se puede deshacer.`)) return
+
+    setDeleting(id)
+    try {
+      const res = await fetch(`/api/opiniones?id=${id}`, { method: 'DELETE' })
+      if (!res.ok) throw new Error('Error al eliminar')
+
+      toast.success('Opinión eliminada')
+      fetchOpiniones()
+    } catch {
+      toast.error('Error al eliminar opinión')
+    } finally {
+      setDeleting(null)
     }
   }
 
@@ -193,12 +210,13 @@ export default function OpinionesTable({ estado }: OpinionesTableProps) {
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-1">
+                        {/* === PENDIENTES: Aprobar + Rechazar === */}
                         {estado === 'pending' && (
                           <>
                             <Button
                               variant="ghost"
                               size="sm"
-                              className="h-8 px-2 text-oliva hover:bg-oliva/10"
+                              className="h-8 px-2 text-green-600 hover:bg-green-50 hover:text-green-700"
                               onClick={() => cambiarEstado(opinion.id, 'approved')}
                             >
                               <Check className="h-4 w-4 mr-1" />
@@ -207,7 +225,7 @@ export default function OpinionesTable({ estado }: OpinionesTableProps) {
                             <Button
                               variant="ghost"
                               size="sm"
-                              className="h-8 px-2 text-rojo hover:bg-rojo/10"
+                              className="h-8 px-2 text-orange-500 hover:bg-orange-50 hover:text-orange-600"
                               onClick={() => cambiarEstado(opinion.id, 'rejected')}
                             >
                               <X className="h-4 w-4 mr-1" />
@@ -215,27 +233,63 @@ export default function OpinionesTable({ estado }: OpinionesTableProps) {
                             </Button>
                           </>
                         )}
+
+                        {/* === APROBADAS: Ocultar + Eliminar === */}
                         {estado === 'approved' && (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-8 px-2 text-muted-foreground hover:bg-rojo/10 hover:text-rojo"
-                            onClick={() => cambiarEstado(opinion.id, 'rejected')}
-                          >
-                            <Eye className="h-4 w-4 mr-1" />
-                            <span className="hidden sm:inline">Ocultar</span>
-                          </Button>
+                          <>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-8 px-2 text-orange-500 hover:bg-orange-50 hover:text-orange-600"
+                              onClick={() => cambiarEstado(opinion.id, 'rejected')}
+                            >
+                              <Eye className="h-4 w-4 mr-1" />
+                              <span className="hidden sm:inline">Ocultar</span>
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-8 px-2 text-red-600 hover:bg-red-50 hover:text-red-700"
+                              onClick={() => eliminarOpinion(opinion.id, opinion.nombre)}
+                              disabled={deleting === opinion.id}
+                            >
+                              {deleting === opinion.id ? (
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                              ) : (
+                                <Trash2 className="h-4 w-4 mr-1" />
+                              )}
+                              <span className="hidden sm:inline">Eliminar</span>
+                            </Button>
+                          </>
                         )}
+
+                        {/* === RECHAZADAS: Aprobar + Eliminar === */}
                         {estado === 'rejected' && (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-8 px-2 text-oliva hover:bg-oliva/10"
-                            onClick={() => cambiarEstado(opinion.id, 'approved')}
-                          >
-                            <Check className="h-4 w-4 mr-1" />
-                            <span className="hidden sm:inline">Recuperar</span>
-                          </Button>
+                          <>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-8 px-2 text-green-600 hover:bg-green-50 hover:text-green-700"
+                              onClick={() => cambiarEstado(opinion.id, 'approved')}
+                            >
+                              <Check className="h-4 w-4 mr-1" />
+                              <span className="hidden sm:inline">Aprobar</span>
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-8 px-2 text-red-600 hover:bg-red-50 hover:text-red-700"
+                              onClick={() => eliminarOpinion(opinion.id, opinion.nombre)}
+                              disabled={deleting === opinion.id}
+                            >
+                              {deleting === opinion.id ? (
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                              ) : (
+                                <Trash2 className="h-4 w-4 mr-1" />
+                              )}
+                              <span className="hidden sm:inline">Eliminar</span>
+                            </Button>
+                          </>
                         )}
                       </div>
                     </TableCell>
