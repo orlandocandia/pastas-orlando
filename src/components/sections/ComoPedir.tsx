@@ -48,7 +48,7 @@ const steps: Step[] = [
     icons: <ThumbsUp size={40} className="text-rojo" />,
     title: 'Disfrutás y volvés',
     image: '/images/pasos/disfrute.jpg',
-    imageAlt: 'Plato de pastas caseras',
+    imageAlt: 'Persona disfrutando pastas caseras',
     description:
       'Recibís, pagás el resto, cocinás y disfrutás. ¿Te gustó? Dejá tu opinión.',
   },
@@ -119,14 +119,13 @@ export default function ComoPedir() {
         >
           {steps.map((step, index) => (
             <Fragment key={index}>
-              {/* Tarjeta */}
+              {/* Tarjeta — flex column layout for proper text allocation */}
               <motion.div
                 variants={cardVariants}
-                className="grid bg-crema rounded-xl shadow-md hover:shadow-lg hover:-translate-y-1 transition-all duration-300 p-4 sm:p-6 min-h-[420px] sm:min-h-[480px] md:min-h-[550px] w-full md:flex-1"
-                style={{ gridTemplateRows: 'auto 11rem 1fr' }}
+                className="flex flex-col bg-crema rounded-xl shadow-md hover:shadow-lg hover:-translate-y-1 transition-all duration-300 p-4 sm:p-6 w-full md:flex-1"
               >
-                {/* Fila 1: Número + Ícono + Título */}
-                <div className="text-center pb-3">
+                {/* Bloque superior: Número + Ícono + Título */}
+                <div className="flex-shrink-0 text-center pb-3">
                   {/* Numeración */}
                   <div className="w-8 h-8 mx-auto mb-2 bg-mostaza rounded-full flex items-center justify-center text-white font-bold text-sm">
                     {index + 1}
@@ -140,13 +139,13 @@ export default function ComoPedir() {
                   </h3>
                 </div>
 
-                {/* Fila 2: Imagen */}
-                <div className="relative h-48 w-full my-3 rounded-lg overflow-hidden bg-gray-100">
+                {/* Imagen — altura fija, no se encoge */}
+                <div className="relative h-40 sm:h-48 w-full my-3 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
                   <StepImage src={step.image} alt={step.imageAlt} />
                 </div>
 
-                {/* Fila 3: Texto */}
-                <div className="flex items-start pt-1">
+                {/* Texto — ocupa el espacio restante, siempre visible */}
+                <div className="flex-grow mt-2">
                   <p className="text-gray-600 text-sm text-center leading-relaxed">
                     {step.description}
                   </p>
