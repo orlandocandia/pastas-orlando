@@ -63,33 +63,54 @@ async function sendEmailNotification(data: ConsultaData) {
     const info = await transporter.sendMail({
       from: `"Pastas Orlando Web" <${smtpUser}>`,
       to: adminEmail,
-      subject: '📬 Nueva consulta desde la web - Pastas Orlando',
+      subject: '📧 Nuevo mensaje de contacto - Pastas Orlando',
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <div style="background: #E1AD01; padding: 16px; border-radius: 8px 8px 0 0; text-align: center;">
-            <h1 style="color: #5C3A21; margin: 0; font-size: 22px;">Pastas Orlando</h1>
-            <p style="color: #5C3A21; margin: 4px 0 0; font-size: 14px;">Nueva consulta desde la web</p>
+          <!-- Encabezado -->
+          <div style="background: #E1AD01; padding: 20px; border-radius: 8px 8px 0 0; text-align: center;">
+            <h1 style="color: #5C3A21; margin: 0; font-size: 22px;">🍝 Pastas Orlando</h1>
           </div>
-          <div style="background: #FFF8E7; padding: 20px; border-radius: 0 0 8px 8px;">
-            <table style="width: 100%; border-collapse: collapse;">
+
+          <!-- Cuerpo -->
+          <div style="background: #FFF8E7; padding: 24px; border-radius: 0 0 8px 8px;">
+
+            <p style="color: #5C3A21; font-size: 16px; margin: 0 0 6px;">
+              ¡Hola Orlando! 👋
+            </p>
+            <p style="color: #333; font-size: 14px; margin: 0 0 20px; line-height: 1.5;">
+              Tienes un nuevo mensaje de contacto desde tu página web. Aquí están los datos del cliente para que puedas responderle a la brevedad:
+            </p>
+
+            <!-- Detalles -->
+            <p style="color: #5C3A21; font-weight: bold; font-size: 14px; margin: 0 0 10px;">
+              📝 Detalles de la consulta:
+            </p>
+            <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
               <tr>
-                <td style="padding: 8px 0; color: #5C3A21; font-weight: bold; width: 100px;">Nombre:</td>
+                <td style="padding: 8px 12px; color: #5C3A21; font-weight: bold; width: 40px; font-size: 16px;">👤</td>
+                <td style="padding: 8px 0; color: #5C3A21; font-weight: bold; width: 80px;">Nombre:</td>
                 <td style="padding: 8px 0; color: #333;">${data.nombre}</td>
               </tr>
               <tr>
+                <td style="padding: 8px 12px; color: #E1AD01; font-size: 16px;">📧</td>
                 <td style="padding: 8px 0; color: #5C3A21; font-weight: bold;">Email:</td>
-                <td style="padding: 8px 0;"><a href="mailto:${data.email}" style="color: #E1AD01;">${data.email}</a></td>
+                <td style="padding: 8px 0;"><a href="mailto:${data.email}" style="color: #E1AD01; text-decoration: underline;">${data.email}</a></td>
               </tr>
               <tr>
+                <td style="padding: 8px 12px; color: #25D366; font-size: 16px;">📞</td>
                 <td style="padding: 8px 0; color: #5C3A21; font-weight: bold;">Teléfono:</td>
                 <td style="padding: 8px 0; color: #333;">${data.telefono || '-'}</td>
               </tr>
             </table>
-            <div style="margin-top: 16px; padding: 12px; background: white; border-radius: 6px; border-left: 4px solid #E1AD01;">
-              <p style="color: #5C3A21; font-weight: bold; margin: 0 0 8px; font-size: 14px;">Mensaje:</p>
-              <p style="color: #333; margin: 0; white-space: pre-wrap; font-size: 14px; line-height: 1.5;">${data.mensaje}</p>
+
+            <!-- Mensaje -->
+            <p style="color: #5C3A21; font-weight: bold; font-size: 14px; margin: 0 0 8px;">💬 Mensaje:</p>
+            <div style="padding: 14px 16px; background: white; border-radius: 8px; border-left: 4px solid #E1AD01; margin-bottom: 24px;">
+              <p style="color: #333; margin: 0; white-space: pre-wrap; font-size: 14px; line-height: 1.6; font-style: italic;">"${data.mensaje}"</p>
             </div>
-            <div style="margin-top: 20px; text-align: center;">
+
+            <!-- Botones -->
+            <div style="text-align: center; margin-bottom: 20px;">
               <a href="https://laspastasdeorlando.vercel.app/admin/consultas"
                  style="background: #E1AD01; color: #5C3A21; padding: 10px 24px; border-radius: 6px; text-decoration: none; font-weight: bold; display: inline-block;">
                 Ver en el Panel Admin
@@ -97,8 +118,15 @@ async function sendEmailNotification(data: ConsultaData) {
               ${whatsappReplyLink ? `
               <a href="${whatsappReplyLink}"
                  style="background: #25D366; color: white; padding: 10px 24px; border-radius: 6px; text-decoration: none; font-weight: bold; display: inline-block; margin-left: 8px;">
-                Responder por WhatsApp
+                📱 Responder por WhatsApp
               </a>` : ''}
+            </div>
+
+            <!-- Footer -->
+            <div style="border-top: 1px solid #E1AD01; padding-top: 12px; text-align: center;">
+              <p style="color: #999; font-size: 12px; margin: 0;">
+                🌐 Este mensaje fue enviado automáticamente desde la web de Pastas Orlando.
+              </p>
             </div>
           </div>
         </div>
