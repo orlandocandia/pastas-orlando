@@ -68,7 +68,7 @@ export default function Opiniones() {
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
           >
-            <div className="flex-1">
+            <div className="flex-grow">
               {loading ? (
                 <div className="space-y-4">
                   {Array.from({ length: 3 }).map((_, i) => (
@@ -96,9 +96,9 @@ export default function Opiniones() {
               )}
             </div>
 
-            {/* Texto al pie si hay opiniones y sobra espacio */}
+            {/* Texto al pie: pegado al fondo */}
             {opiniones.length > 0 && (
-              <div className="text-center text-gray-400 text-sm mt-4 pt-3">
+              <div className="text-center text-gray-400 text-sm pt-4 border-t border-gray-100 mt-4">
                 ✨ Compartí tu experiencia
               </div>
             )}
