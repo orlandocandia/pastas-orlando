@@ -1,10 +1,10 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { MessageSquarePlus, ChevronUp, ChevronDown } from 'lucide-react'
+import { MessageSquarePlus, ChevronLeft, ChevronRight } from 'lucide-react'
 import OpinionForm from '@/components/opiniones/OpinionForm'
-import StarRating from '@/components/opiniones/StarRating'
+import OpinionCard from '@/components/opiniones/OpinionCard'
 
 interface Opinion {
   id: number
@@ -15,19 +15,12 @@ interface Opinion {
   destacado: boolean
 }
 
-function getInitials(name: string): string {
-  return name
-    .split(' ')
-    .map((n) => n[0])
-    .join('')
-    .toUpperCase()
-    .slice(0, 2)
-}
+const OPINIONES_POR_PAGINA = 4
 
 export default function Opiniones() {
   const [opiniones, setOpiniones] = useState<Opinion[]>([])
   const [loading, setLoading] = useState(true)
-  const [currentIndex, setCurrentIndex] = useState(0)
+  const [pagina, setPagina] = useState(1)
 
   useEffect(() => {
     async function fetchOpiniones() {
@@ -46,31 +39,21 @@ export default function Opiniones() {
     fetchOpiniones()
   }, [])
 
-  const total = opiniones.length
+  const totalPaginas = Math.ceil(opiniones.length / OPINIONES_POR_PAGINA)
+  const mostrarPaginacion = opiniones.length > OPINIONES_POR_PAGINA
 
-  const next = useCallback(() => {
-    setCurrentIndex((prev) => (prev + 1) % total)
-  }, [total])
-
-  const prev = useCallback(() => {
-    setCurrentIndex((prev) => (prev - 1 + total) % total)
-  }, [total])
-
-  // Auto-avanzar cada 6 segundos
+  // Reset page si queda fuera de rango
   useEffect(() => {
-    if (total <= 1) return
-    const timer = setInterval(next, 6000)
-    return () => clearInterval(timer)
-  }, [total, next])
-
-  // Reset index si se eliminan opiniones
-  useEffect(() => {
-    if (currentIndex >= total && total > 0) {
-      setCurrentIndex(total - 1)
+    if (pagina > totalPaginas && totalPaginas > 0) {
+      setPagina(totalPaginas)
     }
-  }, [currentIndex, total])
+  }, [pagina, totalPaginas])
 
-  const currentOpinion = opiniones[currentIndex]
+  const paginaEfectiva = Math.min(pagina, Math.max(totalPaginas, 1))
+  const opinionesPagina = opiniones.slice(
+    (paginaEfectiva - 1) * OPINIONES_POR_PAGINA,
+    paginaEfectiva * OPINIONES_POR_PAGINA
+  )
 
   return (
     <section id="opiniones" className="min-h-screen flex flex-col justify-center py-12 sm:py-16 md:py-20 bg-gray-50">
@@ -95,7 +78,7 @@ export default function Opiniones() {
             <OpinionForm />
           </motion.div>
 
-          {/* Vertical Carousel */}
+          {/* Opinions Grid + Pagination */}
           <motion.div
             className="lg:col-span-2 h-full flex flex-col"
             initial={{ opacity: 0, x: 20 }}
@@ -104,18 +87,23 @@ export default function Opiniones() {
             transition={{ duration: 0.5 }}
           >
             {loading ? (
-              <div className="flex-1 flex items-center justify-center">
-                <div className="bg-crema rounded-xl shadow-md p-8 w-full max-w-md animate-pulse">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="w-12 h-12 rounded-full bg-muted" />
-                    <div className="flex-1">
-                      <div className="h-5 w-28 bg-muted rounded mb-2" />
-                      <div className="h-3 w-20 bg-muted rounded" />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <div
+                    key={i}
+                    className="bg-crema rounded-xl shadow-md p-5 animate-pulse"
+                  >
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="w-10 h-10 rounded-full bg-muted" />
+                      <div className="flex-1">
+                        <div className="h-4 w-24 bg-muted rounded mb-1" />
+                        <div className="h-3 w-20 bg-muted rounded" />
+                      </div>
                     </div>
+                    <div className="h-4 w-full bg-muted rounded mb-2" />
+                    <div className="h-4 w-3/4 bg-muted rounded" />
                   </div>
-                  <div className="h-4 w-full bg-muted rounded mb-2" />
-                  <div className="h-4 w-3/4 bg-muted rounded" />
-                </div>
+                ))}
               </div>
             ) : opiniones.length === 0 ? (
               <div className="flex flex-col items-center justify-center text-center py-12 h-full">
@@ -125,92 +113,54 @@ export default function Opiniones() {
                 </p>
               </div>
             ) : (
-              <div className="flex flex-col h-full">
-                {/* Flecha arriba */}
-                <button
-                  onClick={prev}
-                  className="self-center p-2 rounded-full text-mostaza hover:bg-mostaza/10 transition-colors disabled:opacity-30"
-                  disabled={total <= 1}
-                  aria-label="Opinión anterior"
-                >
-                  <ChevronUp className="h-6 w-6" />
-                </button>
-
-                {/* Área del carrusel */}
-                <div className="relative flex-1 min-h-[300px] overflow-hidden my-2">
-                  <div
-                    className="flex flex-col transition-transform duration-500 ease-in-out h-full"
-                    style={{ transform: `translateY(-${currentIndex * 100}%)` }}
-                  >
-                    {opiniones.map((opinion) => (
-                      <div
-                        key={opinion.id}
-                        className="h-full flex-shrink-0 flex items-center justify-center p-2"
-                      >
-                        <div className="bg-crema rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300 p-6 sm:p-8 w-full max-w-lg mx-auto">
-                          {/* Avatar + Nombre + Estrellas */}
-                          <div className="flex items-center gap-4 mb-4">
-                            <div className="w-12 h-12 rounded-full bg-mostaza flex items-center justify-center text-white font-bold text-base flex-shrink-0">
-                              {getInitials(opinion.nombre)}
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <p className="font-bold text-marron text-lg truncate">{opinion.nombre}</p>
-                              <p className="text-xs text-muted-foreground">
-                                {new Date(opinion.fecha).toLocaleDateString('es-AR', {
-                                  year: 'numeric',
-                                  month: 'long',
-                                  day: 'numeric',
-                                })}
-                              </p>
-                            </div>
-                            <StarRating rating={opinion.calificacion} size={20} />
-                          </div>
-
-                          {/* Comentario */}
-                          <p className="text-muted-foreground text-base leading-relaxed">
-                            &ldquo;{opinion.comentario}&rdquo;
-                          </p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+              <>
+                {/* Grid fijo: 2 columnas desktop, 1 mobile */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 flex-grow">
+                  {opinionesPagina.map((opinion) => (
+                    <OpinionCard
+                      key={opinion.id}
+                      nombre={opinion.nombre}
+                      calificacion={opinion.calificacion}
+                      comentario={opinion.comentario}
+                      fecha={opinion.fecha}
+                    />
+                  ))}
                 </div>
 
-                {/* Flecha abajo */}
-                <button
-                  onClick={next}
-                  className="self-center p-2 rounded-full text-mostaza hover:bg-mostaza/10 transition-colors disabled:opacity-30"
-                  disabled={total <= 1}
-                  aria-label="Opinión siguiente"
-                >
-                  <ChevronDown className="h-6 w-6" />
-                </button>
+                {/* Paginación */}
+                {mostrarPaginacion && (
+                  <div className="flex items-center justify-between mt-6 pt-4 border-t border-gray-200">
+                    <button
+                      onClick={() => setPagina((p) => Math.max(1, p - 1))}
+                      disabled={paginaEfectiva === 1}
+                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed bg-mostaza/10 text-marron hover:bg-mostaza/20"
+                    >
+                      <ChevronLeft className="h-4 w-4" />
+                      Anterior
+                    </button>
 
-                {/* Indicadores de página (puntos) */}
-                {total > 1 && (
-                  <div className="flex justify-center gap-2 mt-3">
-                    {opiniones.map((_, idx) => (
-                      <button
-                        key={idx}
-                        onClick={() => setCurrentIndex(idx)}
-                        className={`h-2 rounded-full transition-all duration-300 ${
-                          currentIndex === idx
-                            ? 'w-6 bg-mostaza'
-                            : 'w-2 bg-gray-300 hover:bg-gray-400'
-                        }`}
-                        aria-label={`Ir a opinión ${idx + 1}`}
-                      />
-                    ))}
+                    <span className="text-sm text-muted-foreground">
+                      Página {paginaEfectiva} de {totalPaginas}
+                    </span>
+
+                    <button
+                      onClick={() => setPagina((p) => Math.min(totalPaginas, p + 1))}
+                      disabled={paginaEfectiva === totalPaginas}
+                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed bg-mostaza/10 text-marron hover:bg-mostaza/20"
+                    >
+                      Siguiente
+                      <ChevronRight className="h-4 w-4" />
+                    </button>
                   </div>
                 )}
 
-                {/* Contador */}
-                {total > 1 && (
-                  <p className="text-center text-xs text-muted-foreground mt-2">
-                    {currentIndex + 1} de {total} opiniones
-                  </p>
+                {/* Indicador cuando no hay paginación */}
+                {!mostrarPaginacion && opiniones.length > 0 && (
+                  <div className="text-center text-sm text-muted-foreground mt-4">
+                    Mostrando {opiniones.length} opinión{opiniones.length !== 1 ? 'es' : ''}
+                  </div>
                 )}
-              </div>
+              </>
             )}
           </motion.div>
         </div>
