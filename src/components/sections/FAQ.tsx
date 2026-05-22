@@ -47,7 +47,7 @@ const faqs = [
 
 export default function FAQ() {
   return (
-    <section id="faq" className="min-h-screen flex flex-col justify-center py-12 sm:py-16 md:py-20 bg-gray-50">
+    <section id="faq" className="min-h-screen flex flex-col justify-center py-12 sm:py-16 md:py-20 bg-crema">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Title */}
         <div className="text-center mb-12">
