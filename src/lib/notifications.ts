@@ -8,15 +8,15 @@ interface ConsultaData {
 }
 
 /**
- * Send email + WhatsApp notifications when a new consulta is received.
- * Both are fire-and-forget: if credentials are missing, they silently skip.
+ * Send email notification when a new consulta is received.
+ * Fire-and-forget: if credentials are missing, it silently skips.
+ *
+ * WhatsApp automatic sending was removed — the email includes the client's
+ * phone number and a "Responder por WhatsApp" link so Orlando can reply
+ * manually, which is 100% reliable.
  */
 export async function sendConsultaNotifications(data: ConsultaData) {
-  // Run both in parallel, neither should block the response
-  await Promise.allSettled([
-    sendEmailNotification(data),
-    sendWhatsAppNotification(data),
-  ])
+  await sendEmailNotification(data)
 }
 
 /**
@@ -98,46 +98,6 @@ async function sendEmailNotification(data: ConsultaData) {
   }
 }
 
-/**
- * WhatsApp notification via CallMeBot API (free for personal use).
- * Requires env var: CALLMEBOT_API_KEY
- * 
- * To set up:
- * 1. Add the number +34 644 52 74 88 to your phone contacts
- * 2. Send "I allow callmebot to send me messages" to that contact
- * 3. You'll receive an API key
- * 4. Set CALLMEBOT_API_KEY env var
- */
-async function sendWhatsAppNotification(data: ConsultaData) {
-  try {
-    const apiKey = process.env.CALLMEBOT_API_KEY
-    const phone = process.env.WHATSAPP_PHONE || '5493754419324'
-
-    if (!apiKey) {
-      console.log('[Notif] CallMeBot API key not configured, skipping WhatsApp notification')
-      return
-    }
-
-    const message = encodeURIComponent(
-      `📬 *Nueva consulta web*\n` +
-      `👤 Nombre: ${data.nombre}\n` +
-      `📧 Email: ${data.email}\n` +
-      `📱 Teléfono: ${data.telefono}\n` +
-      `💬 Mensaje: ${data.mensaje}\n\n` +
-      `🔗 https://laspastasdeorlando.vercel.app/admin/consultas`
-    )
-
-    const response = await fetch(
-      `https://api.callmebot.com/whatsapp.php?phone=${phone}&text=${message}&apikey=${apiKey}`,
-      { method: 'GET' }
-    )
-
-    if (!response.ok) {
-      console.error('[Notif] CallMeBot API error:', response.status, await response.text())
-    } else {
-      console.log('[Notif] WhatsApp notification sent successfully')
-    }
-  } catch (error) {
-    console.error('[Notif] Failed to send WhatsApp notification:', error)
-  }
-}
+// WhatsApp automatic notification removed.
+// The email notification already includes the client's phone number
+// and a "Responder por WhatsApp" link so Orlando can reply manually.
