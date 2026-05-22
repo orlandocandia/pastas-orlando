@@ -8,15 +8,15 @@ interface ConsultaData {
 }
 
 /**
- * Send email notification when a new consulta is received.
+ * Send email + WhatsApp notifications when a new consulta is received.
  * Fire-and-forget: if credentials are missing, it silently skips.
- *
- * WhatsApp automatic sending was removed — the email includes the client's
- * phone number and a "Responder por WhatsApp" link so Orlando can reply
- * manually, which is 100% reliable.
  */
 export async function sendConsultaNotifications(data: ConsultaData) {
-  await sendEmailNotification(data)
+  // Run both in parallel — one failing doesn't affect the other
+  await Promise.allSettled([
+    sendEmailNotification(data),
+    sendWhatsAppNotification(data),
+  ])
 }
 
 /**
@@ -29,7 +29,7 @@ async function sendEmailNotification(data: ConsultaData) {
     const smtpPass = process.env.SMTP_PASS
 
     if (!smtpUser || !smtpPass) {
-      console.log('[Notif] SMTP credentials not configured, skipping email notification')
+      console.log('[Notif-Email] SMTP credentials not configured (SMTP_USER/SMTP_PASS missing), skipping email notification')
       return
     }
 
@@ -43,13 +43,14 @@ async function sendEmailNotification(data: ConsultaData) {
       },
     })
 
+    const adminEmail = process.env.ADMIN_EMAIL || smtpUser
     const whatsappReplyLink = data.telefono
       ? `https://wa.me/${data.telefono.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(`Hola ${data.nombre}, gracias por contactarte con Pastas Orlando.`)}`
       : null
 
     await transporter.sendMail({
       from: `"Pastas Orlando Web" <${smtpUser}>`,
-      to: 'laspastasdeorlando@gmail.com',
+      to: adminEmail,
       subject: '📬 Nueva consulta desde la web - Pastas Orlando',
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -92,12 +93,60 @@ async function sendEmailNotification(data: ConsultaData) {
       `,
     })
 
-    console.log('[Notif] Email notification sent successfully')
+    console.log('[Notif-Email] ✅ Email notification sent successfully to', adminEmail)
   } catch (error) {
-    console.error('[Notif] Failed to send email notification:', error)
+    console.error('[Notif-Email] ❌ Failed to send email notification:', error)
   }
 }
 
-// WhatsApp automatic notification removed.
-// The email notification already includes the client's phone number
-// and a "Responder por WhatsApp" link so Orlando can reply manually.
+/**
+ * WhatsApp notification via CallMeBot API.
+ * Requires env vars: ADMIN_PHONE, CALLMEBOT_API_KEY
+ *
+ * SETUP INSTRUCTIONS:
+ * 1. Add +34 644 52 74 88 to your WhatsApp contacts (CallMeBot's number)
+ * 2. Send the message: "I allow callmebot to send me messages" to that number
+ * 3. You'll receive your API key via WhatsApp
+ * 4. Set ADMIN_PHONE and CALLMEBOT_API_KEY in your .env / Vercel env vars
+ *
+ * Phone format: country code + number without + (e.g. 5493754419324 for Argentina)
+ */
+async function sendWhatsAppNotification(data: ConsultaData) {
+  try {
+    const adminPhone = process.env.ADMIN_PHONE
+    const apiKey = process.env.CALLMEBOT_API_KEY
+
+    if (!adminPhone || !apiKey) {
+      console.log('[Notif-WA] WhatsApp not configured (ADMIN_PHONE/CALLMEBOT_API_KEY missing), skipping WhatsApp notification')
+      return
+    }
+
+    // Build a concise WhatsApp message
+    const waMessage = [
+      `📋 *Nueva consulta - Pastas Orlando*`,
+      ``,
+      `👤 ${data.nombre}`,
+      `📧 ${data.email}`,
+      data.telefono ? `📱 ${data.telefono}` : '',
+      ``,
+      `💬 ${data.mensaje.length > 200 ? data.mensaje.substring(0, 200) + '...' : data.mensaje}`,
+    ].filter(Boolean).join('\n')
+
+    const url = `https://api.callmebot.com/whatsapp.php?phone=${encodeURIComponent(adminPhone)}&text=${encodeURIComponent(waMessage)}&apikey=${encodeURIComponent(apiKey)}`
+
+    const response = await fetch(url, {
+      method: 'GET',
+      signal: AbortSignal.timeout(10000), // 10s timeout
+    })
+
+    if (!response.ok) {
+      const body = await response.text().catch(() => '')
+      console.error(`[Notif-WA] ❌ CallMeBot returned status ${response.status}: ${body}`)
+      return
+    }
+
+    console.log('[Notif-WA] ✅ WhatsApp notification sent successfully to', adminPhone)
+  } catch (error) {
+    console.error('[Notif-WA] ❌ Failed to send WhatsApp notification:', error)
+  }
+}
