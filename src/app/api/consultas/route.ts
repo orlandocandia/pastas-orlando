@@ -93,8 +93,9 @@ export async function POST(request: NextRequest) {
       },
     })
 
-    // Send email + WhatsApp notifications (fire-and-forget, won't block response)
-    sendConsultaNotifications({ nombre, email, telefono: telefono || '', mensaje }).catch(() => {})
+    // Send email + WhatsApp notifications (await to guarantee delivery in serverless)
+    // Errors are caught internally — won't affect the API response
+    await sendConsultaNotifications({ nombre, email, telefono: telefono || '', mensaje })
 
     return NextResponse.json(consulta, { status: 201 })
   } catch (error) {
