@@ -48,10 +48,10 @@ export default function Opiniones() {
           <div className="h-1 w-20 bg-mostaza mx-auto mt-4 rounded-full" />
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch">
           {/* Form */}
           <motion.div
-            className="lg:col-span-1"
+            className="lg:col-span-1 h-full"
             initial={{ opacity: 0, x: -20 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
@@ -62,36 +62,45 @@ export default function Opiniones() {
 
           {/* Opinions Display */}
           <motion.div
-            className="lg:col-span-2"
+            className="lg:col-span-2 h-full flex flex-col"
             initial={{ opacity: 0, x: 20 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
           >
-            {loading ? (
-              <div className="space-y-4">
-                {Array.from({ length: 3 }).map((_, i) => (
-                  <div
-                    key={i}
-                    className="bg-crema rounded-xl shadow-md p-5 animate-pulse"
-                  >
-                    <div className="h-5 w-32 bg-muted rounded mb-2" />
-                    <div className="h-4 w-24 bg-muted rounded mb-3" />
-                    <div className="h-4 w-full bg-muted rounded" />
-                  </div>
-                ))}
+            <div className="flex-1">
+              {loading ? (
+                <div className="space-y-4">
+                  {Array.from({ length: 3 }).map((_, i) => (
+                    <div
+                      key={i}
+                      className="bg-crema rounded-xl shadow-md p-5 animate-pulse"
+                    >
+                      <div className="h-5 w-32 bg-muted rounded mb-2" />
+                      <div className="h-4 w-24 bg-muted rounded mb-3" />
+                      <div className="h-4 w-full bg-muted rounded" />
+                    </div>
+                  ))}
+                </div>
+              ) : opiniones.length === 0 ? (
+                <div className="flex flex-col items-center justify-center text-center py-12">
+                  <MessageSquarePlus className="h-12 w-12 text-muted-foreground/40 mb-4" />
+                  <p className="text-muted-foreground text-lg">
+                    Sé el primero en dejar tu opinión
+                  </p>
+                </div>
+              ) : opiniones.length <= 3 ? (
+                <OpinionGrid opiniones={opiniones} />
+              ) : (
+                <OpinionCarousel opiniones={opiniones} />
+              )}
+            </div>
+
+            {/* Texto al pie si hay opiniones y sobra espacio */}
+            {opiniones.length > 0 && (
+              <div className="text-center text-gray-400 text-sm mt-4 pt-3">
+                ✨ Compartí tu experiencia
               </div>
-            ) : opiniones.length === 0 ? (
-              <div className="flex flex-col items-center justify-center text-center py-12">
-                <MessageSquarePlus className="h-12 w-12 text-muted-foreground/40 mb-4" />
-                <p className="text-muted-foreground text-lg">
-                  Sé el primero en dejar tu opinión
-                </p>
-              </div>
-            ) : opiniones.length <= 3 ? (
-              <OpinionGrid opiniones={opiniones} />
-            ) : (
-              <OpinionCarousel opiniones={opiniones} />
             )}
           </motion.div>
         </div>
