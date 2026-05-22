@@ -95,27 +95,9 @@ export default function Opiniones() {
                 <OpinionCarousel opiniones={opiniones} />
               )}
             </div>
-
-            {/* Texto al pie: pegado al fondo */}
-            {opiniones.length > 0 && (
-              <div className="text-center text-gray-400 text-sm pt-4 border-t border-gray-100 mt-4">
-                ✨ Compartí tu experiencia
-              </div>
-            )}
           </motion.div>
         </div>
 
-        {/* Enlace a FAQ — solo si hay opiniones */}
-        {opiniones.length > 0 && (
-          <div className="text-center mt-8 pt-6 border-t border-gray-200">
-            <a
-              href="#faq"
-              className="inline-flex items-center gap-1.5 text-mostaza hover:text-yellow-700 font-medium transition-colors text-sm sm:text-base"
-            >
-              📖 Tenés más dudas? Mirá nuestras Preguntas Frecuentes
-            </a>
-          </div>
-        )}
       </div>
     </section>
   )
