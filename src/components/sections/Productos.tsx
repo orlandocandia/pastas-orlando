@@ -1,11 +1,10 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { motion } from 'framer-motion'
 import { PackageOpen } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import ProductCard from '@/components/products/ProductCard'
-import ProductGridSkeleton from '@/components/skeletons/ProductGridSkeleton'
 
 interface ProductoPublico {
   id: number
@@ -21,6 +20,8 @@ interface ProductoPublico {
     nombre: string
   }
 }
+
+const PRODUCTOS_POR_PAGINA = 6
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -45,7 +46,8 @@ export default function Productos() {
   const [productos, setProductos] = useState<ProductoPublico[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
-  const [showAll, setShowAll] = useState(false)
+  const [categoriaActiva, setCategoriaActiva] = useState<string>('Todos')
+  const [productosMostrados, setProductosMostrados] = useState(PRODUCTOS_POR_PAGINA)
 
   useEffect(() => {
     async function fetchProductos() {
@@ -67,14 +69,33 @@ export default function Productos() {
     fetchProductos()
   }, [])
 
-  const displayed = showAll ? productos : productos.slice(0, 8)
-  const hasMore = productos.length > 8
+  // Extraer categorías únicas desde los productos
+  const categorias = useMemo(() => {
+    const cats = [...new Set(productos.map((p) => p.categoria.nombre))]
+    cats.sort()
+    return ['Todos', ...cats]
+  }, [productos])
+
+  // Filtrar productos por categoría
+  const productosFiltrados = useMemo(() => {
+    if (categoriaActiva === 'Todos') return productos
+    return productos.filter((p) => p.categoria.nombre === categoriaActiva)
+  }, [productos, categoriaActiva])
+
+  const productosVisible = productosFiltrados.slice(0, productosMostrados)
+  const hayMas = productosVisible.length < productosFiltrados.length
+
+  // Cambiar categoría → reset paginación
+  const handleCategoriaChange = (cat: string) => {
+    setCategoriaActiva(cat)
+    setProductosMostrados(PRODUCTOS_POR_PAGINA)
+  }
 
   return (
     <section id="productos" className="min-h-screen flex flex-col justify-center py-12 sm:py-16 md:py-20 bg-crema">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
         {/* Title */}
-        <div className="text-center mb-12">
+        <div className="text-center mb-10">
           <h2 className="text-3xl sm:text-4xl font-bold text-marron">
             Nuestros <span className="text-rojo">Productos</span>
           </h2>
@@ -86,7 +107,22 @@ export default function Productos() {
 
         {/* Loading */}
         {loading ? (
-          <ProductGridSkeleton />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="rounded-xl border border-border bg-card overflow-hidden animate-pulse">
+                <div className="h-48 bg-muted" />
+                <div className="p-4 space-y-3">
+                  <div className="h-4 w-16 bg-muted rounded" />
+                  <div className="h-5 w-3/4 bg-muted rounded" />
+                  <div className="h-4 w-full bg-muted rounded" />
+                  <div className="flex justify-between items-center mt-2">
+                    <div className="h-6 w-20 bg-muted rounded" />
+                    <div className="h-8 w-24 bg-muted rounded" />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
         ) : error ? (
           <div className="text-center py-12">
             <span className="text-5xl mb-4 block">⚠️</span>
@@ -97,8 +133,10 @@ export default function Productos() {
                 setLoading(true)
                 setError('')
                 fetch('/api/productos-terminados/public')
-                  .then(res => res.json())
-                  .then(data => { setProductos(data.productos || []) })
+                  .then((res) => res.json())
+                  .then((data) => {
+                    setProductos(data.productos || [])
+                  })
                   .catch(() => setError('Error de conexión.'))
                   .finally(() => setLoading(false))
               }}
@@ -119,28 +157,63 @@ export default function Productos() {
           </div>
         ) : (
           <>
-            {/* Product Grid */}
-            <motion.div
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
-              variants={containerVariants}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, margin: '-50px' }}
-            >
-              {displayed.map((producto) => (
-                <motion.div key={producto.id} variants={cardVariants}>
-                  <ProductCard producto={producto} />
-                </motion.div>
+            {/* Tabs de categorías */}
+            <div className="flex flex-wrap justify-center gap-2 mb-8">
+              {categorias.map((cat) => (
+                <button
+                  key={cat}
+                  onClick={() => handleCategoriaChange(cat)}
+                  className={`px-4 py-2 rounded-full text-sm font-semibold transition-all duration-200 ${
+                    categoriaActiva === cat
+                      ? 'bg-mostaza text-marron shadow-md'
+                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                  }`}
+                >
+                  {cat}
+                </button>
               ))}
-            </motion.div>
+            </div>
 
-            {/* Show More Button */}
-            {hasMore && !showAll && (
-              <div className="text-center mt-10">
+            {/* Título de categoría activa */}
+            <div className="mb-6">
+              <h3 className="text-xl font-bold text-marron">
+                {categoriaActiva === 'Todos' ? 'Todos los productos' : categoriaActiva}
+              </h3>
+              <p className="text-sm text-muted-foreground mt-1">
+                Mostrando {productosVisible.length} de {productosFiltrados.length} producto{productosFiltrados.length !== 1 ? 's' : ''}
+              </p>
+            </div>
+
+            {/* Product Grid */}
+            {productosFiltrados.length === 0 ? (
+              <div className="text-center py-12">
+                <PackageOpen className="h-12 w-12 mx-auto text-muted-foreground/40 mb-3" />
+                <p className="text-muted-foreground">
+                  Próximamente más variedades
+                </p>
+              </div>
+            ) : (
+              <motion.div
+                key={categoriaActiva}
+                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
+                variants={containerVariants}
+                initial="hidden"
+                animate="visible"
+              >
+                {productosVisible.map((producto) => (
+                  <motion.div key={producto.id} variants={cardVariants}>
+                    <ProductCard producto={producto} />
+                  </motion.div>
+                ))}
+              </motion.div>
+            )}
+
+            {/* Ver más productos */}
+            {hayMas && (
+              <div className="text-center mt-8">
                 <Button
-                  onClick={() => setShowAll(true)}
-                  variant="outline"
-                  className="border-mostaza text-marron hover:bg-mostaza hover:text-marron font-semibold px-8"
+                  onClick={() => setProductosMostrados((prev) => prev + PRODUCTOS_POR_PAGINA)}
+                  className="bg-mostaza text-marron hover:bg-mostaza/80 font-semibold px-8 rounded-full"
                 >
                   Ver más productos
                 </Button>
