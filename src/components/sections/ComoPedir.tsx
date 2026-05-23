@@ -10,6 +10,7 @@ import {
   ChevronRight,
   ChevronDown,
 } from 'lucide-react'
+import { MercadoPagoIcon } from '@/components/icons/MercadoPagoIcon'
 
 interface Step {
   icons: React.ReactNode
@@ -25,7 +26,7 @@ const steps: Step[] = [
       <div className="flex justify-center gap-2 items-center">
         <span className="text-3xl">💬</span>
         <span className="text-2xl text-gray-400">+</span>
-        <img src="/images/mp.jpg" alt="Mercado Pago" className="w-8 h-8 object-contain" />
+        <MercadoPagoIcon className="w-8 h-8" />
       </div>
     ),
     title: 'Pedido y seña',
