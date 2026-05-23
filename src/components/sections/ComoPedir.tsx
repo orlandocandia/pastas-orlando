@@ -4,14 +4,14 @@ import { useState, Fragment } from 'react'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
 import {
-  MessageCircle,
-  Banknote,
   Truck,
   ThumbsUp,
   ImageIcon,
   ChevronRight,
   ChevronDown,
 } from 'lucide-react'
+import { WhatsAppIcon } from '@/components/icons/WhatsAppIcon'
+import { MercadoPagoIcon } from '@/components/icons/MercadoPagoIcon'
 
 interface Step {
   icons: React.ReactNode
@@ -24,20 +24,24 @@ interface Step {
 const steps: Step[] = [
   {
     icons: (
-      <>
-        <MessageCircle size={40} className="text-[#25D366]" />
-        <span className="text-2xl font-bold text-gray-300 mx-0.5">+</span>
-        <Banknote size={40} className="text-[#009EE3]" />
-      </>
+      <div className="flex justify-center gap-3 items-center">
+        <WhatsAppIcon className="w-12 h-12" />
+        <span className="text-2xl font-light text-gray-400">+</span>
+        <MercadoPagoIcon className="w-12 h-12" />
+      </div>
     ),
     title: 'Pedido y seña',
     image: '/images/pasos/pedido-sena.jpg',
     imageAlt: 'Pedido y seña por WhatsApp y Mercado Pago',
     description:
-      'Consultás por WhatsApp, te confirmamos stock o tiempo al instante. Si hay, abonás la seña por Mercado Pago y agendamos tu pedido.',
+      'Consultanos por WhatsApp, email, redes sociales o el formulario web. Te confirmamos al instante el stock o el tiempo de elaboración. Si hay, abonás la seña por Mercado Pago y agendamos tu pedido.',
   },
   {
-    icons: <Truck size={40} className="text-mostaza" />,
+    icons: (
+      <div className="w-20 h-20 bg-white rounded-full shadow-md flex items-center justify-center hover:scale-105 hover:shadow-lg transition-all duration-300">
+        <Truck size={40} className="text-mostaza" />
+      </div>
+    ),
     title: 'Coordinamos la entrega',
     image: '/images/pasos/coordinacion.jpg',
     imageAlt: 'Coordinación de entrega a domicilio',
@@ -45,7 +49,11 @@ const steps: Step[] = [
       'Con la seña lista, coordinamos lugar, horario y quién recibe. Envío GRATIS.',
   },
   {
-    icons: <ThumbsUp size={40} className="text-rojo" />,
+    icons: (
+      <div className="w-20 h-20 bg-white rounded-full shadow-md flex items-center justify-center hover:scale-105 hover:shadow-lg transition-all duration-300">
+        <ThumbsUp size={40} className="text-rojo" />
+      </div>
+    ),
     title: 'Disfrutás y volvés',
     image: '/images/pasos/disfrute.jpg',
     imageAlt: 'Persona disfrutando pastas caseras',
@@ -130,8 +138,8 @@ export default function ComoPedir() {
                   <div className="w-8 h-8 mx-auto mb-2 bg-mostaza rounded-full flex items-center justify-center text-white font-bold text-sm">
                     {index + 1}
                   </div>
-                  {/* Ícono */}
-                  <div className="w-20 h-20 mx-auto mb-3 bg-white rounded-full shadow-md flex items-center justify-center hover:scale-105 hover:shadow-lg transition-all duration-300">
+                  {/* Ícono — cada paso define su propio contenedor */}
+                  <div className="mx-auto mb-3 flex items-center justify-center min-h-[80px]">
                     {step.icons}
                   </div>
                   <h3 className="text-base sm:text-lg md:text-xl font-bold text-marron whitespace-nowrap px-2">
