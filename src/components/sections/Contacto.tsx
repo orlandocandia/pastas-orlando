@@ -112,7 +112,7 @@ export default function Contacto() {
           </h2>
           <div className="h-1 w-20 bg-mostaza mx-auto mt-4 rounded-full" />
           <p className="text-muted-foreground mt-3 max-w-2xl mx-auto text-sm sm:text-base">
-            ¿Listo para hacer tu pedido? Completá el formulario y me comunico con vos en menos de 24 horas.
+            ¿Listo para hacer tu pedido? Completá el formulario y me comunico con vos al instante.
             También podés contactarme directamente por los siguientes canales:
           </p>
         </div>
