@@ -4,7 +4,7 @@ interface MercadoPagoIconProps {
 
 /**
  * Ícono SVG de Mercado Pago.
- * Usa el isotipo oficial obtenido del proyecto Simple Icons (CC0).
+ * Usa el isotipo oficial del proyecto Simple Icons (CC0).
  * El SVG contiene el óvalo con el apretón de manos estilizado.
  * Color de marca: #009EE3
  */

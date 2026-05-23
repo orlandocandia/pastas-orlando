@@ -1,7 +1,7 @@
 'use client'
 
 import Image from 'next/image'
-import { ChevronDown, Sparkles, Truck, Star, Heart, Home } from 'lucide-react'
+import { ChevronDown, Sparkles, Truck, Star, Home } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 
 interface Beneficio {
@@ -13,7 +13,6 @@ const beneficios: Beneficio[] = [
   { icon: Sparkles, texto: 'Pastas artesanales' },
   { icon: Truck, texto: 'Envío GRATIS con seña' },
   { icon: Star, texto: 'Opiniones reales' },
-  { icon: Heart, texto: 'Hecho a mano con amor' },
   { icon: Home, texto: 'De puerta en puerta' },
 ]
 
@@ -61,14 +60,13 @@ export default function Hero() {
         </p>
 
         {/* 4. Íconos de beneficios — Mobile: grid 3+2 */}
-        <div className="grid grid-cols-3 gap-x-3 gap-y-4 sm:hidden max-w-[280px] mx-auto mb-4 hero-iconos-mobile">
+        <div className="grid grid-cols-2 gap-x-4 gap-y-4 sm:hidden max-w-[240px] mx-auto mb-4 hero-iconos-mobile">
           {beneficios.map((b, i) => {
             const Icon = b.icon
             return (
               <div
                 key={i}
                 className="flex flex-col items-center gap-1.5 hero-icono-item"
-                style={i === 3 ? { gridColumn: '1 / 2' } : i === 4 ? { gridColumn: '3 / 4' } : undefined}
               >
                 <div className="flex items-center justify-center h-10 w-10 rounded-full bg-mostaza/15 hero-icono-circulo">
                   <Icon className="h-5 w-5 text-mostaza hero-icono-svg" strokeWidth={1.8} />

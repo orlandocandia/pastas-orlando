@@ -267,6 +267,7 @@ export default function DashboardLayout({
   const { data: session, status } = useSession()
   const router = useRouter()
   const pathname = usePathname()
+  const [unreadConsultas, setUnreadConsultas] = useState(0)
   const [stockOpen, setStockOpen] = useState(true)
   const [comprasOpen, setComprasOpen] = useState(false)
   const [ventasOpen, setVentasOpen] = useState(false)
@@ -292,6 +293,23 @@ export default function DashboardLayout({
       router.push('/admin/login')
     }
   }, [status, router])
+
+  // Poll unread consultas count for sidebar badge every 30s
+  useEffect(() => {
+    if (status !== 'authenticated') return
+
+    let active = true
+    const load = () => {
+      fetch('/api/consultas/count')
+        .then(r => r.ok ? r.json() : { noLeidos: 0 })
+        .then(d => { if (active) setUnreadConsultas(d.noLeidos || 0) })
+        .catch(() => {})
+    }
+
+    load()
+    const interval = setInterval(load, 30000)
+    return () => { active = false; clearInterval(interval) }
+  }, [status, pathname])
 
   // Toggle section handler
   const toggleSection = (section: 'stock' | 'compras' | 'ventas' | 'stockMov' | 'logistica' | 'notificaciones' | 'config' | 'auditoria' | 'seguridad', currentOpen: boolean) => {
@@ -533,9 +551,14 @@ export default function DashboardLayout({
                       isActive={pathname === item.href || pathname.startsWith(item.href + '/')}
                       tooltip={item.title}
                     >
-                      <Link href={item.href}>
+                      <Link href={item.href} className="flex items-center gap-2 w-full">
                         <item.icon className="h-4 w-4" />
-                        <span>{item.title}</span>
+                        <span className="flex-1">{item.title}</span>
+                        {item.title === 'Consultas' && unreadConsultas > 0 && (
+                          <span className="ml-auto inline-flex items-center justify-center h-5 min-w-[20px] px-1.5 rounded-full bg-red-500 text-white text-[10px] font-bold leading-none">
+                            {unreadConsultas > 99 ? '99+' : unreadConsultas}
+                          </span>
+                        )}
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>

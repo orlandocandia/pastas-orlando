@@ -31,7 +31,7 @@ export default function ProductCard({ producto }: ProductCardProps) {
   const sinStock = producto.stock_actual <= 0
 
   const whatsappMessage = encodeURIComponent(
-    `¡Hola! Me interesa consultar por ${producto.nombre}. ¿Tienen disponibilidad?`
+    `Hola Orlando, quiero consultar por ${producto.nombre}`
   )
   const whatsappUrl = `https://wa.me/5493754419324?text=${whatsappMessage}`
 
