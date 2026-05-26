@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 
+// Force dynamic rendering for Vercel serverless
+export const dynamic = 'force-dynamic'
+
 /**
  * POST /api/productos-terminados/generar-codigos
  * Generates EAN-13 barcodes for all products that don't have one.
@@ -8,29 +11,42 @@ import { db } from '@/lib/db'
  */
 export async function POST() {
   try {
-    const productos = await db.productoTerminado.findMany({
-      where: { codigo_barras: null },
-      select: { id: true, nombre: true },
+    // Use findMany without where filter to avoid libSQL null comparison issues
+    // Then filter in JS
+    const allProductos = await db.productoTerminado.findMany({
+      select: { id: true, nombre: true, codigo_barras: true },
       orderBy: { id: 'asc' },
     })
 
-    if (productos.length === 0) {
-      return NextResponse.json({ message: 'Todos los productos ya tienen código de barras', actualizados: 0 })
+    const productosSinCodigo = allProductos.filter(
+      (p) => p.codigo_barras === null || p.codigo_barras === '' || p.codigo_barras === undefined
+    )
+
+    if (productosSinCodigo.length === 0) {
+      return NextResponse.json({
+        message: 'Todos los productos ya tienen código de barras',
+        actualizados: 0,
+      })
     }
 
     let actualizados = 0
     const resultados: { id: number; nombre: string; codigo_barras: string }[] = []
 
-    for (const producto of productos) {
+    for (const producto of productosSinCodigo) {
       const barcode = generateEAN13(producto.id)
-      
-      await db.productoTerminado.update({
-        where: { id: producto.id },
-        data: { codigo_barras: barcode },
-      })
 
-      resultados.push({ id: producto.id, nombre: producto.nombre, codigo_barras: barcode })
-      actualizados++
+      try {
+        await db.productoTerminado.update({
+          where: { id: producto.id },
+          data: { codigo_barras: barcode },
+        })
+
+        resultados.push({ id: producto.id, nombre: producto.nombre, codigo_barras: barcode })
+        actualizados++
+      } catch (updateErr) {
+        console.error(`Error updating product ${producto.id}:`, updateErr)
+        // Continue with next product instead of failing entirely
+      }
     }
 
     return NextResponse.json({
@@ -40,7 +56,13 @@ export async function POST() {
     })
   } catch (error) {
     console.error('Error generando códigos de barras:', error)
-    return NextResponse.json({ error: 'Error al generar códigos de barras' }, { status: 500 })
+    return NextResponse.json(
+      {
+        error: 'Error al generar códigos de barras',
+        details: error instanceof Error ? error.message : String(error),
+      },
+      { status: 500 }
+    )
   }
 }
 
