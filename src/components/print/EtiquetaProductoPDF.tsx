@@ -22,105 +22,107 @@ interface EtiquetaProductoPDFProps {
   etiquetas: EtiquetaData[]
 }
 
+const ETIQUETAS_POR_HOJA = 8 // 2 columnas x 4 filas
+
 const styles = StyleSheet.create({
-  page: {
-    padding: 8,
+  a4Page: {
+    padding: 15,
     fontFamily: 'Helvetica',
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignContent: 'flex-start',
+  },
+  etiquetaCell: {
+    width: '50%',
+    height: '25%',
+    padding: 6,
+    borderWidth: 0.5,
+    borderColor: '#DDDDDD',
+    borderStyle: 'dashed',
     flexDirection: 'column',
     alignItems: 'center',
-    justifyContent: 'flex-start',
+    justifyContent: 'space-between',
   },
-  logoContainer: {
-    alignItems: 'center',
-    marginBottom: 4,
-  },
+  // Logo
   logo: {
-    width: 36,
-    height: 36,
-    marginBottom: 2,
+    width: 24,
+    height: 24,
+    marginBottom: 1,
   },
-  brandName: {
-    fontSize: 10,
-    fontWeight: 'bold',
-    color: '#5C3A21',
-  },
-  brandSlogan: {
-    fontSize: 6,
-    color: '#888888',
-  },
-  productInfo: {
-    alignItems: 'center',
-    marginBottom: 4,
-  },
+  // Product info
   productName: {
-    fontSize: 12,
+    fontSize: 9,
     fontWeight: 'bold',
     color: '#5C3A21',
     textAlign: 'center',
+    lineHeight: 1.1,
   },
   productDescription: {
-    fontSize: 7,
+    fontSize: 5,
     color: '#666666',
     textAlign: 'center',
     marginTop: 1,
   },
   category: {
-    fontSize: 7,
+    fontSize: 5,
     color: '#999999',
-    marginTop: 1,
+    marginTop: 0.5,
   },
   weight: {
-    fontSize: 9,
+    fontSize: 7,
     color: '#333333',
-    marginTop: 2,
+    marginTop: 1,
   },
+  // Dates
   dateRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    width: '80%',
-    marginTop: 2,
+    width: '90%',
   },
   dateText: {
-    fontSize: 7,
+    fontSize: 5.5,
     color: '#555555',
   },
   lotText: {
-    fontSize: 7,
+    fontSize: 5.5,
     color: '#555555',
-    marginTop: 1,
+    marginTop: 0.5,
   },
+  // Barcode
   barcodeContainer: {
     alignItems: 'center',
-    marginVertical: 4,
+    marginVertical: 1,
   },
   barcode: {
-    width: 130,
-    height: 40,
+    width: 100,
+    height: 28,
   },
   barcodeText: {
-    fontSize: 7,
+    fontSize: 5.5,
     color: '#333333',
-    marginTop: 1,
+    marginTop: 0.5,
   },
+  // Extra info
   extraInfo: {
     alignItems: 'center',
-    marginBottom: 2,
   },
   extraItem: {
-    fontSize: 6,
+    fontSize: 5,
     color: '#5C3A21',
   },
+  // Price
   price: {
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: 'bold',
     color: '#C41E3A',
-    marginTop: 2,
+    marginTop: 1,
   },
+  // Contact
   contactContainer: {
     borderTopWidth: 0.5,
     borderTopColor: '#CCCCCC',
-    paddingTop: 3,
-    marginTop: 3,
+    paddingTop: 2,
+    marginTop: 1,
     alignItems: 'center',
     width: '100%',
   },
@@ -128,123 +130,128 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 4,
+    gap: 3,
   },
   qrCode: {
-    width: 35,
-    height: 35,
-  },
-  contactText: {
-    fontSize: 5.5,
-    color: '#888888',
+    width: 22,
+    height: 22,
   },
   whatsappText: {
-    fontSize: 6.5,
+    fontSize: 5.5,
     color: '#25D366',
     fontWeight: 'bold',
   },
+  contactText: {
+    fontSize: 4.5,
+    color: '#888888',
+  },
   codeText: {
-    fontSize: 6,
+    fontSize: 5,
     color: '#999999',
-    marginTop: 1,
+    marginTop: 0.5,
   },
 })
 
-const WHATSAPP_NUMBER = '3754-419324'
 const WHATSAPP_LABEL = '\uD83D\uDCDE WhatsApp: 3754-419324'
 
 export function EtiquetaProductoPDF({ etiquetas }: EtiquetaProductoPDFProps) {
+  const totalHojas = Math.ceil(etiquetas.length / ETIQUETAS_POR_HOJA)
+
   return (
     <Document>
-      {etiquetas.map((etiqueta, index) => (
-        <Page key={index} size={[200, 300]} style={styles.page}>
-          {/* Logo */}
-          {etiqueta.incluir_logo && etiqueta.logoDataUrl && (
-            <View style={styles.logoContainer}>
-              <Image src={etiqueta.logoDataUrl} style={styles.logo} alt="Logo Pastas Orlando" />
-              <Text style={styles.brandName}>Pastas Orlando</Text>
-              <Text style={styles.brandSlogan}>El amigo de las pastas</Text>
-            </View>
-          )}
+      {Array.from({ length: totalHojas }).map((_, hojaIdx) => {
+        const inicio = hojaIdx * ETIQUETAS_POR_HOJA
+        const fin = inicio + ETIQUETAS_POR_HOJA
+        const etiquetasHoja = etiquetas.slice(inicio, fin)
 
-          {!etiqueta.incluir_logo && (
-            <View style={{ alignItems: 'center', marginBottom: 4 }}>
-              <Text style={{ fontSize: 11, fontWeight: 'bold', color: '#5C3A21' }}>
-                Pastas Orlando
-              </Text>
-              <Text style={{ fontSize: 6, color: '#888888' }}>El amigo de las pastas</Text>
-            </View>
-          )}
+        return (
+          <Page key={hojaIdx} size="A4" style={styles.a4Page}>
+            {Array.from({ length: ETIQUETAS_POR_HOJA }).map((_, cellIdx) => {
+              const etiqueta = etiquetasHoja[cellIdx]
+              if (!etiqueta) {
+                // Empty cell placeholder
+                return <View key={cellIdx} style={styles.etiquetaCell} />
+              }
 
-          {/* Información del producto */}
-          <View style={styles.productInfo}>
-            <Text style={styles.productName}>{etiqueta.nombre}</Text>
-            {etiqueta.descripcion && (
-              <Text style={styles.productDescription}>{etiqueta.descripcion}</Text>
-            )}
-            {etiqueta.categoria && (
-              <Text style={styles.category}>{etiqueta.categoria}</Text>
-            )}
-            <Text style={styles.weight}>Peso: {etiqueta.peso}</Text>
-          </View>
+              return (
+                <View key={cellIdx} style={styles.etiquetaCell}>
+                  {/* Logo (sin texto redundante) */}
+                  {etiqueta.incluir_logo && etiqueta.logoDataUrl && (
+                    <Image src={etiqueta.logoDataUrl} style={styles.logo} alt="Logo" />
+                  )}
 
-          {/* Fechas y Lote */}
-          <View style={{ alignItems: 'center', marginBottom: 2 }}>
-            <View style={styles.dateRow}>
-              <Text style={styles.dateText}>Elab: {etiqueta.fecha_elaboracion}</Text>
-              <Text style={styles.dateText}>Vence: {etiqueta.fecha_vencimiento}</Text>
-            </View>
-            <Text style={styles.lotText}>Lote: {etiqueta.lote}</Text>
-          </View>
+                  {/* Información del producto */}
+                  <View style={{ alignItems: 'center' }}>
+                    <Text style={styles.productName}>{etiqueta.nombre}</Text>
+                    {etiqueta.descripcion && (
+                      <Text style={styles.productDescription}>{etiqueta.descripcion}</Text>
+                    )}
+                    {etiqueta.categoria && (
+                      <Text style={styles.category}>{etiqueta.categoria}</Text>
+                    )}
+                    <Text style={styles.weight}>Peso: {etiqueta.peso}</Text>
+                  </View>
 
-          {/* Código de barras */}
-          {etiqueta.barcodeDataUrl ? (
-            <View style={styles.barcodeContainer}>
-              <Image src={etiqueta.barcodeDataUrl} style={styles.barcode} alt="Código de barras" />
-              <Text style={styles.barcodeText}>{etiqueta.codigo_barras}</Text>
-            </View>
-          ) : (
-            <View style={styles.barcodeContainer}>
-              <Text style={{ fontSize: 7, color: '#AAAAAA' }}>Sin código de barras</Text>
-            </View>
-          )}
+                  {/* Fechas y Lote */}
+                  <View style={{ alignItems: 'center' }}>
+                    <View style={styles.dateRow}>
+                      <Text style={styles.dateText}>Elab: {etiqueta.fecha_elaboracion}</Text>
+                      <Text style={styles.dateText}>Vence: {etiqueta.fecha_vencimiento}</Text>
+                    </View>
+                    <Text style={styles.lotText}>Lote: {etiqueta.lote}</Text>
+                  </View>
 
-          {/* Código interno */}
-          {etiqueta.codigo && (
-            <Text style={styles.codeText}>Cód: {etiqueta.codigo}</Text>
-          )}
+                  {/* Código de barras */}
+                  {etiqueta.barcodeDataUrl ? (
+                    <View style={styles.barcodeContainer}>
+                      <Image src={etiqueta.barcodeDataUrl} style={styles.barcode} alt="Código de barras" />
+                      <Text style={styles.barcodeText}>{etiqueta.codigo_barras}</Text>
+                    </View>
+                  ) : (
+                    <View style={styles.barcodeContainer}>
+                      <Text style={{ fontSize: 5.5, color: '#AAAAAA' }}>Sin código de barras</Text>
+                    </View>
+                  )}
 
-          {/* Información extra */}
-          {etiqueta.info_extra.length > 0 && (
-            <View style={styles.extraInfo}>
-              {etiqueta.info_extra.map((info, idx) => (
-                <Text key={idx} style={styles.extraItem}>
-                  {'\u2022'} {info}
-                </Text>
-              ))}
-            </View>
-          )}
+                  {/* Código interno */}
+                  {etiqueta.codigo && (
+                    <Text style={styles.codeText}>Cód: {etiqueta.codigo}</Text>
+                  )}
 
-          {/* Precio */}
-          <Text style={styles.price}>
-            ${etiqueta.precio_venta.toLocaleString('es-AR', { minimumFractionDigits: 0 })}
-          </Text>
+                  {/* Información extra */}
+                  {etiqueta.info_extra.length > 0 && (
+                    <View style={styles.extraInfo}>
+                      {etiqueta.info_extra.map((info, idx) => (
+                        <Text key={idx} style={styles.extraItem}>
+                          {'\u2022'} {info}
+                        </Text>
+                      ))}
+                    </View>
+                  )}
 
-          {/* Contacto con QR y WhatsApp */}
-          <View style={styles.contactContainer}>
-            <View style={styles.whatsappRow}>
-              {/* QR Code */}
-              {etiqueta.qrCodeDataUrl && (
-                <Image src={etiqueta.qrCodeDataUrl} style={styles.qrCode} alt="QR WhatsApp" />
-              )}
-              <View style={{ flexDirection: 'column', alignItems: 'center' }}>
-                <Text style={styles.whatsappText}>{WHATSAPP_LABEL}</Text>
-                <Text style={styles.contactText}>laspastasdeorlando@gmail.com</Text>
-              </View>
-            </View>
-          </View>
-        </Page>
-      ))}
+                  {/* Precio */}
+                  <Text style={styles.price}>
+                    ${etiqueta.precio_venta.toLocaleString('es-AR', { minimumFractionDigits: 0 })}
+                  </Text>
+
+                  {/* Contacto con QR y WhatsApp */}
+                  <View style={styles.contactContainer}>
+                    <View style={styles.whatsappRow}>
+                      {etiqueta.qrCodeDataUrl && (
+                        <Image src={etiqueta.qrCodeDataUrl} style={styles.qrCode} alt="QR WhatsApp" />
+                      )}
+                      <View style={{ flexDirection: 'column', alignItems: 'flex-start' }}>
+                        <Text style={styles.whatsappText}>{WHATSAPP_LABEL}</Text>
+                        <Text style={styles.contactText}>laspastasdeorlando@gmail.com</Text>
+                      </View>
+                    </View>
+                  </View>
+                </View>
+              )
+            })}
+          </Page>
+        )
+      })}
     </Document>
   )
 }

@@ -328,7 +328,7 @@ export default function EtiquetasPage() {
         <div>
           <h1 className="text-2xl font-bold text-marron">Generador de Etiquetas</h1>
           <p className="text-sm text-muted-foreground">
-            Generá etiquetas PDF con código de barras para tus productos
+            Generá etiquetas PDF con código de barras · 8 etiquetas por hoja A4
           </p>
         </div>
       </div>
@@ -451,18 +451,18 @@ export default function EtiquetasPage() {
                     <Input
                       type="number"
                       min={1}
-                      max={50}
+                      max={200}
                       value={cantidad}
                       onChange={(e) =>
-                        setCantidad(Math.max(1, Math.min(50, parseInt(e.target.value) || 1)))
+                        setCantidad(Math.max(1, Math.min(200, parseInt(e.target.value) || 1)))
                       }
                       className="w-20 text-center"
                     />
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => setCantidad(Math.min(50, cantidad + 1))}
-                      disabled={cantidad >= 50}
+                      onClick={() => setCantidad(Math.min(200, cantidad + 1))}
+                      disabled={cantidad >= 200}
                     >
                       +
                     </Button>
@@ -551,20 +551,13 @@ export default function EtiquetasPage() {
             </CardHeader>
             <CardContent>
               {selectedProducto ? (
-                <div className="bg-white border-2 border-dashed border-gray-300 rounded-lg p-3 mx-auto" style={{ width: '200px', minHeight: '280px' }}>
-                  {/* Logo / Brand */}
-                  {incluirLogo ? (
+                <div className="bg-white border-2 border-dashed border-gray-300 rounded-lg p-3 mx-auto" style={{ width: '200px', minHeight: '260px' }}>
+                  {/* Logo only — sin texto redundante */}
+                  {incluirLogo && (
                     <div className="text-center mb-1">
                       <div className="w-8 h-8 bg-mostaza/10 rounded-full mx-auto flex items-center justify-center text-[8px] font-bold text-marron">
                         PO
                       </div>
-                      <div className="text-[9px] font-bold text-marron">Pastas Orlando</div>
-                      <div className="text-[6px] text-gray-400">El amigo de las pastas</div>
-                    </div>
-                  ) : (
-                    <div className="text-center mb-1">
-                      <div className="text-[9px] font-bold text-marron">Pastas Orlando</div>
-                      <div className="text-[6px] text-gray-400">El amigo de las pastas</div>
                     </div>
                   )}
 
@@ -693,7 +686,7 @@ export default function EtiquetasPage() {
             ) : (
               <>
                 <FileDown className="h-5 w-5 mr-2" />
-                GENERAR ETIQUETAS ({cantidad})
+                GENERAR ETIQUETAS ({cantidad}) · {Math.ceil(cantidad / 8)} hoja{Math.ceil(cantidad / 8) !== 1 ? 's' : ''}
               </>
             )}
           </Button>
@@ -707,6 +700,12 @@ export default function EtiquetasPage() {
           {selectedProducto && !selectedProducto.codigo_barras && (
             <p className="text-xs text-center text-amber-600">
               ⚠️ Este producto no tiene código de barras. La etiqueta se generará sin código de barras.
+            </p>
+          )}
+
+          {selectedProducto && (
+            <p className="text-xs text-center text-muted-foreground">
+              📄 Se imprimirán {cantidad} etiquetas en {Math.ceil(cantidad / 8)} hoja{Math.ceil(cantidad / 8) !== 1 ? 's' : ''} A4 (8 por hoja)
             </p>
           )}
         </div>
