@@ -594,129 +594,115 @@ export default function EtiquetasPage() {
             </CardHeader>
             <CardContent>
               {selectedProducto ? (
-                <div className="bg-white border-2 border-mostaza rounded-lg overflow-hidden mx-auto" style={{ width: '200px' }}>
-                  {/* Top section: Logo (left) + Info (right) */}
-                  <div className="flex" style={{ minHeight: '55px' }}>
-                    {/* Logo area - cream background */}
-                    <div className="w-[35%] bg-crema flex flex-col items-center justify-center p-1.5">
-                      {incluirLogo ? (
-                        <div className="w-6 h-6 rounded-full border border-green-500 flex items-center justify-center bg-crema">
-                          <div className="w-5 h-5 bg-mostaza/10 rounded-full flex items-center justify-center text-[4px] font-bold text-marron">
-                            PO
+                <div
+                  className="relative rounded-lg overflow-hidden mx-auto"
+                  style={{
+                    width: '200px',
+                    minHeight: '130px',
+                    backgroundImage: 'url(/images/etiqueta-fondo.png)',
+                    backgroundSize: '100% 100%',
+                    backgroundPosition: 'center',
+                    border: '2px solid #E1AD01',
+                  }}
+                >
+                  {/* Variable data overlay */}
+                  <div className="relative flex flex-col justify-between p-1.5" style={{ minHeight: '130px' }}>
+                    {/* Top: Brand + Product info */}
+                    <div className="flex">
+                      <div className="w-[28%] flex flex-col items-center justify-center pr-1">
+                        {incluirLogo ? (
+                          <div className="w-5 h-5 rounded-full flex items-center justify-center bg-white/70">
+                            <div className="text-[4px] font-bold text-marron">PO</div>
                           </div>
-                        </div>
-                      ) : (
-                        <div className="w-6 h-6 rounded-full border border-green-500 flex items-center justify-center bg-crema">
-                          <span className="text-[5px] text-rojo font-bold">O</span>
-                        </div>
-                      )}
-                      <span className="text-[4px] text-rojo font-bold mt-0.5">Orlando</span>
-                      <span className="text-[3px] italic text-marron text-center leading-tight">El amigo de{'\n'}las pastas</span>
-                    </div>
-
-                    {/* Right side: product info */}
-                    <div className="w-[65%] p-1.5 flex flex-col justify-between relative">
-                      {/* Checkered pattern hint */}
-                      <div className="absolute top-0 right-0 w-1/2 h-full opacity-[0.04] pointer-events-none">
-                        <img src="/images/etiqueta-fondo.png" alt="" className="w-full h-full object-cover" />
+                        ) : (
+                          <div className="w-5 h-5 rounded-full flex items-center justify-center bg-white/70">
+                            <span className="text-[5px] text-rojo font-bold">O</span>
+                          </div>
+                        )}
+                        <span className="text-[3px] text-rojo font-bold mt-0.5">Orlando</span>
+                        <span className="text-[2.5px] italic text-marron text-center leading-tight">
+                          El amigo{'\n'}de las pastas
+                        </span>
                       </div>
-
-                      <div className="relative">
-                        {/* Product name */}
+                      <div className="w-[72%] flex flex-col justify-center pl-1">
                         <div className="text-[6px] font-bold text-gray-800 leading-tight">
                           {selectedProducto.nombre}
                         </div>
-                        {/* "producto artesanal" */}
                         {infoExtra.includes('artesanal') && (
-                          <div className="text-[4px] italic text-rojo mt-0.5">producto artesanal</div>
+                          <div className="text-[3.5px] italic text-rojo mt-0.5">producto artesanal</div>
                         )}
-                        {/* Category */}
-                        {selectedProducto.categoria && (
-                          <div className="text-[3px] text-gray-500 mt-0.5">{selectedProducto.categoria.nombre}</div>
-                        )}
-                      </div>
-
-                      {/* WhatsApp */}
-                      <div className="flex items-center gap-1 mt-1 relative">
-                        <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
-                        <span className="text-[4.5px] font-bold text-gray-800">3754-419324</span>
+                        <div className="flex items-center gap-1 mt-1">
+                          <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                          <span className="text-[4px] font-bold text-gray-800">3754-419324</span>
+                        </div>
                       </div>
                     </div>
-                  </div>
 
-                  {/* Calendar section - cream background */}
-                  <div className="bg-crema px-1.5 py-1 border-t border-mostaza/40">
-                    <div className="text-[3.5px] font-bold text-marron mb-0.5">Fecha vencimiento</div>
-                    {/* Days 1-31 in cuadritos */}
-                    <div className="flex justify-between mb-0.5">
-                      {Array.from({ length: 31 }, (_, i) => i + 1).map((dia) => (
-                        <div
-                          key={dia}
-                          className={`flex items-center justify-center leading-none ${
-                            dia === vencDia
-                              ? 'bg-marron text-white font-bold'
-                              : 'bg-white text-gray-400 border border-gray-200'
-                          }`}
-                          style={{ width: '4px', height: '4px', fontSize: '2.5px' }}
-                        >
-                          {dia}
-                        </div>
-                      ))}
-                    </div>
-                    {/* Months ene-dic in cuadritos */}
-                    <div className="flex justify-between">
-                      {MESES_CORTOS.map((mes, idx) => (
-                        <div
-                          key={mes}
-                          className={`flex items-center justify-center leading-none ${
-                            idx + 1 === vencMes
-                              ? 'bg-rojo text-white font-bold'
-                              : 'bg-white text-gray-400 border border-gray-200'
-                          }`}
-                          style={{ width: '10px', height: '3.5px', fontSize: '2.5px' }}
-                        >
-                          {mes}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Extra section: Barcode + Price + Details */}
-                  <div className="px-1.5 py-1 border-t border-mostaza/30">
-                    {/* Barcode placeholder */}
-                    <div className="flex items-center justify-center my-0.5">
-                      {selectedProducto.codigo_barras ? (
-                        <div className="flex gap-px items-end h-2">
-                          {Array.from({ length: 25 }, (_, i) => (
-                            <div
-                              key={i}
-                              className="bg-black"
-                              style={{
-                                width: Math.random() > 0.5 ? '1px' : '0.5px',
-                                height: `${5 + Math.random() * 3}px`,
-                              }}
-                            />
-                          ))}
-                        </div>
-                      ) : (
-                        <span className="text-[3px] text-gray-300">Sin código de barras</span>
-                      )}
+                    {/* Calendar with vencimiento highlights */}
+                    <div className="py-0.5">
+                      <div className="text-[2.5px] font-bold text-marron mb-0.5">Vencimiento</div>
+                      <div className="flex justify-between mb-0.5">
+                        {Array.from({ length: 31 }, (_, i) => i + 1).map((dia) => (
+                          <div
+                            key={dia}
+                            className={`flex items-center justify-center leading-none ${
+                              dia === vencDia
+                                ? 'bg-marron text-white font-bold rounded-[0.5px]'
+                                : 'text-gray-500'
+                            }`}
+                            style={{ width: '4px', height: '4px', fontSize: '2.2px' }}
+                          >
+                            {dia}
+                          </div>
+                        ))}
+                      </div>
+                      <div className="flex justify-between">
+                        {MESES_CORTOS.map((mes, idx) => (
+                          <div
+                            key={mes}
+                            className={`flex items-center justify-center leading-none ${
+                              idx + 1 === vencMes
+                                ? 'bg-rojo text-white font-bold rounded-[0.5px]'
+                                : 'text-gray-500'
+                            }`}
+                            style={{ width: '10px', height: '3.5px', fontSize: '2.2px' }}
+                          >
+                            {mes}
+                          </div>
+                        ))}
+                      </div>
                     </div>
 
-                    {/* Footer: Price + Details + QR */}
+                    {/* Bottom: Barcode + Price + Details + QR */}
                     <div className="flex items-end justify-between">
                       <div>
-                        <div className="text-[7px] font-bold text-rojo">
+                        {selectedProducto.codigo_barras ? (
+                          <div className="flex gap-px items-end h-2">
+                            {Array.from({ length: 25 }, (_, i) => (
+                              <div
+                                key={i}
+                                className="bg-black"
+                                style={{
+                                  width: Math.random() > 0.5 ? '1px' : '0.5px',
+                                  height: `${5 + Math.random() * 3}px`,
+                                }}
+                              />
+                            ))}
+                          </div>
+                        ) : (
+                          <span className="text-[2.5px] text-gray-400">Sin código</span>
+                        )}
+                        <div className="text-[7px] font-bold text-rojo mt-0.5">
                           ${selectedProducto.precio_venta.toLocaleString('es-AR')}
                         </div>
-                        <div className="w-2 h-2 bg-gray-100 border border-gray-200 rounded-sm mt-0.5 flex items-center justify-center">
-                          <span className="text-[1px] text-gray-400">QR</span>
+                        <div className="w-2.5 h-2.5 bg-white/80 border border-gray-200 rounded-sm mt-0.5 flex items-center justify-center">
+                          <span className="text-[1.5px] text-gray-500">QR</span>
                         </div>
                       </div>
                       <div className="text-right">
-                        <div className="text-[3px] text-gray-500">Peso: {getPesoDisplay()}</div>
-                        <div className="text-[3px] text-gray-500">Elab: {formatDateDisplay(fechaElaboracion)}</div>
-                        <div className="text-[3px] text-gray-500">Lote: {lote}</div>
+                        <div className="text-[2.5px] text-gray-700">Peso: {getPesoDisplay()}</div>
+                        <div className="text-[2.5px] text-gray-700">Elab: {formatDateDisplay(fechaElaboracion)}</div>
+                        <div className="text-[2.5px] text-gray-700">Lote: {lote}</div>
                       </div>
                     </div>
                   </div>
