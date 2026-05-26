@@ -136,10 +136,10 @@ export default function EtiquetasPage() {
   useEffect(() => {
     async function loadProducts() {
       try {
-        const res = await fetch('/api/productos-terminados?pageSize=200&estado=true')
+        const res = await fetch('/api/productos-terminados?limite=200&estado=true')
         if (res.ok) {
-          const data = await res.json()
-          setProductos(data.productos || data || [])
+          const result = await res.json()
+          setProductos(result.data || result.productos || result || [])
         }
       } catch (err) {
         console.error('Error cargando productos:', err)
