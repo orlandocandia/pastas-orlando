@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback } from 'react'
 import Image from 'next/image'
 import { toast } from 'sonner'
-import { Pencil, Trash2, Plus, Search, Loader2, ChevronLeft, ChevronRight, Eye, EyeOff, Star } from 'lucide-react'
+import { Pencil, Trash2, Plus, Search, Loader2, ChevronLeft, ChevronRight, Eye, EyeOff, Star, Tag, Barcode } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -40,6 +40,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import ProductoTerminadoForm from './ProductoTerminadoForm'
+import { EtiquetaProducto } from '@/components/admin/EtiquetaProducto'
 
 const formatPrice = (price: number) =>
   new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(price)
@@ -49,6 +50,7 @@ interface ProductoTerminado {
   codigo?: string | null
   nombre: string
   descripcion?: string | null
+  codigo_barras?: string | null
   id_categoria: number
   peso_unitario_aprox: number
   precio_venta: number
@@ -80,6 +82,8 @@ export default function ProductosTerminadosTable() {
   const [selectedProducto, setSelectedProducto] = useState<ProductoTerminado | null>(null)
   const [formOpen, setFormOpen] = useState(false)
   const [deleteId, setDeleteId] = useState<number | null>(null)
+  const [productoEtiqueta, setProductoEtiqueta] = useState<{id: number, nombre: string, codigo_barras: string | null, codigo: string | null, precio_venta: number, peso_unitario_aprox: number, categoria?: {nombre: string} | null} | null>(null)
+  const [showEtiqueta, setShowEtiqueta] = useState(false)
 
   const fetchProductos = useCallback(async () => {
     setLoading(true)
@@ -218,6 +222,7 @@ export default function ProductosTerminadosTable() {
               <TableRow className="bg-muted/50">
                 <TableHead className="w-12">Foto</TableHead>
                 <TableHead>Código</TableHead>
+                <TableHead className="hidden lg:table-cell">Código Barras</TableHead>
                 <TableHead>Nombre</TableHead>
                 <TableHead className="hidden sm:table-cell">Categoría</TableHead>
                 <TableHead>Precio</TableHead>
@@ -230,7 +235,7 @@ export default function ProductosTerminadosTable() {
             <TableBody>
               {productos.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={9} className="text-center py-8 text-muted-foreground">
+                  <TableCell colSpan={10} className="text-center py-8 text-muted-foreground">
                     {search || filtroCategoria || filtroEstado
                       ? 'No se encontraron productos con los filtros aplicados'
                       : 'No hay productos terminados cargados'}
@@ -261,6 +266,16 @@ export default function ProductosTerminadosTable() {
                       </TableCell>
                       <TableCell className="font-mono text-xs text-muted-foreground">
                         {pt.codigo || '-'}
+                      </TableCell>
+                      <TableCell className="hidden lg:table-cell font-mono text-xs text-muted-foreground">
+                        {pt.codigo_barras ? (
+                          <div className="flex items-center gap-1.5">
+                            <Barcode className="h-3.5 w-3.5 text-mostaza" />
+                            <span>{pt.codigo_barras}</span>
+                          </div>
+                        ) : (
+                          <span className="text-muted-foreground/50">—</span>
+                        )}
                       </TableCell>
                       <TableCell className="font-medium text-marron">
                         <div className="flex items-center gap-1">
@@ -314,6 +329,18 @@ export default function ProductosTerminadosTable() {
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex items-center justify-end gap-1">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 hover:bg-mostaza/10"
+                            title="Imprimir etiqueta"
+                            onClick={() => {
+                              setProductoEtiqueta(pt)
+                              setShowEtiqueta(true)
+                            }}
+                          >
+                            <Tag className="h-4 w-4 text-mostaza" />
+                          </Button>
                           <Button
                             variant="ghost"
                             size="icon"
@@ -411,6 +438,13 @@ export default function ProductosTerminadosTable() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Print Label Dialog */}
+      <EtiquetaProducto
+        producto={productoEtiqueta}
+        open={showEtiqueta}
+        onClose={() => { setShowEtiqueta(false); setProductoEtiqueta(null) }}
+      />
     </div>
   )
 }

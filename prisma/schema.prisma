@@ -438,6 +438,7 @@ model CategoriaProductoTerminado {
 model ProductoTerminado {
   id                  Int       @id @default(autoincrement())
   codigo              String?   @unique
+  codigo_barras       String?   @unique
   nombre              String
   descripcion         String?
   id_categoria        Int
@@ -464,6 +465,7 @@ model ProductoTerminado {
   detallePresupuesto DetallePresupuesto[]
 
   @@index([codigo])
+  @@index([codigo_barras])
   @@index([nombre])
 }
 
@@ -583,6 +585,7 @@ model DetalleCompra {
   lote                    String?
   cantidad_base           Float    @default(0)
   precio_por_unidad_base  Float    @default(0)
+  codigo_barras_escaner   String?
   createdAt               DateTime @default(now())
 
   // Relaciones
@@ -675,6 +678,7 @@ model DetallePedidoCliente {
   cantidad              Float
   precio_unitario       Float
   subtotal              Float
+  codigo_barras_escaner String?
   createdAt             DateTime @default(now())
 
   // Relaciones
@@ -750,6 +754,7 @@ model DetalleVenta {
   cantidad              Float
   precio_unitario       Float
   subtotal              Float
+  codigo_barras_escaner String?
   createdAt             DateTime @default(now())
 
   // Relaciones

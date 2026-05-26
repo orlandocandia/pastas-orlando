@@ -36,6 +36,7 @@ export async function PUT(
     const body = await request.json()
     const {
       codigo,
+      codigo_barras,
       nombre,
       descripcion,
       id_categoria,
@@ -65,10 +66,27 @@ export async function PUT(
       }
     }
 
+    // Verificar código de barras único (excluyendo el registro actual)
+    if (codigo_barras) {
+      const existenteCB = await db.productoTerminado.findFirst({
+        where: {
+          codigo_barras,
+          id: { not: parseInt(id) },
+        },
+      })
+      if (existenteCB) {
+        return NextResponse.json(
+          { error: 'Ya existe otro producto terminado con ese código de barras' },
+          { status: 400 }
+        )
+      }
+    }
+
     const productoTerminado = await db.productoTerminado.update({
       where: { id: parseInt(id) },
       data: {
         codigo: codigo !== undefined ? codigo || null : undefined,
+        codigo_barras: codigo_barras !== undefined ? codigo_barras || null : undefined,
         nombre: nombre || undefined,
         descripcion: descripcion !== undefined ? descripcion || null : undefined,
         id_categoria: id_categoria ? parseInt(id_categoria) : undefined,

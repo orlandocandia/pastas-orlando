@@ -32,6 +32,7 @@ import ImageUploaderProducto from './ImageUploaderProducto'
 
 const productoTerminadoSchema = z.object({
   codigo: z.string().optional(),
+  codigo_barras: z.string().optional(),
   nombre: z.string().min(2, 'El nombre debe tener al menos 2 caracteres'),
   descripcion: z.string().optional(),
   id_categoria: z.string().min(1, 'Seleccioná una categoría'),
@@ -72,6 +73,7 @@ export default function ProductoTerminadoForm({ productoTerminado, onSuccess }: 
     resolver: zodResolver(productoTerminadoSchema),
     defaultValues: {
       codigo: productoTerminado?.codigo || '',
+      codigo_barras: productoTerminado?.codigo_barras || '',
       nombre: productoTerminado?.nombre || '',
       descripcion: productoTerminado?.descripcion || '',
       id_categoria: productoTerminado?.id_categoria?.toString() || '',
@@ -111,6 +113,7 @@ export default function ProductoTerminadoForm({ productoTerminado, onSuccess }: 
         imagen: imageUrl || null,
         descripcion: data.descripcion || null,
         codigo: data.codigo || null,
+        codigo_barras: data.codigo_barras || null,
         id_categoria: parseInt(data.id_categoria),
       }
 
@@ -175,6 +178,21 @@ export default function ProductoTerminadoForm({ productoTerminado, onSuccess }: 
               <FormControl>
                 <Input placeholder="PT-001 (opcional)" {...field} />
               </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="codigo_barras"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Código de barras</FormLabel>
+              <FormControl>
+                <Input type="text" placeholder="Ej: 7791234567890" {...field} />
+              </FormControl>
+              <p className="text-xs text-muted-foreground">Código EAN-13 o código de barras del producto</p>
               <FormMessage />
             </FormItem>
           )}

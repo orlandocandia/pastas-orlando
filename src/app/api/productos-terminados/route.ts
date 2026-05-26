@@ -18,6 +18,7 @@ export async function GET(request: NextRequest) {
       where.OR = [
         { nombre: { contains: buscar } },
         { codigo: { contains: buscar } },
+        { codigo_barras: { contains: buscar } },
       ]
     }
 
@@ -52,6 +53,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const {
       codigo,
+      codigo_barras,
       nombre,
       descripcion,
       id_categoria,
@@ -76,9 +78,21 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Verificar código de barras único si se proporciona
+    if (codigo_barras) {
+      const existenteCB = await db.productoTerminado.findUnique({ where: { codigo_barras } })
+      if (existenteCB) {
+        return NextResponse.json(
+          { error: 'Ya existe un producto terminado con ese código de barras' },
+          { status: 400 }
+        )
+      }
+    }
+
     const productoTerminado = await db.productoTerminado.create({
       data: {
         codigo: codigo || null,
+        codigo_barras: codigo_barras || null,
         nombre,
         descripcion: descripcion || null,
         id_categoria: parseInt(id_categoria),

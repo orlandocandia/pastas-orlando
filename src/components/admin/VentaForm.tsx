@@ -1,8 +1,8 @@
 'use client'
 
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useRef } from 'react'
 import { toast } from 'sonner'
-import { Loader2, Plus, Trash2, Check, ChevronsUpDown } from 'lucide-react'
+import { Loader2, Plus, Trash2, Check, ChevronsUpDown, ScanBarcode } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -111,6 +111,9 @@ export default function VentaForm({ venta, fromPedido, onSuccess, onCancel }: Ve
   const [submitting, setSubmitting] = useState(false)
   const [loadingData, setLoadingData] = useState(true)
 
+  // Barcode scanner ref
+  const codigoBarrasRef = useRef<HTMLInputElement>(null)
+
   // Combobox open states
   const [clienteOpen, setClienteOpen] = useState(false)
   const [pedidoOpen, setPedidoOpen] = useState(false)
@@ -211,6 +214,60 @@ export default function VentaForm({ venta, fromPedido, onSuccess, onCancel }: Ve
   // Find product by id
   const findProducto = (id: string) => {
     return productosTerminados.find((p) => p.id.toString() === id)
+  }
+
+  // Search product by barcode
+  const buscarProductoPorCodigo = async (codigo: string) => {
+    if (!codigo.trim()) return
+    try {
+      const res = await fetch(`/api/productos-terminados/buscar-por-codigo?codigo=${encodeURIComponent(codigo.trim())}`)
+      const data = await res.json()
+
+      if (!res.ok || data.error) {
+        toast.error('Producto no encontrado')
+        return
+      }
+
+      if (data.multiples) {
+        toast.error('Múltiples productos coinciden, use búsqueda manual')
+        return
+      }
+
+      // Check if product already in detail rows
+      const existingIndex = detalles.findIndex(d => d.idProductoTerminado === data.id.toString())
+      if (existingIndex >= 0) {
+        // Increment quantity
+        const newDetalles = [...detalles]
+        const existing = newDetalles[existingIndex]
+        const newCantidad = (parseFloat(existing.cantidad) || 0) + 1
+        newDetalles[existingIndex] = {
+          ...existing,
+          cantidad: newCantidad.toString(),
+        }
+        newDetalles[existingIndex].subtotal = (newCantidad * parseFloat(existing.precioUnitario)).toFixed(2)
+        setDetalles(newDetalles)
+        toast.success(`${data.nombre} - cantidad actualizada`)
+      } else {
+        // Add new row
+        const newKey = `row-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`
+        setDetalles(prev => [...prev, {
+          key: newKey,
+          idProductoTerminado: data.id.toString(),
+          cantidad: '1',
+          precioUnitario: data.precio_venta?.toString() || '',
+          subtotal: data.precio_venta?.toString() || '',
+        }])
+        toast.success(`${data.nombre} agregado`)
+      }
+
+      // Clear and refocus
+      if (codigoBarrasRef.current) {
+        codigoBarrasRef.current.value = ''
+        codigoBarrasRef.current.focus()
+      }
+    } catch {
+      toast.error('Error al buscar producto')
+    }
   }
 
   // Add detail row
@@ -631,6 +688,28 @@ export default function VentaForm({ venta, fromPedido, onSuccess, onCancel }: Ve
           </>
         )}
       </div>
+
+      {/* Barcode scanner input - only in create mode */}
+      {!venta && (
+        <div className="mb-4">
+          <div className="relative">
+            <ScanBarcode className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+            <input
+              ref={codigoBarrasRef}
+              type="text"
+              placeholder="Escanear código de barras o buscar producto..."
+              className="w-full pl-10 pr-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-mostaza focus:border-mostaza text-sm"
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault()
+                  buscarProductoPorCodigo((e.target as HTMLInputElement).value)
+                }
+              }}
+              autoFocus
+            />
+          </div>
+        </div>
+      )}
 
       {/* Detail rows - only in create mode */}
       {!isEditing && (
