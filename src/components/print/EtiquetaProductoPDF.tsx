@@ -18,6 +18,7 @@ export interface EtiquetaData {
   qrCodeDataUrl: string | null
   vencimientoDia: number
   vencimientoMes: number
+  fondoDataUrl: string | null
 }
 
 interface EtiquetaProductoPDFProps {
@@ -30,7 +31,7 @@ const MESES = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'o
 
 const styles = StyleSheet.create({
   a4Page: {
-    padding: 6,
+    padding: 4,
     fontFamily: 'Helvetica',
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -39,14 +40,29 @@ const styles = StyleSheet.create({
   cell: {
     width: '33.333%',
     height: '12.5%',
-    padding: 3,
-    borderWidth: 0.3,
-    borderColor: '#CCCCCC',
-    borderStyle: 'solid',
-    flexDirection: 'column',
-    justifyContent: 'flex-start',
+    padding: 2,
+    position: 'relative',
   },
-  // Header row: logo left, slogan right
+  etiqueta: {
+    flex: 1,
+    backgroundColor: '#FFF8E7',
+    borderWidth: 0.8,
+    borderColor: '#E1AD01',
+    borderRadius: 2,
+    padding: 3,
+    flexDirection: 'column',
+    position: 'relative',
+    overflow: 'hidden',
+  },
+  fondoImage: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: '100%',
+    height: '100%',
+    opacity: 0.12,
+  },
+  // Header: logo + slogan
   headerRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -54,106 +70,152 @@ const styles = StyleSheet.create({
     marginBottom: 1,
   },
   logo: {
-    width: 14,
-    height: 14,
+    width: 12,
+    height: 12,
   },
   slogan: {
-    fontSize: 4,
+    fontSize: 3.8,
     fontStyle: 'italic',
     color: '#5C3A21',
+    fontWeight: 'bold',
   },
-  // Sub-header: artesanal + whatsapp
+  // Sub-header
   subHeaderRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 1.5,
+    paddingBottom: 1,
+    borderBottomWidth: 0.3,
+    borderBottomColor: '#E1AD01',
   },
   artesanal: {
-    fontSize: 3.5,
+    fontSize: 3.2,
     fontStyle: 'italic',
     color: '#5C3A21',
   },
   whatsapp: {
-    fontSize: 3.5,
+    fontSize: 3.2,
     color: '#25D366',
     fontWeight: 'bold',
   },
   // Calendar
-  calendarLabel: {
+  calendarTitle: {
     fontSize: 3.5,
-    color: '#333333',
+    color: '#5C3A21',
     fontWeight: 'bold',
-    marginBottom: 0.5,
+    marginBottom: 1,
   },
-  daysRow: {
+  daysGrid: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 0.5,
+    flexWrap: 'wrap',
+    marginBottom: 1,
+  },
+  daySquare: {
+    width: 6,
+    height: 5,
+    borderWidth: 0.3,
+    borderColor: '#CCCCCC',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 0.5,
+    marginBottom: 0.3,
+    backgroundColor: '#FFFFFF',
+  },
+  daySquareActive: {
+    width: 6,
+    height: 5,
+    borderWidth: 0.3,
+    borderColor: '#5C3A21',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 0.5,
+    marginBottom: 0.3,
+    backgroundColor: '#5C3A21',
   },
   dayText: {
     fontSize: 2.8,
-    color: '#AAAAAA',
-    width: 5.2,
-    textAlign: 'center',
+    color: '#888888',
   },
-  dayHighlight: {
+  dayTextActive: {
     fontSize: 2.8,
     color: '#FFFFFF',
-    width: 5.2,
-    textAlign: 'center',
-    backgroundColor: '#5C3A21',
-    borderRadius: 1.5,
     fontWeight: 'bold',
   },
-  monthsRow: {
+  monthsGrid: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexWrap: 'wrap',
     marginBottom: 2,
+  },
+  monthSquare: {
+    width: 12.8,
+    height: 5,
+    borderWidth: 0.3,
+    borderColor: '#CCCCCC',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 0.5,
+    marginBottom: 0.3,
+    backgroundColor: '#FFFFFF',
+  },
+  monthSquareActive: {
+    width: 12.8,
+    height: 5,
+    borderWidth: 0.3,
+    borderColor: '#C41E3A',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 0.5,
+    marginBottom: 0.3,
+    backgroundColor: '#C41E3A',
   },
   monthText: {
     fontSize: 2.8,
-    color: '#AAAAAA',
-    width: 13,
-    textAlign: 'center',
+    color: '#888888',
   },
-  monthHighlight: {
+  monthTextActive: {
     fontSize: 2.8,
     color: '#FFFFFF',
-    width: 13,
-    textAlign: 'center',
-    backgroundColor: '#C41E3A',
-    borderRadius: 1.5,
     fontWeight: 'bold',
   },
-  // Product info
+  // Product name
   productName: {
-    fontSize: 6,
+    fontSize: 6.5,
     fontWeight: 'bold',
     color: '#5C3A21',
-    textAlign: 'left',
+    textAlign: 'center',
     lineHeight: 1.1,
     marginBottom: 1,
+    marginTop: 0.5,
   },
   // Barcode
   barcodeContainer: {
-    alignItems: 'flex-start',
+    alignItems: 'center',
     marginBottom: 1,
   },
   barcode: {
-    width: 90,
-    height: 18,
+    width: 85,
+    height: 16,
   },
   barcodeText: {
     fontSize: 3.5,
     color: '#333333',
     marginTop: 0.3,
   },
-  // Footer: price + details
+  noBarcode: {
+    fontSize: 3.5,
+    color: '#CCCCCC',
+    textAlign: 'center',
+    marginBottom: 1,
+  },
+  // Footer
   footerRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-end',
+    borderTopWidth: 0.3,
+    borderTopColor: '#E1AD01',
+    paddingTop: 1,
   },
   price: {
     fontSize: 8,
@@ -167,12 +229,22 @@ const styles = StyleSheet.create({
   detailText: {
     fontSize: 3,
     color: '#666666',
-    lineHeight: 1.3,
+    lineHeight: 1.4,
   },
-  noBarcode: {
-    fontSize: 3.5,
-    color: '#CCCCCC',
-    marginBottom: 1,
+  qrRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 2,
+    marginTop: 0.5,
+  },
+  qrCode: {
+    width: 10,
+    height: 10,
+  },
+  qrLabel: {
+    fontSize: 2.5,
+    color: '#888888',
   },
 })
 
@@ -202,86 +274,98 @@ export function EtiquetaProductoPDF({ etiquetas }: EtiquetaProductoPDFProps) {
 
               return (
                 <View key={cellIdx} style={styles.cell}>
-                  {/* Fila 1: Logo (izq) + Slogan (der) */}
-                  <View style={styles.headerRow}>
-                    {etiqueta.incluir_logo && etiqueta.logoDataUrl ? (
-                      <Image src={etiqueta.logoDataUrl} style={styles.logo} alt="Logo" />
-                    ) : (
-                      <View style={{ width: 14, height: 14 }} />
+                  <View style={styles.etiqueta}>
+                    {/* Background image (decorative) */}
+                    {etiqueta.fondoDataUrl && (
+                      <Image src={etiqueta.fondoDataUrl} style={styles.fondoImage} alt="" />
                     )}
-                    <Text style={styles.slogan}>El amigo de las pastas</Text>
-                  </View>
 
-                  {/* Fila 2: artesanal + WhatsApp */}
-                  <View style={styles.subHeaderRow}>
-                    <Text style={styles.artesanal}>
-                      {esArtesanal ? 'Producto artesanal' : ''}
-                    </Text>
-                    <Text style={styles.whatsapp}>WhatsApp: 3754-419324</Text>
-                  </View>
-
-                  {/* Calendario de vencimiento */}
-                  <Text style={styles.calendarLabel}>Vencimiento:</Text>
-
-                  {/* Días 1-31 en dos filas */}
-                  <View style={styles.daysRow}>
-                    {Array.from({ length: 16 }, (_, i) => i + 1).map((dia) => (
-                      <Text
-                        key={dia}
-                        style={dia === vencDia ? styles.dayHighlight : styles.dayText}
-                      >
-                        {dia}
-                      </Text>
-                    ))}
-                  </View>
-                  <View style={{ ...styles.daysRow, marginBottom: 0.5 }}>
-                    {Array.from({ length: 15 }, (_, i) => i + 17).map((dia) => (
-                      <Text
-                        key={dia}
-                        style={dia === vencDia ? styles.dayHighlight : styles.dayText}
-                      >
-                        {dia <= 31 ? dia : ''}
-                      </Text>
-                    ))}
-                  </View>
-
-                  {/* Meses */}
-                  <View style={styles.monthsRow}>
-                    {MESES.map((mes, idx) => {
-                      const mesNum = idx + 1
-                      return (
-                        <Text
-                          key={mes}
-                          style={mesNum === vencMes ? styles.monthHighlight : styles.monthText}
-                        >
-                          {mes}
-                        </Text>
-                      )
-                    })}
-                  </View>
-
-                  {/* Nombre del producto */}
-                  <Text style={styles.productName}>{etiqueta.nombre}</Text>
-
-                  {/* Código de barras */}
-                  {etiqueta.barcodeDataUrl ? (
-                    <View style={styles.barcodeContainer}>
-                      <Image src={etiqueta.barcodeDataUrl} style={styles.barcode} alt="Código de barras" />
-                      <Text style={styles.barcodeText}>{etiqueta.codigo_barras}</Text>
+                    {/* Header: Logo (izq) + Slogan (der) */}
+                    <View style={styles.headerRow}>
+                      {etiqueta.incluir_logo && etiqueta.logoDataUrl ? (
+                        <Image src={etiqueta.logoDataUrl} style={styles.logo} alt="Logo" />
+                      ) : (
+                        <View style={{ width: 12, height: 12 }} />
+                      )}
+                      <Text style={styles.slogan}>El amigo de las pastas</Text>
                     </View>
-                  ) : (
-                    <Text style={styles.noBarcode}>Sin código de barras</Text>
-                  )}
 
-                  {/* Footer: Precio (izq) + Detalles (der) */}
-                  <View style={styles.footerRow}>
-                    <Text style={styles.price}>
-                      ${etiqueta.precio_venta.toLocaleString('es-AR', { minimumFractionDigits: 0 })}
-                    </Text>
-                    <View style={styles.detailsRight}>
-                      <Text style={styles.detailText}>Peso: {etiqueta.peso}</Text>
-                      <Text style={styles.detailText}>Elab: {etiqueta.fecha_elaboracion}</Text>
-                      <Text style={styles.detailText}>Lote: {etiqueta.lote}</Text>
+                    {/* Sub-header: artesanal + WhatsApp */}
+                    <View style={styles.subHeaderRow}>
+                      <Text style={styles.artesanal}>
+                        {esArtesanal ? 'Producto artesanal' : ''}
+                      </Text>
+                      <Text style={styles.whatsapp}>WhatsApp: 3754-419324</Text>
+                    </View>
+
+                    {/* Calendario de vencimiento con cuadritos */}
+                    <Text style={styles.calendarTitle}>Vencimiento:</Text>
+
+                    {/* Días 1-31 en cuadritos */}
+                    <View style={styles.daysGrid}>
+                      {Array.from({ length: 31 }, (_, i) => i + 1).map((dia) => {
+                        const isActive = dia === vencDia
+                        return (
+                          <View
+                            key={dia}
+                            style={isActive ? styles.daySquareActive : styles.daySquare}
+                          >
+                            <Text style={isActive ? styles.dayTextActive : styles.dayText}>
+                              {dia}
+                            </Text>
+                          </View>
+                        )
+                      })}
+                    </View>
+
+                    {/* Meses en cuadritos */}
+                    <View style={styles.monthsGrid}>
+                      {MESES.map((mes, idx) => {
+                        const isActive = idx + 1 === vencMes
+                        return (
+                          <View
+                            key={mes}
+                            style={isActive ? styles.monthSquareActive : styles.monthSquare}
+                          >
+                            <Text style={isActive ? styles.monthTextActive : styles.monthText}>
+                              {mes}
+                            </Text>
+                          </View>
+                        )
+                      })}
+                    </View>
+
+                    {/* Nombre del producto */}
+                    <Text style={styles.productName}>{etiqueta.nombre}</Text>
+
+                    {/* Código de barras */}
+                    {etiqueta.barcodeDataUrl ? (
+                      <View style={styles.barcodeContainer}>
+                        <Image src={etiqueta.barcodeDataUrl} style={styles.barcode} alt="Código de barras" />
+                        <Text style={styles.barcodeText}>{etiqueta.codigo_barras}</Text>
+                      </View>
+                    ) : (
+                      <Text style={styles.noBarcode}>Sin código de barras</Text>
+                    )}
+
+                    {/* Footer: Precio (izq) + Detalles (der) */}
+                    <View style={styles.footerRow}>
+                      <View style={{ flexDirection: 'column' }}>
+                        <Text style={styles.price}>
+                          ${etiqueta.precio_venta.toLocaleString('es-AR', { minimumFractionDigits: 0 })}
+                        </Text>
+                        {etiqueta.qrCodeDataUrl && (
+                          <View style={styles.qrRow}>
+                            <Image src={etiqueta.qrCodeDataUrl} style={styles.qrCode} alt="QR" />
+                            <Text style={styles.qrLabel}>Pedidos</Text>
+                          </View>
+                        )}
+                      </View>
+                      <View style={styles.detailsRight}>
+                        <Text style={styles.detailText}>Peso: {etiqueta.peso}</Text>
+                        <Text style={styles.detailText}>Elab: {etiqueta.fecha_elaboracion}</Text>
+                        <Text style={styles.detailText}>Lote: {etiqueta.lote}</Text>
+                      </View>
                     </View>
                   </View>
                 </View>
