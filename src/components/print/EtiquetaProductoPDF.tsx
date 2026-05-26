@@ -15,6 +15,7 @@ export interface EtiquetaData {
   incluir_logo: boolean
   barcodeDataUrl: string | null
   logoDataUrl: string | null
+  qrCodeDataUrl: string | null
 }
 
 interface EtiquetaProductoPDFProps {
@@ -123,9 +124,24 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     width: '100%',
   },
+  whatsappRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 4,
+  },
+  qrCode: {
+    width: 35,
+    height: 35,
+  },
   contactText: {
     fontSize: 5.5,
     color: '#888888',
+  },
+  whatsappText: {
+    fontSize: 6.5,
+    color: '#25D366',
+    fontWeight: 'bold',
   },
   codeText: {
     fontSize: 6,
@@ -133,6 +149,9 @@ const styles = StyleSheet.create({
     marginTop: 1,
   },
 })
+
+const WHATSAPP_NUMBER = '3754-419324'
+const WHATSAPP_LABEL = '\uD83D\uDCDE WhatsApp: 3754-419324'
 
 export function EtiquetaProductoPDF({ etiquetas }: EtiquetaProductoPDFProps) {
   return (
@@ -142,7 +161,7 @@ export function EtiquetaProductoPDF({ etiquetas }: EtiquetaProductoPDFProps) {
           {/* Logo */}
           {etiqueta.incluir_logo && etiqueta.logoDataUrl && (
             <View style={styles.logoContainer}>
-              <Image src={etiqueta.logoDataUrl} style={styles.logo} />
+              <Image src={etiqueta.logoDataUrl} style={styles.logo} alt="Logo Pastas Orlando" />
               <Text style={styles.brandName}>Pastas Orlando</Text>
               <Text style={styles.brandSlogan}>El amigo de las pastas</Text>
             </View>
@@ -181,7 +200,7 @@ export function EtiquetaProductoPDF({ etiquetas }: EtiquetaProductoPDFProps) {
           {/* Código de barras */}
           {etiqueta.barcodeDataUrl ? (
             <View style={styles.barcodeContainer}>
-              <Image src={etiqueta.barcodeDataUrl} style={styles.barcode} />
+              <Image src={etiqueta.barcodeDataUrl} style={styles.barcode} alt="Código de barras" />
               <Text style={styles.barcodeText}>{etiqueta.codigo_barras}</Text>
             </View>
           ) : (
@@ -211,10 +230,18 @@ export function EtiquetaProductoPDF({ etiquetas }: EtiquetaProductoPDFProps) {
             ${etiqueta.precio_venta.toLocaleString('es-AR', { minimumFractionDigits: 0 })}
           </Text>
 
-          {/* Contacto */}
+          {/* Contacto con QR y WhatsApp */}
           <View style={styles.contactContainer}>
-            <Text style={styles.contactText}>WhatsApp: 3754-419324</Text>
-            <Text style={styles.contactText}>laspastasdeorlando@gmail.com</Text>
+            <View style={styles.whatsappRow}>
+              {/* QR Code */}
+              {etiqueta.qrCodeDataUrl && (
+                <Image src={etiqueta.qrCodeDataUrl} style={styles.qrCode} alt="QR WhatsApp" />
+              )}
+              <View style={{ flexDirection: 'column', alignItems: 'center' }}>
+                <Text style={styles.whatsappText}>{WHATSAPP_LABEL}</Text>
+                <Text style={styles.contactText}>laspastasdeorlando@gmail.com</Text>
+              </View>
+            </View>
           </View>
         </Page>
       ))}

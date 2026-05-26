@@ -16,6 +16,7 @@ import {
 } from '@/components/ui/select'
 import { Printer, Search, Loader2, Tag, FileDown, Package } from 'lucide-react'
 import JsBarcode from 'jsbarcode'
+import QRCode from 'qrcode'
 
 interface ProductoTerminado {
   id: number
@@ -129,6 +130,9 @@ export default function EtiquetasPage() {
   // Logo data URL (loaded once)
   const [logoDataUrl, setLogoDataUrl] = useState<string | null>(null)
 
+  // QR Code data URL (generated once)
+  const [qrCodeDataUrl, setQrCodeDataUrl] = useState<string | null>(null)
+
   // PDF component (lazy loaded)
   const [PDFComponent, setPDFComponent] = useState<EtiquetaProductoPDFType | null>(null)
 
@@ -166,6 +170,23 @@ export default function EtiquetasPage() {
       }
     }
     loadLogo()
+  }, [])
+
+  // Generate QR code for WhatsApp
+  useEffect(() => {
+    async function generateQR() {
+      try {
+        const url = await QRCode.toDataURL(
+          'https://wa.me/5493754419324?text=Hola%20Orlando%20quiero%20hacer%20un%20pedido',
+          { width: 140, margin: 1, color: { dark: '#5C3A21', light: '#FFFFFF' } }
+        )
+        setQrCodeDataUrl(url)
+      } catch (err) {
+        console.error('Error generando QR:', err)
+        setQrCodeDataUrl(null)
+      }
+    }
+    generateQR()
   }, [])
 
   // Lazy load @react-pdf/renderer components
@@ -246,6 +267,7 @@ export default function EtiquetasPage() {
         incluir_logo: incluirLogo,
         barcodeDataUrl,
         logoDataUrl,
+        qrCodeDataUrl,
       }
 
       // Create array with requested copies
@@ -282,6 +304,7 @@ export default function EtiquetasPage() {
     infoExtra,
     incluirLogo,
     logoDataUrl,
+    qrCodeDataUrl,
     pesoOption,
     pesoCustom,
   ])
@@ -633,10 +656,18 @@ export default function EtiquetasPage() {
                     ${selectedProducto.precio_venta.toLocaleString('es-AR')}
                   </div>
 
-                  {/* Contact */}
-                  <div className="border-t border-gray-200 mt-1.5 pt-1 text-center">
-                    <div className="text-[5px] text-gray-400">WhatsApp: 3754-419324</div>
-                    <div className="text-[5px] text-gray-400">laspastasdeorlando@gmail.com</div>
+                  {/* Contact with QR */}
+                  <div className="border-t border-gray-200 mt-1.5 pt-1">
+                    <div className="flex items-center justify-center gap-1.5">
+                      {/* QR placeholder */}
+                      <div className="w-7 h-7 bg-gray-100 border border-gray-200 rounded flex items-center justify-center shrink-0">
+                        <span className="text-[5px] text-gray-400">QR</span>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-[6px] font-semibold text-green-600">WhatsApp: 3754-419324</div>
+                        <div className="text-[4px] text-gray-400">laspastasdeorlando@gmail.com</div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               ) : (
