@@ -40,211 +40,236 @@ const styles = StyleSheet.create({
   cell: {
     width: '33.333%',
     height: '12.5%',
-    padding: 2,
-    position: 'relative',
+    padding: 1.5,
   },
   etiqueta: {
     flex: 1,
-    backgroundColor: '#FFF8E7',
-    borderWidth: 0.8,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 0.5,
     borderColor: '#E1AD01',
-    borderRadius: 2,
-    padding: 3,
+    borderRadius: 1,
     flexDirection: 'column',
-    position: 'relative',
     overflow: 'hidden',
   },
-  fondoImage: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    width: '100%',
-    height: '100%',
-    opacity: 0.12,
-  },
-  // Header: logo + slogan
-  headerRow: {
+  // ===== TOP SECTION: Logo (left) + Checkered/Info (right) =====
+  topSection: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 1,
+    flex: 1,
   },
-  logo: {
-    width: 12,
-    height: 12,
+  // Left side: Logo area
+  logoArea: {
+    width: '35%',
+    padding: 3,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#FFF8E7',
+  },
+  logoCircle: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    borderWidth: 1,
+    borderColor: '#4CAF50',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#FFF8E7',
+  },
+  logoImage: {
+    width: 18,
+    height: 18,
+    borderRadius: 9,
+  },
+  brandName: {
+    fontSize: 4.5,
+    color: '#C41E3A',
+    fontWeight: 'bold',
+    marginTop: 1,
+    textAlign: 'center',
   },
   slogan: {
-    fontSize: 3.8,
+    fontSize: 2.8,
+    color: '#5C3A21',
+    textAlign: 'center',
     fontStyle: 'italic',
+    marginTop: 0.5,
+  },
+  // Right side: Product info + checkered background
+  rightArea: {
+    width: '65%',
+    padding: 3,
+    justifyContent: 'space-between',
+    position: 'relative',
+  },
+  checkeredBg: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    width: '50%',
+    height: '100%',
+    opacity: 0.08,
+  },
+  productNameMain: {
+    fontSize: 5.5,
+    fontWeight: 'bold',
+    color: '#333333',
+    lineHeight: 1.1,
+  },
+  artesanalText: {
+    fontSize: 3.5,
+    fontStyle: 'italic',
+    color: '#C41E3A',
+    marginTop: 1,
+  },
+  productSubtext: {
+    fontSize: 3,
+    color: '#666666',
+    marginTop: 0.5,
+  },
+  whatsappRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 2,
+    marginTop: 1,
+  },
+  whatsappIcon: {
+    width: 5,
+    height: 5,
+    borderRadius: 2.5,
+    backgroundColor: '#25D366',
+  },
+  whatsappNumber: {
+    fontSize: 4,
+    fontWeight: 'bold',
+    color: '#333333',
+  },
+  // ===== BOTTOM SECTION: Calendar =====
+  calendarSection: {
+    paddingHorizontal: 3,
+    paddingVertical: 2,
+    backgroundColor: '#FFF8E7',
+    borderTopWidth: 0.5,
+    borderTopColor: '#E1AD01',
+  },
+  calendarLabel: {
+    fontSize: 3,
     color: '#5C3A21',
     fontWeight: 'bold',
+    marginBottom: 1,
   },
-  // Sub-header
-  subHeaderRow: {
+  daysRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 1.5,
-    paddingBottom: 1,
-    borderBottomWidth: 0.3,
-    borderBottomColor: '#E1AD01',
-  },
-  artesanal: {
-    fontSize: 3.2,
-    fontStyle: 'italic',
-    color: '#5C3A21',
-  },
-  whatsapp: {
-    fontSize: 3.2,
-    color: '#25D366',
-    fontWeight: 'bold',
-  },
-  // Calendar
-  calendarTitle: {
-    fontSize: 3.5,
-    color: '#5C3A21',
-    fontWeight: 'bold',
     marginBottom: 1,
   },
-  daysGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    marginBottom: 1,
-  },
-  daySquare: {
-    width: 6,
-    height: 5,
-    borderWidth: 0.3,
-    borderColor: '#CCCCCC',
+  dayBox: {
+    width: 4.3,
+    height: 4.3,
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 0.5,
-    marginBottom: 0.3,
     backgroundColor: '#FFFFFF',
+    borderWidth: 0.2,
+    borderColor: '#CCCCCC',
   },
-  daySquareActive: {
-    width: 6,
-    height: 5,
-    borderWidth: 0.3,
-    borderColor: '#5C3A21',
+  dayBoxActive: {
+    width: 4.3,
+    height: 4.3,
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 0.5,
-    marginBottom: 0.3,
     backgroundColor: '#5C3A21',
+    borderWidth: 0.2,
+    borderColor: '#5C3A21',
   },
   dayText: {
-    fontSize: 2.8,
+    fontSize: 2.5,
     color: '#888888',
   },
   dayTextActive: {
-    fontSize: 2.8,
+    fontSize: 2.5,
     color: '#FFFFFF',
     fontWeight: 'bold',
   },
-  monthsGrid: {
+  monthsRow: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    marginBottom: 2,
+    justifyContent: 'space-between',
   },
-  monthSquare: {
-    width: 12.8,
-    height: 5,
-    borderWidth: 0.3,
-    borderColor: '#CCCCCC',
+  monthBox: {
+    width: 10,
+    height: 4,
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 0.5,
-    marginBottom: 0.3,
     backgroundColor: '#FFFFFF',
+    borderWidth: 0.2,
+    borderColor: '#CCCCCC',
   },
-  monthSquareActive: {
-    width: 12.8,
-    height: 5,
-    borderWidth: 0.3,
-    borderColor: '#C41E3A',
+  monthBoxActive: {
+    width: 10,
+    height: 4,
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 0.5,
-    marginBottom: 0.3,
     backgroundColor: '#C41E3A',
+    borderWidth: 0.2,
+    borderColor: '#C41E3A',
   },
   monthText: {
-    fontSize: 2.8,
+    fontSize: 2.5,
     color: '#888888',
   },
   monthTextActive: {
-    fontSize: 2.8,
+    fontSize: 2.5,
     color: '#FFFFFF',
     fontWeight: 'bold',
   },
-  // Product name
-  productName: {
-    fontSize: 6.5,
-    fontWeight: 'bold',
-    color: '#5C3A21',
-    textAlign: 'center',
-    lineHeight: 1.1,
-    marginBottom: 1,
-    marginTop: 0.5,
+  // ===== EXTRA SECTION: Barcode, price, details =====
+  extraSection: {
+    paddingHorizontal: 3,
+    paddingVertical: 1.5,
+    borderTopWidth: 0.3,
+    borderTopColor: '#E1AD01',
+    backgroundColor: '#FFFFFF',
   },
-  // Barcode
-  barcodeContainer: {
+  barcodeRow: {
+    flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
     marginBottom: 1,
   },
   barcode: {
-    width: 85,
-    height: 16,
+    width: 70,
+    height: 12,
   },
   barcodeText: {
-    fontSize: 3.5,
+    fontSize: 3,
     color: '#333333',
-    marginTop: 0.3,
-  },
-  noBarcode: {
-    fontSize: 3.5,
-    color: '#CCCCCC',
     textAlign: 'center',
-    marginBottom: 1,
   },
-  // Footer
   footerRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-end',
-    borderTopWidth: 0.3,
-    borderTopColor: '#E1AD01',
-    paddingTop: 1,
   },
-  price: {
-    fontSize: 8,
+  priceText: {
+    fontSize: 7,
     fontWeight: 'bold',
     color: '#C41E3A',
   },
-  detailsRight: {
+  detailsCol: {
     flexDirection: 'column',
     alignItems: 'flex-end',
   },
   detailText: {
-    fontSize: 3,
+    fontSize: 2.5,
     color: '#666666',
-    lineHeight: 1.4,
+    lineHeight: 1.3,
   },
-  qrRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 2,
+  qrSmall: {
+    width: 7,
+    height: 7,
     marginTop: 0.5,
   },
-  qrCode: {
-    width: 10,
-    height: 10,
-  },
-  qrLabel: {
-    fontSize: 2.5,
-    color: '#888888',
+  noBarcode: {
+    fontSize: 3,
+    color: '#CCCCCC',
+    textAlign: 'center',
   },
 })
 
@@ -275,96 +300,116 @@ export function EtiquetaProductoPDF({ etiquetas }: EtiquetaProductoPDFProps) {
               return (
                 <View key={cellIdx} style={styles.cell}>
                   <View style={styles.etiqueta}>
-                    {/* Background image (decorative) */}
-                    {etiqueta.fondoDataUrl && (
-                      <Image src={etiqueta.fondoDataUrl} style={styles.fondoImage} alt="" />
-                    )}
-
-                    {/* Header: Logo (izq) + Slogan (der) */}
-                    <View style={styles.headerRow}>
-                      {etiqueta.incluir_logo && etiqueta.logoDataUrl ? (
-                        <Image src={etiqueta.logoDataUrl} style={styles.logo} alt="Logo" />
-                      ) : (
-                        <View style={{ width: 12, height: 12 }} />
-                      )}
-                      <Text style={styles.slogan}>El amigo de las pastas</Text>
-                    </View>
-
-                    {/* Sub-header: artesanal + WhatsApp */}
-                    <View style={styles.subHeaderRow}>
-                      <Text style={styles.artesanal}>
-                        {esArtesanal ? 'Producto artesanal' : ''}
-                      </Text>
-                      <Text style={styles.whatsapp}>WhatsApp: 3754-419324</Text>
-                    </View>
-
-                    {/* Calendario de vencimiento con cuadritos */}
-                    <Text style={styles.calendarTitle}>Vencimiento:</Text>
-
-                    {/* Días 1-31 en cuadritos */}
-                    <View style={styles.daysGrid}>
-                      {Array.from({ length: 31 }, (_, i) => i + 1).map((dia) => {
-                        const isActive = dia === vencDia
-                        return (
-                          <View
-                            key={dia}
-                            style={isActive ? styles.daySquareActive : styles.daySquare}
-                          >
-                            <Text style={isActive ? styles.dayTextActive : styles.dayText}>
-                              {dia}
-                            </Text>
+                    {/* ===== TOP: Logo (izq) + Info (der) ===== */}
+                    <View style={styles.topSection}>
+                      {/* Logo area (left) */}
+                      <View style={styles.logoArea}>
+                        {etiqueta.incluir_logo && etiqueta.logoDataUrl ? (
+                          <View style={styles.logoCircle}>
+                            <Image src={etiqueta.logoDataUrl} style={styles.logoImage} alt="Logo" />
                           </View>
-                        )
-                      })}
-                    </View>
-
-                    {/* Meses en cuadritos */}
-                    <View style={styles.monthsGrid}>
-                      {MESES.map((mes, idx) => {
-                        const isActive = idx + 1 === vencMes
-                        return (
-                          <View
-                            key={mes}
-                            style={isActive ? styles.monthSquareActive : styles.monthSquare}
-                          >
-                            <Text style={isActive ? styles.monthTextActive : styles.monthText}>
-                              {mes}
-                            </Text>
-                          </View>
-                        )
-                      })}
-                    </View>
-
-                    {/* Nombre del producto */}
-                    <Text style={styles.productName}>{etiqueta.nombre}</Text>
-
-                    {/* Código de barras */}
-                    {etiqueta.barcodeDataUrl ? (
-                      <View style={styles.barcodeContainer}>
-                        <Image src={etiqueta.barcodeDataUrl} style={styles.barcode} alt="Código de barras" />
-                        <Text style={styles.barcodeText}>{etiqueta.codigo_barras}</Text>
-                      </View>
-                    ) : (
-                      <Text style={styles.noBarcode}>Sin código de barras</Text>
-                    )}
-
-                    {/* Footer: Precio (izq) + Detalles (der) */}
-                    <View style={styles.footerRow}>
-                      <View style={{ flexDirection: 'column' }}>
-                        <Text style={styles.price}>
-                          ${etiqueta.precio_venta.toLocaleString('es-AR', { minimumFractionDigits: 0 })}
-                        </Text>
-                        {etiqueta.qrCodeDataUrl && (
-                          <View style={styles.qrRow}>
-                            <Image src={etiqueta.qrCodeDataUrl} style={styles.qrCode} alt="QR" />
-                            <Text style={styles.qrLabel}>Pedidos</Text>
+                        ) : (
+                          <View style={styles.logoCircle}>
+                            <Text style={{ fontSize: 5, color: '#C41E3A', fontWeight: 'bold' }}>O</Text>
                           </View>
                         )}
+                        <Text style={styles.brandName}>Orlando</Text>
+                        <Text style={styles.slogan}>El amigo de{'\n'}las pastas</Text>
                       </View>
-                      <View style={styles.detailsRight}>
-                        <Text style={styles.detailText}>Peso: {etiqueta.peso}</Text>
-                        <Text style={styles.detailText}>Elab: {etiqueta.fecha_elaboracion}</Text>
-                        <Text style={styles.detailText}>Lote: {etiqueta.lote}</Text>
+
+                      {/* Product info (right) */}
+                      <View style={styles.rightArea}>
+                        {/* Decorative checkered bg */}
+                        {etiqueta.fondoDataUrl && (
+                          <Image src={etiqueta.fondoDataUrl} style={styles.checkeredBg} alt="" />
+                        )}
+
+                        {/* Product name (replaces "Espagueti al Morrón") */}
+                        <Text style={styles.productNameMain}>{etiqueta.nombre}</Text>
+
+                        {/* "producto artesanal" in red italic */}
+                        {esArtesanal && (
+                          <Text style={styles.artesanalText}>producto artesanal</Text>
+                        )}
+
+                        {/* Category/description */}
+                        {etiqueta.categoria && (
+                          <Text style={styles.productSubtext}>{etiqueta.categoria}</Text>
+                        )}
+
+                        {/* WhatsApp + phone */}
+                        <View style={styles.whatsappRow}>
+                          <View style={styles.whatsappIcon} />
+                          <Text style={styles.whatsappNumber}>3754-419324</Text>
+                        </View>
+                      </View>
+                    </View>
+
+                    {/* ===== CALENDAR SECTION ===== */}
+                    <View style={styles.calendarSection}>
+                      <Text style={styles.calendarLabel}>Fecha vencimiento</Text>
+
+                      {/* Days 1-31 in a single row with cuadritos */}
+                      <View style={styles.daysRow}>
+                        {Array.from({ length: 31 }, (_, i) => i + 1).map((dia) => {
+                          const isActive = dia === vencDia
+                          return (
+                            <View
+                              key={dia}
+                              style={isActive ? styles.dayBoxActive : styles.dayBox}
+                            >
+                              <Text style={isActive ? styles.dayTextActive : styles.dayText}>
+                                {dia}
+                              </Text>
+                            </View>
+                          )
+                        })}
+                      </View>
+
+                      {/* Months ene-dic in a single row */}
+                      <View style={styles.monthsRow}>
+                        {MESES.map((mes, idx) => {
+                          const isActive = idx + 1 === vencMes
+                          return (
+                            <View
+                              key={mes}
+                              style={isActive ? styles.monthBoxActive : styles.monthBox}
+                            >
+                              <Text style={isActive ? styles.monthTextActive : styles.monthText}>
+                                {mes}
+                              </Text>
+                            </View>
+                          )
+                        })}
+                      </View>
+                    </View>
+
+                    {/* ===== EXTRA: Barcode + Price + Details ===== */}
+                    <View style={styles.extraSection}>
+                      {/* Barcode */}
+                      {etiqueta.barcodeDataUrl ? (
+                        <View style={styles.barcodeRow}>
+                          <Image src={etiqueta.barcodeDataUrl} style={styles.barcode} alt="Código de barras" />
+                        </View>
+                      ) : (
+                        <Text style={styles.noBarcode}>Sin código de barras</Text>
+                      )}
+
+                      {/* Footer: Price + Details + QR */}
+                      <View style={styles.footerRow}>
+                        <View style={{ flexDirection: 'column' }}>
+                          <Text style={styles.priceText}>
+                            ${etiqueta.precio_venta.toLocaleString('es-AR', { minimumFractionDigits: 0 })}
+                          </Text>
+                          {etiqueta.qrCodeDataUrl && (
+                            <Image src={etiqueta.qrCodeDataUrl} style={styles.qrSmall} alt="QR" />
+                          )}
+                        </View>
+                        <View style={styles.detailsCol}>
+                          <Text style={styles.detailText}>Peso: {etiqueta.peso}</Text>
+                          <Text style={styles.detailText}>Elab: {etiqueta.fecha_elaboracion}</Text>
+                          <Text style={styles.detailText}>Lote: {etiqueta.lote}</Text>
+                        </View>
                       </View>
                     </View>
                   </View>

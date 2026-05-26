@@ -594,37 +594,61 @@ export default function EtiquetasPage() {
             </CardHeader>
             <CardContent>
               {selectedProducto ? (
-                <div className="bg-crema border-2 border-mostaza rounded-lg p-2 mx-auto relative overflow-hidden" style={{ width: '200px', minHeight: '108px' }}>
-                  {/* Decorative background */}
-                  <div className="absolute inset-0 opacity-[0.06] pointer-events-none">
-                    <img src="/images/etiqueta-fondo.png" alt="" className="w-full h-full object-cover" />
-                  </div>
+                <div className="bg-white border-2 border-mostaza rounded-lg overflow-hidden mx-auto" style={{ width: '200px' }}>
+                  {/* Top section: Logo (left) + Info (right) */}
+                  <div className="flex" style={{ minHeight: '55px' }}>
+                    {/* Logo area - cream background */}
+                    <div className="w-[35%] bg-crema flex flex-col items-center justify-center p-1.5">
+                      {incluirLogo ? (
+                        <div className="w-6 h-6 rounded-full border border-green-500 flex items-center justify-center bg-crema">
+                          <div className="w-5 h-5 bg-mostaza/10 rounded-full flex items-center justify-center text-[4px] font-bold text-marron">
+                            PO
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="w-6 h-6 rounded-full border border-green-500 flex items-center justify-center bg-crema">
+                          <span className="text-[5px] text-rojo font-bold">O</span>
+                        </div>
+                      )}
+                      <span className="text-[4px] text-rojo font-bold mt-0.5">Orlando</span>
+                      <span className="text-[3px] italic text-marron text-center leading-tight">El amigo de{'\n'}las pastas</span>
+                    </div>
 
-                  {/* Header: Logo + Slogan */}
-                  <div className="flex items-center justify-between mb-0.5 relative">
-                    {incluirLogo ? (
-                      <div className="w-4 h-4 bg-mostaza/10 rounded-full flex items-center justify-center text-[4px] font-bold text-marron shrink-0">
-                        PO
+                    {/* Right side: product info */}
+                    <div className="w-[65%] p-1.5 flex flex-col justify-between relative">
+                      {/* Checkered pattern hint */}
+                      <div className="absolute top-0 right-0 w-1/2 h-full opacity-[0.04] pointer-events-none">
+                        <img src="/images/etiqueta-fondo.png" alt="" className="w-full h-full object-cover" />
                       </div>
-                    ) : (
-                      <div className="w-4 h-4" />
-                    )}
-                    <span className="text-[5px] italic font-semibold text-marron">El amigo de las pastas</span>
+
+                      <div className="relative">
+                        {/* Product name */}
+                        <div className="text-[6px] font-bold text-gray-800 leading-tight">
+                          {selectedProducto.nombre}
+                        </div>
+                        {/* "producto artesanal" */}
+                        {infoExtra.includes('artesanal') && (
+                          <div className="text-[4px] italic text-rojo mt-0.5">producto artesanal</div>
+                        )}
+                        {/* Category */}
+                        {selectedProducto.categoria && (
+                          <div className="text-[3px] text-gray-500 mt-0.5">{selectedProducto.categoria.nombre}</div>
+                        )}
+                      </div>
+
+                      {/* WhatsApp */}
+                      <div className="flex items-center gap-1 mt-1 relative">
+                        <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                        <span className="text-[4.5px] font-bold text-gray-800">3754-419324</span>
+                      </div>
+                    </div>
                   </div>
 
-                  {/* Sub-header: artesanal + WhatsApp */}
-                  <div className="flex items-center justify-between mb-1 pb-0.5 border-b border-mostaza/30 relative">
-                    <span className="text-[4px] italic text-marron">
-                      {infoExtra.includes('artesanal') ? 'Producto artesanal' : ''}
-                    </span>
-                    <span className="text-[4px] font-semibold text-green-600">WhatsApp: 3754-419324</span>
-                  </div>
-
-                  {/* Calendar with cuadritos */}
-                  <div className="mb-0.5 relative">
-                    <div className="text-[4.5px] font-bold text-marron mb-0.5">Vencimiento:</div>
-                    {/* Days in squares */}
-                    <div className="flex flex-wrap gap-[1px] mb-[1px]">
+                  {/* Calendar section - cream background */}
+                  <div className="bg-crema px-1.5 py-1 border-t border-mostaza/40">
+                    <div className="text-[3.5px] font-bold text-marron mb-0.5">Fecha vencimiento</div>
+                    {/* Days 1-31 in cuadritos */}
+                    <div className="flex justify-between mb-0.5">
                       {Array.from({ length: 31 }, (_, i) => i + 1).map((dia) => (
                         <div
                           key={dia}
@@ -633,14 +657,14 @@ export default function EtiquetasPage() {
                               ? 'bg-marron text-white font-bold'
                               : 'bg-white text-gray-400 border border-gray-200'
                           }`}
-                          style={{ width: '5px', height: '4px', fontSize: '2.5px' }}
+                          style={{ width: '4px', height: '4px', fontSize: '2.5px' }}
                         >
                           {dia}
                         </div>
                       ))}
                     </div>
-                    {/* Months in squares */}
-                    <div className="flex flex-wrap gap-[1px]">
+                    {/* Months ene-dic in cuadritos */}
+                    <div className="flex justify-between">
                       {MESES_CORTOS.map((mes, idx) => (
                         <div
                           key={mes}
@@ -649,7 +673,7 @@ export default function EtiquetasPage() {
                               ? 'bg-rojo text-white font-bold'
                               : 'bg-white text-gray-400 border border-gray-200'
                           }`}
-                          style={{ width: '10px', height: '4px', fontSize: '2.5px' }}
+                          style={{ width: '10px', height: '3.5px', fontSize: '2.5px' }}
                         >
                           {mes}
                         </div>
@@ -657,53 +681,43 @@ export default function EtiquetasPage() {
                     </div>
                   </div>
 
-                  {/* Product name */}
-                  <div className="text-[6px] font-bold text-marron text-center leading-tight my-0.5 relative">
-                    {selectedProducto.nombre}
-                  </div>
-
-                  {/* Barcode placeholder */}
-                  <div className="flex items-center justify-center my-0.5 relative">
-                    {selectedProducto.codigo_barras ? (
-                      <div className="flex items-center gap-0.5">
-                        <div className="flex gap-px items-end h-2.5">
+                  {/* Extra section: Barcode + Price + Details */}
+                  <div className="px-1.5 py-1 border-t border-mostaza/30">
+                    {/* Barcode placeholder */}
+                    <div className="flex items-center justify-center my-0.5">
+                      {selectedProducto.codigo_barras ? (
+                        <div className="flex gap-px items-end h-2">
                           {Array.from({ length: 25 }, (_, i) => (
                             <div
                               key={i}
                               className="bg-black"
                               style={{
                                 width: Math.random() > 0.5 ? '1px' : '0.5px',
-                                height: `${6 + Math.random() * 4}px`,
+                                height: `${5 + Math.random() * 3}px`,
                               }}
                             />
                           ))}
                         </div>
-                        <span className="text-[3px] text-gray-500 font-mono">
-                          {selectedProducto.codigo_barras}
-                        </span>
-                      </div>
-                    ) : (
-                      <span className="text-[3px] text-gray-300">Sin código de barras</span>
-                    )}
-                  </div>
-
-                  {/* Footer: Price + details */}
-                  <div className="flex items-end justify-between pt-0.5 border-t border-mostaza/30 relative">
-                    <div>
-                      <div className="text-[8px] font-bold text-rojo">
-                        ${selectedProducto.precio_venta.toLocaleString('es-AR')}
-                      </div>
-                      <div className="flex items-center gap-0.5 mt-px">
-                        <div className="w-2 h-2 bg-gray-100 border border-gray-200 rounded-sm flex items-center justify-center">
-                          <span className="text-[1.5px] text-gray-400">QR</span>
-                        </div>
-                        <span className="text-[2px] text-gray-400">Pedidos</span>
-                      </div>
+                      ) : (
+                        <span className="text-[3px] text-gray-300">Sin código de barras</span>
+                      )}
                     </div>
-                    <div className="text-right">
-                      <div className="text-[3px] text-gray-500">Peso: {getPesoDisplay()}</div>
-                      <div className="text-[3px] text-gray-500">Elab: {formatDateDisplay(fechaElaboracion)}</div>
-                      <div className="text-[3px] text-gray-500">Lote: {lote}</div>
+
+                    {/* Footer: Price + Details + QR */}
+                    <div className="flex items-end justify-between">
+                      <div>
+                        <div className="text-[7px] font-bold text-rojo">
+                          ${selectedProducto.precio_venta.toLocaleString('es-AR')}
+                        </div>
+                        <div className="w-2 h-2 bg-gray-100 border border-gray-200 rounded-sm mt-0.5 flex items-center justify-center">
+                          <span className="text-[1px] text-gray-400">QR</span>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-[3px] text-gray-500">Peso: {getPesoDisplay()}</div>
+                        <div className="text-[3px] text-gray-500">Elab: {formatDateDisplay(fechaElaboracion)}</div>
+                        <div className="text-[3px] text-gray-500">Lote: {lote}</div>
+                      </div>
                     </div>
                   </div>
                 </div>
