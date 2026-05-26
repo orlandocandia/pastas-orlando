@@ -16,143 +16,165 @@ export interface EtiquetaData {
   barcodeDataUrl: string | null
   logoDataUrl: string | null
   qrCodeDataUrl: string | null
+  vencimientoDia: number
+  vencimientoMes: number
 }
 
 interface EtiquetaProductoPDFProps {
   etiquetas: EtiquetaData[]
 }
 
-const ETIQUETAS_POR_HOJA = 8 // 2 columnas x 4 filas
+const ETIQUETAS_POR_HOJA = 24 // 3 columnas x 8 filas
+
+const MESES = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic']
 
 const styles = StyleSheet.create({
   a4Page: {
-    padding: 15,
+    padding: 6,
     fontFamily: 'Helvetica',
     flexDirection: 'row',
     flexWrap: 'wrap',
     alignContent: 'flex-start',
   },
-  etiquetaCell: {
-    width: '50%',
-    height: '25%',
-    padding: 6,
-    borderWidth: 0.5,
-    borderColor: '#DDDDDD',
-    borderStyle: 'dashed',
+  cell: {
+    width: '33.333%',
+    height: '12.5%',
+    padding: 3,
+    borderWidth: 0.3,
+    borderColor: '#CCCCCC',
+    borderStyle: 'solid',
     flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    justifyContent: 'flex-start',
   },
-  // Logo
-  logo: {
-    width: 24,
-    height: 24,
+  // Header row: logo left, slogan right
+  headerRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     marginBottom: 1,
   },
-  // Product info
-  productName: {
-    fontSize: 9,
-    fontWeight: 'bold',
+  logo: {
+    width: 14,
+    height: 14,
+  },
+  slogan: {
+    fontSize: 4,
+    fontStyle: 'italic',
     color: '#5C3A21',
-    textAlign: 'center',
-    lineHeight: 1.1,
   },
-  productDescription: {
-    fontSize: 5,
-    color: '#666666',
-    textAlign: 'center',
-    marginTop: 1,
-  },
-  category: {
-    fontSize: 5,
-    color: '#999999',
-    marginTop: 0.5,
-  },
-  weight: {
-    fontSize: 7,
-    color: '#333333',
-    marginTop: 1,
-  },
-  // Dates
-  dateRow: {
+  // Sub-header: artesanal + whatsapp
+  subHeaderRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    width: '90%',
-  },
-  dateText: {
-    fontSize: 5.5,
-    color: '#555555',
-  },
-  lotText: {
-    fontSize: 5.5,
-    color: '#555555',
-    marginTop: 0.5,
-  },
-  // Barcode
-  barcodeContainer: {
     alignItems: 'center',
-    marginVertical: 1,
+    marginBottom: 1.5,
   },
-  barcode: {
-    width: 100,
-    height: 28,
-  },
-  barcodeText: {
-    fontSize: 5.5,
-    color: '#333333',
-    marginTop: 0.5,
-  },
-  // Extra info
-  extraInfo: {
-    alignItems: 'center',
-  },
-  extraItem: {
-    fontSize: 5,
+  artesanal: {
+    fontSize: 3.5,
+    fontStyle: 'italic',
     color: '#5C3A21',
   },
-  // Price
-  price: {
-    fontSize: 12,
-    fontWeight: 'bold',
-    color: '#C41E3A',
-    marginTop: 1,
-  },
-  // Contact
-  contactContainer: {
-    borderTopWidth: 0.5,
-    borderTopColor: '#CCCCCC',
-    paddingTop: 2,
-    marginTop: 1,
-    alignItems: 'center',
-    width: '100%',
-  },
-  whatsappRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 3,
-  },
-  qrCode: {
-    width: 22,
-    height: 22,
-  },
-  whatsappText: {
-    fontSize: 5.5,
+  whatsapp: {
+    fontSize: 3.5,
     color: '#25D366',
     fontWeight: 'bold',
   },
-  contactText: {
-    fontSize: 4.5,
-    color: '#888888',
+  // Calendar
+  calendarLabel: {
+    fontSize: 3.5,
+    color: '#333333',
+    fontWeight: 'bold',
+    marginBottom: 0.5,
   },
-  codeText: {
-    fontSize: 5,
-    color: '#999999',
-    marginTop: 0.5,
+  daysRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 0.5,
+  },
+  dayText: {
+    fontSize: 2.8,
+    color: '#AAAAAA',
+    width: 5.2,
+    textAlign: 'center',
+  },
+  dayHighlight: {
+    fontSize: 2.8,
+    color: '#FFFFFF',
+    width: 5.2,
+    textAlign: 'center',
+    backgroundColor: '#5C3A21',
+    borderRadius: 1.5,
+    fontWeight: 'bold',
+  },
+  monthsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 2,
+  },
+  monthText: {
+    fontSize: 2.8,
+    color: '#AAAAAA',
+    width: 13,
+    textAlign: 'center',
+  },
+  monthHighlight: {
+    fontSize: 2.8,
+    color: '#FFFFFF',
+    width: 13,
+    textAlign: 'center',
+    backgroundColor: '#C41E3A',
+    borderRadius: 1.5,
+    fontWeight: 'bold',
+  },
+  // Product info
+  productName: {
+    fontSize: 6,
+    fontWeight: 'bold',
+    color: '#5C3A21',
+    textAlign: 'left',
+    lineHeight: 1.1,
+    marginBottom: 1,
+  },
+  // Barcode
+  barcodeContainer: {
+    alignItems: 'flex-start',
+    marginBottom: 1,
+  },
+  barcode: {
+    width: 90,
+    height: 18,
+  },
+  barcodeText: {
+    fontSize: 3.5,
+    color: '#333333',
+    marginTop: 0.3,
+  },
+  // Footer: price + details
+  footerRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-end',
+  },
+  price: {
+    fontSize: 8,
+    fontWeight: 'bold',
+    color: '#C41E3A',
+  },
+  detailsRight: {
+    flexDirection: 'column',
+    alignItems: 'flex-end',
+  },
+  detailText: {
+    fontSize: 3,
+    color: '#666666',
+    lineHeight: 1.3,
+  },
+  noBarcode: {
+    fontSize: 3.5,
+    color: '#CCCCCC',
+    marginBottom: 1,
   },
 })
-
-const WHATSAPP_LABEL = '\uD83D\uDCDE WhatsApp: 3754-419324'
 
 export function EtiquetaProductoPDF({ etiquetas }: EtiquetaProductoPDFProps) {
   const totalHojas = Math.ceil(etiquetas.length / ETIQUETAS_POR_HOJA)
@@ -169,37 +191,77 @@ export function EtiquetaProductoPDF({ etiquetas }: EtiquetaProductoPDFProps) {
             {Array.from({ length: ETIQUETAS_POR_HOJA }).map((_, cellIdx) => {
               const etiqueta = etiquetasHoja[cellIdx]
               if (!etiqueta) {
-                // Empty cell placeholder
-                return <View key={cellIdx} style={styles.etiquetaCell} />
+                return <View key={cellIdx} style={styles.cell} />
               }
 
+              const esArtesanal = etiqueta.info_extra.some(
+                (i) => i.toLowerCase().includes('artesanal')
+              )
+              const vencDia = etiqueta.vencimientoDia || 1
+              const vencMes = etiqueta.vencimientoMes || 1
+
               return (
-                <View key={cellIdx} style={styles.etiquetaCell}>
-                  {/* Logo (sin texto redundante) */}
-                  {etiqueta.incluir_logo && etiqueta.logoDataUrl && (
-                    <Image src={etiqueta.logoDataUrl} style={styles.logo} alt="Logo" />
-                  )}
-
-                  {/* Información del producto */}
-                  <View style={{ alignItems: 'center' }}>
-                    <Text style={styles.productName}>{etiqueta.nombre}</Text>
-                    {etiqueta.descripcion && (
-                      <Text style={styles.productDescription}>{etiqueta.descripcion}</Text>
+                <View key={cellIdx} style={styles.cell}>
+                  {/* Fila 1: Logo (izq) + Slogan (der) */}
+                  <View style={styles.headerRow}>
+                    {etiqueta.incluir_logo && etiqueta.logoDataUrl ? (
+                      <Image src={etiqueta.logoDataUrl} style={styles.logo} alt="Logo" />
+                    ) : (
+                      <View style={{ width: 14, height: 14 }} />
                     )}
-                    {etiqueta.categoria && (
-                      <Text style={styles.category}>{etiqueta.categoria}</Text>
-                    )}
-                    <Text style={styles.weight}>Peso: {etiqueta.peso}</Text>
+                    <Text style={styles.slogan}>El amigo de las pastas</Text>
                   </View>
 
-                  {/* Fechas y Lote */}
-                  <View style={{ alignItems: 'center' }}>
-                    <View style={styles.dateRow}>
-                      <Text style={styles.dateText}>Elab: {etiqueta.fecha_elaboracion}</Text>
-                      <Text style={styles.dateText}>Vence: {etiqueta.fecha_vencimiento}</Text>
-                    </View>
-                    <Text style={styles.lotText}>Lote: {etiqueta.lote}</Text>
+                  {/* Fila 2: artesanal + WhatsApp */}
+                  <View style={styles.subHeaderRow}>
+                    <Text style={styles.artesanal}>
+                      {esArtesanal ? 'Producto artesanal' : ''}
+                    </Text>
+                    <Text style={styles.whatsapp}>WhatsApp: 3754-419324</Text>
                   </View>
+
+                  {/* Calendario de vencimiento */}
+                  <Text style={styles.calendarLabel}>Vencimiento:</Text>
+
+                  {/* Días 1-31 en dos filas */}
+                  <View style={styles.daysRow}>
+                    {Array.from({ length: 16 }, (_, i) => i + 1).map((dia) => (
+                      <Text
+                        key={dia}
+                        style={dia === vencDia ? styles.dayHighlight : styles.dayText}
+                      >
+                        {dia}
+                      </Text>
+                    ))}
+                  </View>
+                  <View style={{ ...styles.daysRow, marginBottom: 0.5 }}>
+                    {Array.from({ length: 15 }, (_, i) => i + 17).map((dia) => (
+                      <Text
+                        key={dia}
+                        style={dia === vencDia ? styles.dayHighlight : styles.dayText}
+                      >
+                        {dia <= 31 ? dia : ''}
+                      </Text>
+                    ))}
+                  </View>
+
+                  {/* Meses */}
+                  <View style={styles.monthsRow}>
+                    {MESES.map((mes, idx) => {
+                      const mesNum = idx + 1
+                      return (
+                        <Text
+                          key={mes}
+                          style={mesNum === vencMes ? styles.monthHighlight : styles.monthText}
+                        >
+                          {mes}
+                        </Text>
+                      )
+                    })}
+                  </View>
+
+                  {/* Nombre del producto */}
+                  <Text style={styles.productName}>{etiqueta.nombre}</Text>
 
                   {/* Código de barras */}
                   {etiqueta.barcodeDataUrl ? (
@@ -208,42 +270,18 @@ export function EtiquetaProductoPDF({ etiquetas }: EtiquetaProductoPDFProps) {
                       <Text style={styles.barcodeText}>{etiqueta.codigo_barras}</Text>
                     </View>
                   ) : (
-                    <View style={styles.barcodeContainer}>
-                      <Text style={{ fontSize: 5.5, color: '#AAAAAA' }}>Sin código de barras</Text>
-                    </View>
+                    <Text style={styles.noBarcode}>Sin código de barras</Text>
                   )}
 
-                  {/* Código interno */}
-                  {etiqueta.codigo && (
-                    <Text style={styles.codeText}>Cód: {etiqueta.codigo}</Text>
-                  )}
-
-                  {/* Información extra */}
-                  {etiqueta.info_extra.length > 0 && (
-                    <View style={styles.extraInfo}>
-                      {etiqueta.info_extra.map((info, idx) => (
-                        <Text key={idx} style={styles.extraItem}>
-                          {'\u2022'} {info}
-                        </Text>
-                      ))}
-                    </View>
-                  )}
-
-                  {/* Precio */}
-                  <Text style={styles.price}>
-                    ${etiqueta.precio_venta.toLocaleString('es-AR', { minimumFractionDigits: 0 })}
-                  </Text>
-
-                  {/* Contacto con QR y WhatsApp */}
-                  <View style={styles.contactContainer}>
-                    <View style={styles.whatsappRow}>
-                      {etiqueta.qrCodeDataUrl && (
-                        <Image src={etiqueta.qrCodeDataUrl} style={styles.qrCode} alt="QR WhatsApp" />
-                      )}
-                      <View style={{ flexDirection: 'column', alignItems: 'flex-start' }}>
-                        <Text style={styles.whatsappText}>{WHATSAPP_LABEL}</Text>
-                        <Text style={styles.contactText}>laspastasdeorlando@gmail.com</Text>
-                      </View>
+                  {/* Footer: Precio (izq) + Detalles (der) */}
+                  <View style={styles.footerRow}>
+                    <Text style={styles.price}>
+                      ${etiqueta.precio_venta.toLocaleString('es-AR', { minimumFractionDigits: 0 })}
+                    </Text>
+                    <View style={styles.detailsRight}>
+                      <Text style={styles.detailText}>Peso: {etiqueta.peso}</Text>
+                      <Text style={styles.detailText}>Elab: {etiqueta.fecha_elaboracion}</Text>
+                      <Text style={styles.detailText}>Lote: {etiqueta.lote}</Text>
                     </View>
                   </View>
                 </View>

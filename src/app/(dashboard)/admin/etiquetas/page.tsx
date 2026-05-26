@@ -14,7 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Printer, Search, Loader2, Tag, FileDown, Package } from 'lucide-react'
+import { Search, Loader2, Tag, FileDown, Package } from 'lucide-react'
 import JsBarcode from 'jsbarcode'
 import QRCode from 'qrcode'
 
@@ -48,6 +48,8 @@ const INFO_EXTRA_OPCIONES = [
   { id: 'congelado', label: 'Producto congelado' },
   { id: 'refrigerado', label: 'Mantener refrigerado' },
 ]
+
+const MESES_CORTOS = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic']
 
 function formatDateForInput(date: Date): string {
   return date.toISOString().split('T')[0]
@@ -90,7 +92,6 @@ function generateBarcodeDataUrl(code: string): string | null {
     })
     return canvas.toDataURL('image/png')
   } catch {
-    // Si falla EAN13, intentar CODE128
     try {
       const canvas = document.createElement('canvas')
       JsBarcode(canvas, code, {
@@ -120,11 +121,11 @@ export default function EtiquetasPage() {
   const [selectedProductoId, setSelectedProductoId] = useState<string>('')
   const [pesoOption, setPesoOption] = useState<string>('1kg')
   const [pesoCustom, setPesoCustom] = useState<string>('')
-  const [cantidad, setCantidad] = useState<number>(1)
+  const [cantidad, setCantidad] = useState<number>(24)
   const [fechaElaboracion, setFechaElaboracion] = useState<string>(formatDateForInput(new Date()))
   const [fechaVencimiento, setFechaVencimiento] = useState<string>('')
   const [lote, setLote] = useState<string>(generateLoteNumber())
-  const [infoExtra, setInfoExtra] = useState<string[]>([])
+  const [infoExtra, setInfoExtra] = useState<string[]>(['artesanal'])
   const [incluirLogo, setIncluirLogo] = useState<boolean>(true)
 
   // Logo data URL (loaded once)
@@ -202,7 +203,7 @@ export default function EtiquetasPage() {
     loadPDFComponent()
   }, [])
 
-  // Set default vencimiento when product changes (30 days default)
+  // Set default vencimiento (30 days from elaboración)
   useEffect(() => {
     if (fechaElaboracion && !fechaVencimiento) {
       const elab = new Date(fechaElaboracion + 'T12:00:00')
@@ -233,6 +234,20 @@ export default function EtiquetasPage() {
     const found = PESOS_PREDEFINIDOS.find((p) => p.value === pesoOption)
     return found ? found.label : pesoOption
   }
+
+  const getVencimientoDia = (): number => {
+    if (!fechaVencimiento) return 1
+    const d = new Date(fechaVencimiento + 'T12:00:00')
+    return d.getDate()
+  }
+
+  const getVencimientoMes = (): number => {
+    if (!fechaVencimiento) return 1
+    const d = new Date(fechaVencimiento + 'T12:00:00')
+    return d.getMonth() + 1
+  }
+
+  const hojasNecesarias = Math.ceil(cantidad / 24)
 
   const handleGeneratePDF = useCallback(async () => {
     if (!selectedProducto || !PDFComponent) return
@@ -268,6 +283,8 @@ export default function EtiquetasPage() {
         barcodeDataUrl,
         logoDataUrl,
         qrCodeDataUrl,
+        vencimientoDia: getVencimientoDia(),
+        vencimientoMes: getVencimientoMes(),
       }
 
       // Create array with requested copies
@@ -318,6 +335,9 @@ export default function EtiquetasPage() {
     )
   }
 
+  const vencMes = getVencimientoMes()
+  const vencDia = getVencimientoDia()
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -328,7 +348,7 @@ export default function EtiquetasPage() {
         <div>
           <h1 className="text-2xl font-bold text-marron">Generador de Etiquetas</h1>
           <p className="text-sm text-muted-foreground">
-            Generá etiquetas PDF con código de barras · 8 etiquetas por hoja A4
+            Generá etiquetas PDF · 24 etiquetas por hoja A4 (3×8)
           </p>
         </div>
       </div>
@@ -451,18 +471,18 @@ export default function EtiquetasPage() {
                     <Input
                       type="number"
                       min={1}
-                      max={200}
+                      max={240}
                       value={cantidad}
                       onChange={(e) =>
-                        setCantidad(Math.max(1, Math.min(200, parseInt(e.target.value) || 1)))
+                        setCantidad(Math.max(1, Math.min(240, parseInt(e.target.value) || 1)))
                       }
                       className="w-20 text-center"
                     />
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => setCantidad(Math.min(200, cantidad + 1))}
-                      disabled={cantidad >= 200}
+                      onClick={() => setCantidad(Math.min(240, cantidad + 1))}
+                      disabled={cantidad >= 240}
                     >
                       +
                     </Button>
@@ -551,115 +571,119 @@ export default function EtiquetasPage() {
             </CardHeader>
             <CardContent>
               {selectedProducto ? (
-                <div className="bg-white border-2 border-dashed border-gray-300 rounded-lg p-3 mx-auto" style={{ width: '200px', minHeight: '260px' }}>
-                  {/* Logo only — sin texto redundante */}
-                  {incluirLogo && (
-                    <div className="text-center mb-1">
-                      <div className="w-8 h-8 bg-mostaza/10 rounded-full mx-auto flex items-center justify-center text-[8px] font-bold text-marron">
+                <div className="bg-white border-2 border-dashed border-gray-300 rounded-lg p-2.5 mx-auto" style={{ width: '210px', minHeight: '115px' }}>
+                  {/* Header: Logo + Slogan */}
+                  <div className="flex items-center justify-between mb-1">
+                    {incluirLogo ? (
+                      <div className="w-5 h-5 bg-mostaza/10 rounded-full flex items-center justify-center text-[5px] font-bold text-marron shrink-0">
                         PO
                       </div>
-                    </div>
-                  )}
+                    ) : (
+                      <div className="w-5 h-5" />
+                    )}
+                    <span className="text-[6px] italic text-marron">El amigo de las pastas</span>
+                  </div>
 
-                  {/* Product info */}
-                  <div className="text-center">
-                    <div className="text-[10px] font-bold text-marron leading-tight">
-                      {selectedProducto.nombre}
+                  {/* Sub-header: artesanal + WhatsApp */}
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-[5px] italic text-marron">
+                      {infoExtra.includes('artesanal') ? 'Producto artesanal' : ''}
+                    </span>
+                    <span className="text-[5px] font-semibold text-green-600">WhatsApp: 3754-419324</span>
+                  </div>
+
+                  {/* Calendar */}
+                  <div className="mb-1">
+                    <div className="text-[5px] font-bold text-gray-700 mb-0.5">Vencimiento:</div>
+                    {/* Days row 1: 1-16 */}
+                    <div className="flex justify-between mb-px">
+                      {Array.from({ length: 16 }, (_, i) => i + 1).map((dia) => (
+                        <span
+                          key={dia}
+                          className={`text-[4px] leading-none px-px ${
+                            dia === vencDia
+                              ? 'bg-marron text-white font-bold rounded-[1px]'
+                              : 'text-gray-400'
+                          }`}
+                          style={{ minWidth: '6px', textAlign: 'center', display: 'inline-block' }}
+                        >
+                          {dia}
+                        </span>
+                      ))}
                     </div>
-                    {selectedProducto.descripcion && (
-                      <div className="text-[6px] text-gray-500 mt-0.5 line-clamp-1">
-                        {selectedProducto.descripcion}
-                      </div>
-                    )}
-                    {selectedProducto.categoria && (
-                      <div className="text-[6px] text-gray-400">
-                        {selectedProducto.categoria.nombre}
-                      </div>
-                    )}
-                    <div className="text-[8px] text-gray-600 mt-1">
-                      Peso: {getPesoDisplay()}
+                    {/* Days row 2: 17-31 */}
+                    <div className="flex justify-between mb-px">
+                      {Array.from({ length: 15 }, (_, i) => i + 17).map((dia) => (
+                        <span
+                          key={dia}
+                          className={`text-[4px] leading-none px-px ${
+                            dia === vencDia
+                              ? 'bg-marron text-white font-bold rounded-[1px]'
+                              : 'text-gray-400'
+                          }`}
+                          style={{ minWidth: '6px', textAlign: 'center', display: 'inline-block' }}
+                        >
+                          {dia <= 31 ? dia : ''}
+                        </span>
+                      ))}
+                    </div>
+                    {/* Months */}
+                    <div className="flex justify-between">
+                      {MESES_CORTOS.map((mes, idx) => (
+                        <span
+                          key={mes}
+                          className={`text-[4px] leading-none ${
+                            idx + 1 === vencMes
+                              ? 'bg-rojo text-white font-bold rounded-[1px] px-0.5'
+                              : 'text-gray-400'
+                          }`}
+                          style={{ minWidth: '10px', textAlign: 'center', display: 'inline-block' }}
+                        >
+                          {mes}
+                        </span>
+                      ))}
                     </div>
                   </div>
 
-                  {/* Dates */}
-                  <div className="flex justify-between px-2 mt-1">
-                    <span className="text-[6px] text-gray-500">
-                      Elab: {formatDateDisplay(fechaElaboracion)}
-                    </span>
-                    <span className="text-[6px] text-gray-500">
-                      Vence: {formatDateDisplay(fechaVencimiento)}
-                    </span>
-                  </div>
-                  <div className="text-center text-[6px] text-gray-500">
-                    Lote: {lote}
+                  {/* Product name */}
+                  <div className="text-[7px] font-bold text-marron leading-tight mb-0.5">
+                    {selectedProducto.nombre}
                   </div>
 
                   {/* Barcode placeholder */}
-                  <div className="flex justify-center my-1.5">
+                  <div className="flex items-center my-0.5">
                     {selectedProducto.codigo_barras ? (
-                      <div className="text-center">
-                        <div className="bg-white border border-gray-200 px-1 py-0.5">
-                          <div className="flex gap-px items-end h-6">
-                            {Array.from({ length: 40 }, (_, i) => (
-                              <div
-                                key={i}
-                                className="bg-black"
-                                style={{
-                                  width: Math.random() > 0.5 ? '2px' : '1px',
-                                  height: `${16 + Math.random() * 10}px`,
-                                }}
-                              />
-                            ))}
-                          </div>
+                      <div className="flex items-center gap-1">
+                        <div className="flex gap-px items-end h-3">
+                          {Array.from({ length: 30 }, (_, i) => (
+                            <div
+                              key={i}
+                              className="bg-black"
+                              style={{
+                                width: Math.random() > 0.5 ? '1px' : '0.5px',
+                                height: `${8 + Math.random() * 4}px`,
+                              }}
+                            />
+                          ))}
                         </div>
-                        <div className="text-[6px] text-gray-600 font-mono">
+                        <span className="text-[4px] text-gray-500 font-mono">
                           {selectedProducto.codigo_barras}
-                        </div>
+                        </span>
                       </div>
                     ) : (
-                      <div className="text-[6px] text-gray-300 py-3">
-                        Sin código de barras
-                      </div>
+                      <span className="text-[4px] text-gray-300">Sin código de barras</span>
                     )}
                   </div>
 
-                  {/* Internal code */}
-                  {selectedProducto.codigo && (
-                    <div className="text-center text-[5px] text-gray-400">
-                      Cód: {selectedProducto.codigo}
-                    </div>
-                  )}
-
-                  {/* Extra info */}
-                  {infoExtra.length > 0 && (
-                    <div className="text-center mt-0.5">
-                      {infoExtra.map((id) => {
-                        const option = INFO_EXTRA_OPCIONES.find((o) => o.id === id)
-                        return (
-                          <div key={id} className="text-[5px] text-marron">
-                            • {option?.label || id}
-                          </div>
-                        )
-                      })}
-                    </div>
-                  )}
-
-                  {/* Price */}
-                  <div className="text-center font-bold text-rojo text-[12px] mt-1">
-                    ${selectedProducto.precio_venta.toLocaleString('es-AR')}
-                  </div>
-
-                  {/* Contact with QR */}
-                  <div className="border-t border-gray-200 mt-1.5 pt-1">
-                    <div className="flex items-center justify-center gap-1.5">
-                      {/* QR placeholder */}
-                      <div className="w-7 h-7 bg-gray-100 border border-gray-200 rounded flex items-center justify-center shrink-0">
-                        <span className="text-[5px] text-gray-400">QR</span>
-                      </div>
-                      <div className="text-center">
-                        <div className="text-[6px] font-semibold text-green-600">WhatsApp: 3754-419324</div>
-                        <div className="text-[4px] text-gray-400">laspastasdeorlando@gmail.com</div>
-                      </div>
+                  {/* Footer: Price + details */}
+                  <div className="flex items-end justify-between mt-0.5">
+                    <span className="text-[9px] font-bold text-rojo">
+                      ${selectedProducto.precio_venta.toLocaleString('es-AR')}
+                    </span>
+                    <div className="text-right">
+                      <div className="text-[4px] text-gray-500">Peso: {getPesoDisplay()}</div>
+                      <div className="text-[4px] text-gray-500">Elab: {formatDateDisplay(fechaElaboracion)}</div>
+                      <div className="text-[4px] text-gray-500">Lote: {lote}</div>
                     </div>
                   </div>
                 </div>
@@ -686,7 +710,7 @@ export default function EtiquetasPage() {
             ) : (
               <>
                 <FileDown className="h-5 w-5 mr-2" />
-                GENERAR ETIQUETAS ({cantidad}) · {Math.ceil(cantidad / 8)} hoja{Math.ceil(cantidad / 8) !== 1 ? 's' : ''}
+                GENERAR ({cantidad}) · {hojasNecesarias} hoja{hojasNecesarias !== 1 ? 's' : ''}
               </>
             )}
           </Button>
@@ -705,7 +729,7 @@ export default function EtiquetasPage() {
 
           {selectedProducto && (
             <p className="text-xs text-center text-muted-foreground">
-              📄 Se imprimirán {cantidad} etiquetas en {Math.ceil(cantidad / 8)} hoja{Math.ceil(cantidad / 8) !== 1 ? 's' : ''} A4 (8 por hoja)
+              📄 {cantidad} etiquetas en {hojasNecesarias} hoja{hojasNecesarias !== 1 ? 's' : ''} A4 (24 por hoja)
             </p>
           )}
         </div>
