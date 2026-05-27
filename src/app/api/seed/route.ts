@@ -21,6 +21,16 @@ function getTursoClient(): Client {
 async function seedTurso(client: Client): Promise<string[]> {
   const results: string[] = []
 
+  const safeStep = async (label: string, fn: () => Promise<void>) => {
+    try {
+      await fn()
+      results.push(label)
+    } catch (e: any) {
+      results.push(`ERROR en ${label}: ${e.message || String(e)}`)
+      throw e
+    }
+  }
+
   // 1. PAÍS
   await client.execute("INSERT OR IGNORE INTO Pais (nombre) VALUES ('Argentina')")
   const paisId = Number((await client.execute("SELECT id FROM Pais WHERE nombre = 'Argentina'")).rows[0]?.id)
@@ -550,7 +560,7 @@ async function seedTurso(client: Client): Promise<string[]> {
   ]
   for (const prod of productosLanding) {
     await client.execute({
-      sql: 'INSERT OR IGNORE INTO Producto (id,nombre,descripcion,categoria,precio,peso,destacado,orden,imagen,stock) VALUES (?,?,?,?,?,?,?,?,NULL,1)',
+      sql: 'INSERT OR IGNORE INTO Producto (id,nombre,descripcion,categoria,precio,peso,destacado,orden,imagen,stock,createdAt,updatedAt) VALUES (?,?,?,?,?,?,?,?,NULL,1,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)',
       args: [prod.id, prod.n, prod.d, prod.cat, prod.pr, prod.pe, prod.de, prod.o]
     })
   }
@@ -587,7 +597,18 @@ export async function POST(request: NextRequest) {
     // Detect Turso and use @libsql/client directly
     if (isTurso()) {
       const client = getTursoClient()
-      const results = await seedTurso(client)
+      let results: string[] = []
+      try {
+        results = await seedTurso(client)
+      } catch (seedError: any) {
+        console.error('[Seed Turso Error]', seedError)
+        return NextResponse.json({
+          error: 'Error al ejecutar seed',
+          details: seedError.message || String(seedError),
+          version: 'v3-turso-fix',
+          completedSteps: results,
+        }, { status: 500 })
+      }
       return NextResponse.json({
         success: true,
         version: 'v3-turso-fix',
