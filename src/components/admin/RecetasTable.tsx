@@ -343,7 +343,7 @@ export default function RecetasTable() {
           if (!open) setSelectedReceta(null)
         }}
       >
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-5xl w-[95vw] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-marron">
               {selectedReceta ? 'Editar Receta' : 'Nueva Receta'}

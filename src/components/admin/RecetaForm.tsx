@@ -433,12 +433,12 @@ export default function RecetaForm({ receta, onSuccess, onCancel }: RecetaFormPr
               <Table>
                 <TableHeader>
                   <TableRow className="bg-muted/50">
-                    <TableHead className="w-[140px]">Tipo</TableHead>
+                    <TableHead className="w-[150px]">Tipo</TableHead>
                     <TableHead>Producto</TableHead>
-                    <TableHead className="w-[110px]">Cantidad</TableHead>
-                    <TableHead className="w-[100px]">Unidad</TableHead>
-                    <TableHead className="w-[130px] text-right">Costo Est.</TableHead>
-                    <TableHead className="w-[50px]"></TableHead>
+                    <TableHead className="w-[100px]">Cantidad</TableHead>
+                    <TableHead className="w-[90px]">Unidad</TableHead>
+                    <TableHead className="w-[120px] text-right">Costo Est.</TableHead>
+                    <TableHead className="w-[44px]"></TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
