@@ -429,16 +429,15 @@ export default function RecetaForm({ receta, onSuccess, onCancel }: RecetaFormPr
           </div>
         ) : (
           <div className="rounded-lg border border-marron/10 overflow-hidden">
-            <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow className="bg-muted/50">
-                    <TableHead className="w-[150px]">Tipo</TableHead>
-                    <TableHead>Producto</TableHead>
-                    <TableHead className="w-[100px]">Cantidad</TableHead>
-                    <TableHead className="w-[90px]">Unidad</TableHead>
-                    <TableHead className="w-[120px] text-right">Costo Est.</TableHead>
-                    <TableHead className="w-[44px]"></TableHead>
+                    <TableHead className="w-[140px] min-w-[140px]">Tipo</TableHead>
+                    <TableHead className="min-w-[180px]">Producto</TableHead>
+                    <TableHead className="w-[90px] min-w-[90px]">Cantidad</TableHead>
+                    <TableHead className="w-[80px] min-w-[80px]">Unidad</TableHead>
+                    <TableHead className="w-[110px] min-w-[110px] text-right">Costo Est.</TableHead>
+                    <TableHead className="w-[40px] min-w-[40px]"></TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -525,7 +524,6 @@ export default function RecetaForm({ receta, onSuccess, onCancel }: RecetaFormPr
                   ))}
                 </TableBody>
               </Table>
-            </div>
 
             {/* Total row */}
             <div className="flex items-center justify-end gap-3 px-4 py-3 bg-muted/30 border-t border-marron/10">
