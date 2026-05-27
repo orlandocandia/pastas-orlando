@@ -21,19 +21,18 @@ function getTursoClient(): Client {
 async function seedTurso(client: Client): Promise<string[]> {
   const results: string[] = []
 
-  const safeStep = async (label: string, fn: () => Promise<void>) => {
+  // Wrapper that tracks progress and provides error context
+  const exec = async (sql: string, args?: any[]) => {
     try {
-      await fn()
-      results.push(label)
+      return await client.execute({ sql, args })
     } catch (e: any) {
-      results.push(`ERROR en ${label}: ${e.message || String(e)}`)
-      throw e
+      throw new Error(`SQL error: ${e.message} | SQL: ${sql.slice(0, 120)}${args ? ` | Args: ${JSON.stringify(args).slice(0, 100)}` : ''}`)
     }
   }
 
   // 1. PAÍS
-  await client.execute("INSERT OR IGNORE INTO Pais (nombre) VALUES ('Argentina')")
-  const paisId = Number((await client.execute("SELECT id FROM Pais WHERE nombre = 'Argentina'")).rows[0]?.id)
+  await exec("INSERT OR IGNORE INTO Pais (nombre) VALUES ('Argentina')")
+  const paisId = Number((await exec("SELECT id FROM Pais WHERE nombre = 'Argentina'")).rows[0]?.id)
   results.push('País: Argentina')
 
   // 2. PROVINCIAS
@@ -46,8 +45,8 @@ async function seedTurso(client: Client): Promise<string[]> {
   ]
   const provIds: Record<string, number> = {}
   for (const n of provinciasData) {
-    await client.execute({ sql: 'INSERT OR IGNORE INTO Provincia (id_pais,nombre) VALUES (?,?)', args: [paisId, n] })
-    provIds[n] = Number((await client.execute({ sql: "SELECT id FROM Provincia WHERE nombre=? AND id_pais=?", args: [n, paisId] })).rows[0]?.id)
+    await exec('INSERT OR IGNORE INTO Provincia (id_pais,nombre) VALUES (?,?)', [paisId, n])
+    provIds[n] = Number((await exec("SELECT id FROM Provincia WHERE nombre=? AND id_pais=?", [n, paisId])).rows[0]?.id)
   }
   results.push(`${provinciasData.length} provincias`)
 
@@ -82,8 +81,8 @@ async function seedTurso(client: Client): Promise<string[]> {
   for (const d of deptosData) {
     const idP = provIds[d.p]
     if (!idP) continue
-    await client.execute({ sql: 'INSERT OR IGNORE INTO Departamento (id_provincia,nombre) VALUES (?,?)', args: [idP, d.n] })
-    depIds[`${d.p}-${d.n}`] = Number((await client.execute({ sql: "SELECT id FROM Departamento WHERE nombre=? AND id_provincia=?", args: [d.n, idP] })).rows[0]?.id)
+    await exec('INSERT OR IGNORE INTO Departamento (id_provincia,nombre) VALUES (?,?)', [idP, d.n])
+    depIds[`${d.p}-${d.n}`] = Number((await exec("SELECT id FROM Departamento WHERE nombre=? AND id_provincia=?", [d.n, idP])).rows[0]?.id)
   }
   results.push(`${Object.keys(depIds).length} departamentos`)
 
@@ -126,47 +125,47 @@ async function seedTurso(client: Client): Promise<string[]> {
   for (const m of munisData) {
     const idD = depIds[m.dk]
     if (!idD) continue
-    await client.execute({ sql: 'INSERT OR IGNORE INTO Municipio (id_departamento,nombre) VALUES (?,?)', args: [idD, m.n] })
+    await exec('INSERT OR IGNORE INTO Municipio (id_departamento,nombre) VALUES (?,?)', [idD, m.n])
   }
   results.push(`${munisData.length} municipios`)
 
   // 5-6. TIPOS DE DIRECCIÓN y CONTACTO
-  for (const v of ['particular', 'comercial', 'entrega']) await client.execute({ sql: 'INSERT OR IGNORE INTO TipoDireccion (nombre) VALUES (?)', args: [v] })
-  for (const v of ['email', 'teléfono', 'WhatsApp']) await client.execute({ sql: 'INSERT OR IGNORE INTO TipoContacto (nombre) VALUES (?)', args: [v] })
+  for (const v of ['particular', 'comercial', 'entrega']) await exec('INSERT OR IGNORE INTO TipoDireccion (nombre) VALUES (?)', [v])
+  for (const v of ['email', 'teléfono', 'WhatsApp']) await exec('INSERT OR IGNORE INTO TipoContacto (nombre) VALUES (?)', [v])
   results.push('Tipos de dirección y contacto')
 
   // 7. EMPRESAS TELEFÓNICAS
   for (const e of [{ n: 'Personal', c: 'PER' }, { n: 'Claro', c: 'CLA' }, { n: 'Movistar', c: 'MOV' }, { n: 'Tuenti', c: 'TUE' }]) {
-    await client.execute({ sql: 'INSERT OR IGNORE INTO EmpresaTelefonica (nombre,codigo) VALUES (?,?)', args: [e.n, e.c] })
+    await exec('INSERT OR IGNORE INTO EmpresaTelefonica (nombre,codigo) VALUES (?,?)', [e.n, e.c])
   }
   results.push('4 empresas telefónicas')
 
   // 8. SERVICIOS DE CORREO ELECTRÓNICO
   for (const s of [{ n: 'Gmail', d: 'gmail.com' }, { n: 'Outlook/Hotmail', d: 'outlook.com' }, { n: 'Yahoo', d: 'yahoo.com' }, { n: 'ICloud', d: 'icloud.com' }]) {
-    await client.execute({ sql: 'INSERT OR IGNORE INTO ServicioCorreoElectronico (nombre,dominio) VALUES (?,?)', args: [s.n, s.d] })
+    await exec('INSERT OR IGNORE INTO ServicioCorreoElectronico (nombre,dominio) VALUES (?,?)', [s.n, s.d])
   }
   results.push('4 servicios de correo electrónico')
 
   // 9. TIPOS DE PLATAFORMA
   for (const t of [{ n: 'Web', d: 'Aplicación web' }, { n: 'Android', d: 'Aplicación móvil Android' }, { n: 'iOS', d: 'Aplicación móvil iOS' }, { n: 'API', d: 'Servicio API REST' }]) {
-    await client.execute({ sql: 'INSERT OR IGNORE INTO TipoPlataforma (nombre,descripcion) VALUES (?,?)', args: [t.n, t.d] })
+    await exec('INSERT OR IGNORE INTO TipoPlataforma (nombre,descripcion) VALUES (?,?)', [t.n, t.d])
   }
   results.push('4 tipos de plataforma')
 
   // 10. TIPOS DE ENTIDAD
   for (const t of [{ n: 'física', d: 'Persona física' }, { n: 'jurídica', d: 'Persona jurídica / Empresa' }]) {
-    await client.execute({ sql: 'INSERT OR IGNORE INTO TipoEntidad (nombre,descripcion) VALUES (?,?)', args: [t.n, t.d] })
+    await exec('INSERT OR IGNORE INTO TipoEntidad (nombre,descripcion) VALUES (?,?)', [t.n, t.d])
   }
   results.push('2 tipos de entidad')
 
   // 11. ESTADOS DE SESIÓN
   for (const e of [{ n: 'activa', d: 'Sesión activa del usuario' }, { n: 'expirada', d: 'Sesión expirada por inactividad' }, { n: 'cerrada', d: 'Sesión cerrada por el usuario' }, { n: 'revocada', d: 'Sesión revocada por seguridad' }]) {
-    await client.execute({ sql: 'INSERT OR IGNORE INTO EstadoSesion (nombre,descripcion) VALUES (?,?)', args: [e.n, e.d] })
+    await exec('INSERT OR IGNORE INTO EstadoSesion (nombre,descripcion) VALUES (?,?)', [e.n, e.d])
   }
   results.push('4 estados de sesión')
 
   // 12. TIPOS DE PERSONA
-  for (const n of ['cliente', 'proveedor', 'empleado']) await client.execute({ sql: 'INSERT OR IGNORE INTO TipoPersona (nombre) VALUES (?)', args: [n] })
+  for (const n of ['cliente', 'proveedor', 'empleado']) await exec('INSERT OR IGNORE INTO TipoPersona (nombre) VALUES (?)', [n])
   results.push('3 tipos de persona')
 
   // 13. CATEGORÍAS DE MATERIAS PRIMAS
@@ -181,7 +180,7 @@ async function seedTurso(client: Client): Promise<string[]> {
     { n: 'Salsas y conservas', d: 'Tomates, salsa de tomate, conservas' },
     { n: 'Aditivos y suplementos', d: 'Colorantes, conservantes, mejoradores' },
   ]) {
-    await client.execute({ sql: 'INSERT OR IGNORE INTO CategoriaMateriaPrima (nombre,descripcion) VALUES (?,?)', args: [c.n, c.d] })
+    await exec('INSERT OR IGNORE INTO CategoriaMateriaPrima (nombre,descripcion) VALUES (?,?)', [c.n, c.d])
   }
   results.push('9 categorías de materias primas')
 
@@ -194,7 +193,7 @@ async function seedTurso(client: Client): Promise<string[]> {
     { n: 'Utensilios descartables', d: 'Guantes, cofias, delantales descartables' },
     { n: 'Insumos de oficina', d: 'Papel, cartuchos, útiles' },
   ]) {
-    await client.execute({ sql: 'INSERT OR IGNORE INTO TipoInsumo (nombre,descripcion) VALUES (?,?)', args: [t.n, t.d] })
+    await exec('INSERT OR IGNORE INTO TipoInsumo (nombre,descripcion) VALUES (?,?)', [t.n, t.d])
   }
   results.push('6 tipos de insumos')
 
@@ -213,7 +212,7 @@ async function seedTurso(client: Client): Promise<string[]> {
     { n: 'Lasagnas y canelones', d: 'Platos armados listos para hornear' },
     { n: 'Postres', d: 'Postres a base de pasta' },
   ]) {
-    await client.execute({ sql: 'INSERT OR IGNORE INTO CategoriaProductoTerminado (nombre,descripcion) VALUES (?,?)', args: [c.n, c.d] })
+    await exec('INSERT OR IGNORE INTO CategoriaProductoTerminado (nombre,descripcion) VALUES (?,?)', [c.n, c.d])
   }
   results.push('12 categorías de productos terminados')
 
@@ -230,7 +229,7 @@ async function seedTurso(client: Client): Promise<string[]> {
     { n: 'Fargo', d: 'Alimentos' },
     { n: 'Sin marca', d: 'Genérico / sin marca' },
   ]) {
-    await client.execute({ sql: 'INSERT OR IGNORE INTO Marca (nombre,descripcion) VALUES (?,?)', args: [m.n, m.d] })
+    await exec('INSERT OR IGNORE INTO Marca (nombre,descripcion) VALUES (?,?)', [m.n, m.d])
   }
   results.push('10 marcas')
 
@@ -252,7 +251,7 @@ async function seedTurso(client: Client): Promise<string[]> {
     { c: 'bolsa', n: 'Bolsa', cb: 1, tm: 'unidad' },
     { c: 'caja', n: 'Caja', cb: 1, tm: 'unidad' },
   ]) {
-    await client.execute({ sql: 'INSERT OR IGNORE INTO UnidadMedida (codigo,nombre,conversion_a_base,tipo_medida) VALUES (?,?,?,?)', args: [u.c, u.n, u.cb, u.tm] })
+    await exec('INSERT OR IGNORE INTO UnidadMedida (codigo,nombre,conversion_a_base,tipo_medida) VALUES (?,?,?,?)', [u.c, u.n, u.cb, u.tm])
   }
   results.push('15 unidades de medida')
 
@@ -262,7 +261,7 @@ async function seedTurso(client: Client): Promise<string[]> {
     { n: 'Mercado Pago', ri: 0, rc: 1 },
     { n: 'Transferencia bancaria', ri: 1, rc: 1 },
   ]) {
-    await client.execute({ sql: 'INSERT OR IGNORE INTO FormaPago (nombre_forma,requiere_identificacion,requiere_cuenta) VALUES (?,?,?)', args: [f.n, f.ri, f.rc] })
+    await exec('INSERT OR IGNORE INTO FormaPago (nombre_forma,requiere_identificacion,requiere_cuenta) VALUES (?,?,?)', [f.n, f.ri, f.rc])
   }
   results.push('3 formas de pago')
 
@@ -282,35 +281,24 @@ async function seedTurso(client: Client): Promise<string[]> {
     { n: 'expirado', ea: 'presupuestos', ef: 1 },
     { n: 'convertido', ea: 'presupuestos', ef: 1 },
   ]) {
-    await client.execute({ sql: 'INSERT OR IGNORE INTO EstadoGeneral (nombre_estado,entidad_aplicable,es_final) VALUES (?,?,?)', args: [e.n, e.ea, e.ef] })
+    await exec('INSERT OR IGNORE INTO EstadoGeneral (nombre_estado,entidad_aplicable,es_final) VALUES (?,?,?)', [e.n, e.ea, e.ef])
   }
   results.push('13 estados generales')
 
   // 20-21. PERSONA + USUARIO ADMIN
-  await client.execute({
-    sql: "INSERT OR IGNORE INTO Persona (nombre,apellido,numero_documento,tipo_persona,observaciones) VALUES ('Orlando','Candia','00000000','empleado','Administrador del sistema')"
-  })
-  const personaId = Number((await client.execute("SELECT id FROM Persona WHERE numero_documento='00000000'")).rows[0]?.id)
+  await exec("INSERT OR IGNORE INTO Persona (nombre,apellido,numero_documento,tipo_persona,observaciones) VALUES ('Orlando','Candia','00000000','empleado','Administrador del sistema')")
+  const personaId = Number((await exec("SELECT id FROM Persona WHERE numero_documento='00000000'")).rows[0]?.id)
   const hashedPassword = await bcrypt.hash('Pastas2026!', 10)
   // INSERT OR IGNORE won't update password if user already exists, so we also UPDATE
-  await client.execute({
-    sql: 'INSERT OR IGNORE INTO Usuario (id_persona,email,password,estado) VALUES (?,?,?,?)',
-    args: [personaId, 'orlando.candia@gmail.com', hashedPassword, 1]
-  })
-  await client.execute({
-    sql: 'UPDATE Usuario SET password = ?, estado = 1 WHERE email = ?',
-    args: [hashedPassword, 'orlando.candia@gmail.com']
-  })
-  const usuarioId = Number((await client.execute("SELECT id FROM Usuario WHERE email='orlando.candia@gmail.com'")).rows[0]?.id)
+  await exec('INSERT OR IGNORE INTO Usuario (id_persona,email,password,estado) VALUES (?,?,?,?)', [personaId, 'orlando.candia@gmail.com', hashedPassword, 1])
+  await exec('UPDATE Usuario SET password = ?, estado = 1 WHERE email = ?', [hashedPassword, 'orlando.candia@gmail.com'])
+  const usuarioId = Number((await exec("SELECT id FROM Usuario WHERE email='orlando.candia@gmail.com'")).rows[0]?.id)
   results.push(`Admin: Orlando Candia (usuario_id=${usuarioId}, password updated)`)
 
   // Contacto email
-  const tipoEmailId = Number((await client.execute("SELECT id FROM TipoContacto WHERE nombre='email'")).rows[0]?.id)
+  const tipoEmailId = Number((await exec("SELECT id FROM TipoContacto WHERE nombre='email'")).rows[0]?.id)
   if (tipoEmailId && personaId) {
-    await client.execute({
-      sql: 'INSERT OR IGNORE INTO Contacto (id_persona,id_tipo_contacto,valor,es_principal,verificado) VALUES (?,?,?,?,?)',
-      args: [personaId, tipoEmailId, 'orlando.candia@gmail.com', 1, 1]
-    })
+    await exec('INSERT OR IGNORE INTO Contacto (id_persona,id_tipo_contacto,valor,es_principal,verificado) VALUES (?,?,?,?,?)', [personaId, tipoEmailId, 'orlando.candia@gmail.com', 1, 1])
   }
   results.push('Contacto email admin')
 
@@ -321,11 +309,11 @@ async function seedTurso(client: Client): Promise<string[]> {
     { n: 'ventas', d: 'Acceso a ventas y pedidos', ed: 0 },
     { n: 'lectura', d: 'Solo lectura de datos', ed: 1 },
   ]) {
-    await client.execute({ sql: 'INSERT OR IGNORE INTO Rol (nombre,descripcion,es_default) VALUES (?,?,?)', args: [r.n, r.d, r.ed] })
+    await exec('INSERT OR IGNORE INTO Rol (nombre,descripcion,es_default) VALUES (?,?,?)', [r.n, r.d, r.ed])
   }
-  const rolAdminId = Number((await client.execute("SELECT id FROM Rol WHERE nombre='admin'")).rows[0]?.id)
+  const rolAdminId = Number((await exec("SELECT id FROM Rol WHERE nombre='admin'")).rows[0]?.id)
   if (usuarioId && rolAdminId) {
-    await client.execute({ sql: 'INSERT OR IGNORE INTO UsuarioRol (id_usuario,id_rol) VALUES (?,?)', args: [usuarioId, rolAdminId] })
+    await exec('INSERT OR IGNORE INTO UsuarioRol (id_usuario,id_rol) VALUES (?,?)', [usuarioId, rolAdminId])
   }
   results.push('4 roles + admin asignado')
 
@@ -334,30 +322,30 @@ async function seedTurso(client: Client): Promise<string[]> {
   const accs = ['ver', 'crear', 'editar', 'eliminar']
   for (const mod of mods) {
     for (const acc of accs) {
-      await client.execute({ sql: 'INSERT OR IGNORE INTO Permiso (nombre,modulo,descripcion) VALUES (?,?,?)', args: [`${mod}.${acc}`, mod, `${acc} en ${mod}`] })
+      await exec('INSERT OR IGNORE INTO Permiso (nombre,modulo,descripcion) VALUES (?,?,?)', [`${mod}.${acc}`, mod, `${acc} en ${mod}`])
     }
   }
   for (const n of ['dashboard.ver', 'configuracion.ver', 'configuracion.editar', 'opiniones.ver', 'opiniones.editar']) {
-    await client.execute({ sql: 'INSERT OR IGNORE INTO Permiso (nombre,modulo,descripcion) VALUES (?,?,?)', args: [n, n.split('.')[0], n] })
+    await exec('INSERT OR IGNORE INTO Permiso (nombre,modulo,descripcion) VALUES (?,?,?)', [n, n.split('.')[0], n])
   }
 
   // Assign all permissions to admin role
-  const allPerms = await client.execute('SELECT id FROM Permiso')
+  const allPerms = await exec('SELECT id FROM Permiso')
   for (const row of allPerms.rows) {
     const pid = Number(row.id)
     if (rolAdminId && pid) {
-      await client.execute({ sql: 'INSERT OR IGNORE INTO RolPermiso (id_rol,id_permiso) VALUES (?,?)', args: [rolAdminId, pid] })
+      await exec('INSERT OR IGNORE INTO RolPermiso (id_rol,id_permiso) VALUES (?,?)', [rolAdminId, pid])
     }
   }
   results.push(`${allPerms.rows.length} permisos + asignados al rol admin`)
 
   // Helper to get category/unit IDs by name/code
   const catId = async (table: string, nombre: string) =>
-    Number((await client.execute({ sql: `SELECT id FROM ${table} WHERE nombre=?`, args: [nombre] })).rows[0]?.id) || 0
+    Number((await exec(`SELECT id FROM ${table} WHERE nombre=?`, [nombre])).rows[0]?.id) || 0
   const umId = async (codigo: string) =>
-    Number((await client.execute({ sql: 'SELECT id FROM UnidadMedida WHERE codigo=?', args: [codigo] })).rows[0]?.id) || 0
+    Number((await exec('SELECT id FROM UnidadMedida WHERE codigo=?', [codigo])).rows[0]?.id) || 0
   const tiId = async (nombre: string) =>
-    Number((await client.execute({ sql: 'SELECT id FROM TipoInsumo WHERE nombre=?', args: [nombre] })).rows[0]?.id) || 0
+    Number((await exec('SELECT id FROM TipoInsumo WHERE nombre=?', [nombre])).rows[0]?.id) || 0
 
   // 24. PRODUCTOS TERMINADOS (con tipo_harina: con_gluten, integral, sin_gluten)
   const productos = [
@@ -453,10 +441,7 @@ async function seedTurso(client: Client): Promise<string[]> {
   for (const pt of productos) {
     const idCat = await catId('CategoriaProductoTerminado', pt.cat)
     if (!idCat) continue
-    await client.execute({
-      sql: 'INSERT OR IGNORE INTO ProductoTerminado (codigo,nombre,id_categoria,tipo_harina,peso_unitario_aprox,precio_venta,stock_minimo,destacado,orden,visible_en_landing,estado,stock_actual) VALUES (?,?,?,?,?,?,?,?,1,1,0)',
-      args: [pt.c, pt.n, idCat, pt.th, pt.p, pt.pr, pt.sm, pt.de, pt.o]
-    })
+    await exec('INSERT OR IGNORE INTO ProductoTerminado (codigo,nombre,id_categoria,tipo_harina,peso_unitario_aprox,precio_venta,stock_minimo,destacado,orden,visible_en_landing,estado,stock_actual) VALUES (?,?,?,?,?,?,?,?,1,1,0)', [pt.c, pt.n, idCat, pt.th, pt.p, pt.pr, pt.sm, pt.de, pt.o])
   }
   results.push(`${productos.length} productos terminados`)
 
@@ -494,10 +479,7 @@ async function seedTurso(client: Client): Promise<string[]> {
     const idCat = await catId('CategoriaMateriaPrima', mp.cat)
     const idUm = await umId(mp.um)
     if (!idCat || !idUm) continue
-    await client.execute({
-      sql: 'INSERT OR IGNORE INTO MateriaPrima (codigo,nombre,id_categoria,id_unidad_base,stock_actual,stock_minimo,precio_compra_referencia,estado) VALUES (?,?,?,?,?,?,?,1)',
-      args: [mp.c, mp.n, idCat, idUm, mp.s, mp.sm, mp.pr]
-    })
+    await exec('INSERT OR IGNORE INTO MateriaPrima (codigo,nombre,id_categoria,id_unidad_base,stock_actual,stock_minimo,precio_compra_referencia,estado) VALUES (?,?,?,?,?,?,?,1)', [mp.c, mp.n, idCat, idUm, mp.s, mp.sm, mp.pr])
   }
   results.push(`${mps.length} materias primas`)
 
@@ -520,17 +502,14 @@ async function seedTurso(client: Client): Promise<string[]> {
     const idTi = await tiId(ins.ti)
     const idUm = await umId(ins.um)
     if (!idTi || !idUm) continue
-    await client.execute({
-      sql: 'INSERT OR IGNORE INTO Insumo (codigo,nombre,id_tipo_insumo,id_unidad_base,stock_actual,stock_minimo,precio_compra_referencia,estado) VALUES (?,?,?,?,?,?,?,1)',
-      args: [ins.c, ins.n, idTi, idUm, ins.s, ins.sm, ins.pr]
-    })
+    await exec('INSERT OR IGNORE INTO Insumo (codigo,nombre,id_tipo_insumo,id_unidad_base,stock_actual,stock_minimo,precio_compra_referencia,estado) VALUES (?,?,?,?,?,?,?,1)', [ins.c, ins.n, idTi, idUm, ins.s, ins.sm, ins.pr])
   }
   results.push(`${insumos.length} insumos`)
 
   // 27. PRODUCTOS LANDING
   // Safety: ensure Producto table exists (may be missed by db-push-turso parser)
   try {
-    await client.execute(`CREATE TABLE IF NOT EXISTS "Producto" (
+    await exec(`CREATE TABLE IF NOT EXISTS "Producto" (
       "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
       "nombre" TEXT NOT NULL,
       "descripcion" TEXT,
@@ -559,10 +538,7 @@ async function seedTurso(client: Client): Promise<string[]> {
     { id: 10, n: 'Canelones de Jamón y Queso', d: 'Canelones rellenos de jamón y queso, gratinados con salsa blanca.', cat: 'Platos armados', pr: 6500, pe: '800g', de: 0, o: 10 },
   ]
   for (const prod of productosLanding) {
-    await client.execute({
-      sql: 'INSERT OR IGNORE INTO Producto (id,nombre,descripcion,categoria,precio,peso,destacado,orden,imagen,stock,createdAt,updatedAt) VALUES (?,?,?,?,?,?,?,?,NULL,1,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)',
-      args: [prod.id, prod.n, prod.d, prod.cat, prod.pr, prod.pe, prod.de, prod.o]
-    })
+    await exec('INSERT OR IGNORE INTO Producto (id,nombre,descripcion,categoria,precio,peso,destacado,orden,imagen,stock,createdAt,updatedAt) VALUES (?,?,?,?,?,?,?,?,NULL,1,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)', [prod.id, prod.n, prod.d, prod.cat, prod.pr, prod.pe, prod.de, prod.o])
   }
   results.push(`${productosLanding.length} productos landing`)
 
@@ -573,10 +549,7 @@ async function seedTurso(client: Client): Promise<string[]> {
     { id: 3, n: 'Plaza Italia', d: 'Plaza Italia, Corrientes', la: -27.4690, lo: -58.8350, h: '{"sabados": "8:00-12:00"}' },
   ]
   for (const pe of puntosEncuentro) {
-    await client.execute({
-      sql: 'INSERT OR IGNORE INTO PuntoEncuentro (id,nombre,direccion,latitud,longitud,horarios,activo) VALUES (?,?,?,?,?,?,1)',
-      args: [pe.id, pe.n, pe.d, pe.la, pe.lo, pe.h]
-    })
+    await exec('INSERT OR IGNORE INTO PuntoEncuentro (id,nombre,direccion,latitud,longitud,horarios,activo) VALUES (?,?,?,?,?,?,1)', [pe.id, pe.n, pe.d, pe.la, pe.lo, pe.h])
   }
   results.push(`${puntosEncuentro.length} puntos de encuentro`)
 
