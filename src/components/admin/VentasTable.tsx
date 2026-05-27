@@ -144,7 +144,7 @@ export default function VentasTable() {
 
   const fetchClientes = useCallback(async () => {
     try {
-      const res = await fetch('/api/personas?tipo_persona=cliente&limite=100')
+      const res = await fetch('/api/personas?tipo=cliente&limite=100')
       if (!res.ok) throw new Error('Error al cargar clientes')
       const data = await res.json()
       setClientes(data.personas || [])

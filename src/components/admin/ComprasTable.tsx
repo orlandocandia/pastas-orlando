@@ -139,7 +139,7 @@ export default function ComprasTable() {
 
   const fetchProveedores = useCallback(async () => {
     try {
-      const res = await fetch('/api/personas?tipo_persona=proveedor&limite=100')
+      const res = await fetch('/api/personas?tipo=proveedor&limite=100')
       if (!res.ok) throw new Error('Error al cargar proveedores')
       const data = await res.json()
       setProveedores(data.personas || [])

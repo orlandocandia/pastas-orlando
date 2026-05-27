@@ -89,7 +89,7 @@ export default function ProduccionForm({ onSuccess, onCancel }: ProduccionFormPr
       try {
         const [recRes, perRes] = await Promise.all([
           fetch('/api/recetas?activo=true&limite=100'),
-          fetch('/api/personas?tipo_persona=empleado&limite=100'),
+          fetch('/api/personas?tipo=empleado&limite=100'),
         ])
 
         const recData = await recRes.json()

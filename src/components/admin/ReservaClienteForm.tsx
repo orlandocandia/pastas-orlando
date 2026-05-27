@@ -83,7 +83,7 @@ export default function ReservaClienteForm({ reserva, onSuccess, onCancel }: Res
     async function loadData() {
       try {
         const [cliRes, estRes, ptRes] = await Promise.all([
-          fetch('/api/personas?tipo_persona=cliente&limite=100'),
+          fetch('/api/personas?tipo=cliente&limite=100'),
           fetch('/api/estados-generales?entidad_aplicable=reserva_cliente'),
           fetch('/api/productos-terminados?limite=200&estado=true'),
         ])

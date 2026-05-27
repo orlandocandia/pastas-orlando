@@ -123,7 +123,7 @@ export default function VentaForm({ venta, fromPedido, onSuccess, onCancel }: Ve
     async function loadData() {
       try {
         const [cliRes, fpRes, estRes, ptRes, venRes, pedRes] = await Promise.all([
-          fetch('/api/personas?tipo_persona=cliente&limite=100'),
+          fetch('/api/personas?tipo=cliente&limite=100'),
           fetch('/api/formas-pago'),
           fetch('/api/estados-generales?entidad_aplicable=venta'),
           fetch('/api/productos-terminados?limite=200&estado=true'),

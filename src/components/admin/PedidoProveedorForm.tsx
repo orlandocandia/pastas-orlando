@@ -99,7 +99,7 @@ export default function PedidoProveedorForm({ pedido, onSuccess, onCancel }: Ped
     async function loadData() {
       try {
         const [provRes, estRes, mpRes, insRes] = await Promise.all([
-          fetch('/api/personas?tipo_persona=proveedor&limite=100'),
+          fetch('/api/personas?tipo=proveedor&limite=100'),
           fetch('/api/estados-generales?entidad_aplicable=pedido_proveedor'),
           fetch('/api/materias-primas?limite=200&estado=true'),
           fetch('/api/insumos?limite=200&estado=true'),

@@ -60,9 +60,9 @@ interface PersonasResponse {
 // ==================== Tipo badge colors ====================
 
 const tipoBadgeColors: Record<string, string> = {
-  Cliente: 'bg-oliva/10 text-oliva hover:bg-oliva/20',
-  Proveedor: 'bg-mostaza/10 text-mostaza hover:bg-mostaza/20',
-  Empleado: 'bg-rojo/10 text-rojo hover:bg-rojo/20',
+  cliente: 'bg-oliva/10 text-oliva hover:bg-oliva/20',
+  proveedor: 'bg-mostaza/10 text-mostaza hover:bg-mostaza/20',
+  empleado: 'bg-rojo/10 text-rojo hover:bg-rojo/20',
 }
 
 const defaultBadgeColor = 'bg-marron/10 text-marron hover:bg-marron/20'
@@ -175,9 +175,9 @@ export default function PersonasTable({ onNewPersona }: PersonasTableProps) {
         <Tabs value={tipoFilter} onValueChange={setTipoFilter}>
           <TabsList className="bg-muted/50">
             <TabsTrigger value="todos">Todos</TabsTrigger>
-            <TabsTrigger value="Cliente">Clientes</TabsTrigger>
-            <TabsTrigger value="Proveedor">Proveedores</TabsTrigger>
-            <TabsTrigger value="Empleado">Empleados</TabsTrigger>
+            <TabsTrigger value="cliente">Clientes</TabsTrigger>
+            <TabsTrigger value="proveedor">Proveedores</TabsTrigger>
+            <TabsTrigger value="empleado">Empleados</TabsTrigger>
           </TabsList>
         </Tabs>
       </div>
@@ -242,7 +242,7 @@ export default function PersonasTable({ onNewPersona }: PersonasTableProps) {
                           tipoBadgeColors[persona.tipo_persona] || defaultBadgeColor
                         }
                       >
-                        {persona.tipo_persona}
+                        {persona.tipo_persona.charAt(0).toUpperCase() + persona.tipo_persona.slice(1)}
                       </Badge>
                     </TableCell>
                     <TableCell className="hidden md:table-cell text-sm text-muted-foreground">

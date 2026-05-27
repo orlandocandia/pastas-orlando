@@ -119,7 +119,7 @@ export default function CompraForm({ compra, onSuccess, onCancel }: CompraFormPr
     async function loadData() {
       try {
         const [provRes, fpRes, estRes, mpRes, insRes, marRes] = await Promise.all([
-          fetch('/api/personas?tipo_persona=proveedor&limite=100'),
+          fetch('/api/personas?tipo=proveedor&limite=100'),
           fetch('/api/formas-pago'),
           fetch('/api/estados-generales?entidad_aplicable=compra'),
           fetch('/api/materias-primas?limite=200&estado=true'),

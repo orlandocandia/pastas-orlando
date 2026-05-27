@@ -5,13 +5,14 @@ import { db } from '@/lib/db'
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
-    const tipo = searchParams.get('tipo')
+    // Aceptar tanto "tipo" como "tipo_persona" como parámetro de consulta
+    const tipo = searchParams.get('tipo') || searchParams.get('tipo_persona')
     const buscar = searchParams.get('buscar')
     const pagina = parseInt(searchParams.get('pagina') || '1')
     const limite = parseInt(searchParams.get('limite') || '10')
 
     const where: Record<string, unknown> = {}
-    if (tipo && tipo !== 'todos') where.tipo_persona = tipo
+    if (tipo && tipo !== 'todos') where.tipo_persona = tipo.toLowerCase()
     if (buscar) {
       where.OR = [
         { nombre: { contains: buscar } },
