@@ -54,15 +54,27 @@ export async function PUT(
       )
     }
 
-    // Obtener el estado "completado"
-    const estadoCompletado = await db.estadoGeneral.findFirst({
+    // Obtener el estado "completado" (crear si no existe)
+    let estadoCompletado = await db.estadoGeneral.findFirst({
       where: { nombre_estado: 'completado' },
     })
     if (!estadoCompletado) {
-      return NextResponse.json(
-        { error: 'No se encontró el estado "completado" en la base de datos' },
-        { status: 400 }
-      )
+      console.warn('[Produccion] Estado "completado" no encontrado, creándolo...')
+      try {
+        estadoCompletado = await db.estadoGeneral.create({
+          data: {
+            nombre_estado: 'completado',
+            entidad_aplicable: 'general',
+            es_final: true,
+          },
+        })
+      } catch (createError) {
+        console.error('[Produccion] Error al crear estado "completado":', createError)
+        return NextResponse.json(
+          { error: 'No se encontró ni se pudo crear el estado "completado" en la base de datos. Ejecutá el seed primero.' },
+          { status: 400 }
+        )
+      }
     }
 
     // Ejecutar todo en una transacción
@@ -231,6 +243,7 @@ export async function PUT(
     return NextResponse.json(produccionActualizada)
   } catch (error) {
     console.error('Error al completar producción:', error)
-    return NextResponse.json({ error: 'Error al completar producción' }, { status: 500 })
+    const message = error instanceof Error ? error.message : 'Error al completar producción'
+    return NextResponse.json({ error: 'Error al completar producción', detail: message }, { status: 500 })
   }
 }

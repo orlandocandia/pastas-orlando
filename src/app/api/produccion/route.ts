@@ -162,15 +162,27 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Obtener el estado "planificado"
-    const estadoPlanificado = await db.estadoGeneral.findFirst({
+    // Obtener el estado "planificado" (crear si no existe)
+    let estadoPlanificado = await db.estadoGeneral.findFirst({
       where: { nombre_estado: 'planificado' },
     })
     if (!estadoPlanificado) {
-      return NextResponse.json(
-        { error: 'No se encontró el estado "planificado" en la base de datos' },
-        { status: 400 }
-      )
+      console.warn('[Produccion] Estado "planificado" no encontrado, creándolo...')
+      try {
+        estadoPlanificado = await db.estadoGeneral.create({
+          data: {
+            nombre_estado: 'planificado',
+            entidad_aplicable: 'produccion',
+            es_final: false,
+          },
+        })
+      } catch (createError) {
+        console.error('[Produccion] Error al crear estado "planificado":', createError)
+        return NextResponse.json(
+          { error: 'No se encontró ni se pudo crear el estado "planificado" en la base de datos. Ejecutá el seed primero.' },
+          { status: 400 }
+        )
+      }
     }
 
     // Calcular el factor de escala: cuántas veces se produce la receta
@@ -326,6 +338,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(produccion, { status: 201 })
   } catch (error) {
     console.error('Error al crear producción:', error)
-    return NextResponse.json({ error: 'Error al crear producción' }, { status: 500 })
+    const message = error instanceof Error ? error.message : 'Error al crear producción'
+    return NextResponse.json({ error: 'Error al crear producción', detail: message }, { status: 500 })
   }
 }
