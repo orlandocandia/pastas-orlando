@@ -18,6 +18,18 @@ const nextConfig: NextConfig = {
     // At runtime, the Turso adapter in db.ts handles the actual connection
     DATABASE_URL_FILE: 'file:./dev.db',
   },
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '*.blob.vercel-storage.com',
+      },
+      {
+        protocol: 'https',
+        hostname: '*.public.blob.vercel-storage.com',
+      },
+    ],
+  },
 };
 
 export default nextConfig;

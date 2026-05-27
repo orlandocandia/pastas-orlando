@@ -1,4 +1,3 @@
-import { put } from '@vercel/blob'
 import { writeFile, mkdir } from 'fs/promises'
 import path from 'path'
 import { v4 as uuidv4 } from 'uuid'
@@ -37,7 +36,7 @@ function generateFilename(originalName: string): string {
 
 /**
  * Upload a file using Vercel Blob Storage (production) or local filesystem (development).
- * 
+ *
  * Strategy:
  * - If BLOB_READ_WRITE_TOKEN is set → use Vercel Blob (works on Vercel)
  * - Otherwise → save to public/images/uploads/{entity}/ (works locally)
@@ -54,36 +53,44 @@ export async function uploadImage(
 
   if (blobToken) {
     // ─── Vercel Blob Storage (production) ───
-    const blobPath = `uploads/${subdir}/${filename}`
-    const blob = await put(blobPath, file, {
-      access: 'public',
-      contentType: file.type,
-    })
+    try {
+      const { put } = await import('@vercel/blob')
+      const blobPath = `uploads/${subdir}/${filename}`
+      const blob = await put(blobPath, file, {
+        access: 'public',
+        contentType: file.type,
+        token: blobToken,
+      })
 
-    return {
-      url: blob.url,
-      size: file.size,
+      return {
+        url: blob.url,
+        size: file.size,
+      }
+    } catch (blobError) {
+      console.error('[Vercel Blob Error]', blobError)
+      console.warn('[Upload] Falling back to local filesystem...')
+      // Fall through to local filesystem
     }
-  } else {
-    // ─── Local filesystem (development) ───
-    const uploadDir = path.join(process.cwd(), 'public', 'images', 'uploads', subdir)
-    
-    // Ensure directory exists
-    await mkdir(uploadDir, { recursive: true })
-    
-    const filePath = path.join(uploadDir, filename)
-    const arrayBuffer = await file.arrayBuffer()
-    const buffer = Buffer.from(arrayBuffer)
-    
-    await writeFile(filePath, buffer)
-    
-    // Return relative URL path (served by Next.js from public/)
-    const url = `/images/uploads/${subdir}/${filename}`
+  }
 
-    return {
-      url,
-      size: file.size,
-    }
+  // ─── Local filesystem (development / fallback) ───
+  const uploadDir = path.join(process.cwd(), 'public', 'images', 'uploads', subdir)
+
+  // Ensure directory exists
+  await mkdir(uploadDir, { recursive: true })
+
+  const filePath = path.join(uploadDir, filename)
+  const arrayBuffer = await file.arrayBuffer()
+  const buffer = Buffer.from(arrayBuffer)
+
+  await writeFile(filePath, buffer)
+
+  // Return relative URL path (served by Next.js from public/)
+  const url = `/images/uploads/${subdir}/${filename}`
+
+  return {
+    url,
+    size: file.size,
   }
 }
 
