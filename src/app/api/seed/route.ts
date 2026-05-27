@@ -440,7 +440,7 @@ async function seedTurso(client: Client): Promise<string[]> {
     { c: 'LC-003', n: 'Canelones de Jamón y Queso', cat: 'Lasagnas y canelones', th: 'con_gluten', p: 0.8, pr: 6500, sm: 5, de: 1, o: 3 },
     { c: 'LC-004', n: 'Canelones de Ricota', cat: 'Lasagnas y canelones', th: 'con_gluten', p: 0.8, pr: 6000, sm: 5, de: 0, o: 4 },
   ]
-  for (const pt of productos) {  for (const pt of productos) {
+  for (const pt of productos) {
     const idCat = await catId('CategoriaProductoTerminado', pt.cat)
     if (!idCat) continue
     await client.execute({
