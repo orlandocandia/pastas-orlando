@@ -3,7 +3,7 @@
 import Image from 'next/image'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { MessageCircle, Package } from 'lucide-react'
+import { MessageCircle } from 'lucide-react'
 
 interface ProductCardProps {
   producto: {
@@ -48,26 +48,16 @@ export default function ProductCard({ producto }: ProductCardProps) {
       }`}
     >
       {/* Image — overflow-hidden for zoom containment */}
-      <div className="relative h-48 bg-muted overflow-hidden">
-        {producto.imagen ? (
-          <Image
-            src={producto.imagen}
-            alt={producto.nombre}
-            fill
-            className={`object-cover group-hover:scale-105 transition-transform duration-500 ${
-              sinStock ? 'grayscale-[50%]' : ''
-            }`}
-            sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 25vw"
-            onError={(e) => {
-              const target = e.target as HTMLImageElement
-              target.style.display = 'none'
-            }}
-          />
-        ) : (
-          <div className="flex items-center justify-center h-full text-muted-foreground">
-            <Package className="h-12 w-12 text-mostaza/40" strokeWidth={1.2} />
-          </div>
-        )}
+      <div className="relative w-full h-48 overflow-hidden bg-gray-100 rounded-t-lg">
+        <Image
+          src={producto.imagen || '/images/placeholder-producto.jpg'}
+          alt={producto.nombre}
+          fill
+          className={`object-cover object-center transition-transform duration-300 group-hover:scale-105 ${
+            sinStock ? 'grayscale-[50%]' : ''
+          }`}
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+        />
 
         {/* SIN STOCK overlay */}
         {sinStock && (
