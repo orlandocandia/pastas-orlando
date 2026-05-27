@@ -521,7 +521,7 @@ async function seedTurso(client: Client): Promise<string[]> {
       "destacado" BOOLEAN NOT NULL DEFAULT false,
       "orden" INTEGER NOT NULL DEFAULT 0,
       "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-      "updatedAt" DATETIME NOT NULL
+      "updatedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
     )`)
   } catch { /* table already exists, skip */ }
 
