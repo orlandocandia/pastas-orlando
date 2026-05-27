@@ -1197,6 +1197,12 @@ export async function POST(request: NextRequest) {
       { sql: 'ALTER TABLE "ProductoTerminado" ADD COLUMN "codigo_barras" TEXT', description: 'Add codigo_barras column to ProductoTerminado' },
       { sql: 'ALTER TABLE "ProductoTerminado" ADD COLUMN "tipo_harina" TEXT', description: 'Add tipo_harina column to ProductoTerminado (con_gluten, integral, sin_gluten)' },
       { sql: 'CREATE UNIQUE INDEX IF NOT EXISTS "ProductoTerminado_codigo_barras_key" ON "ProductoTerminado"("codigo_barras")', description: 'Add unique index on codigo_barras' },
+      // UPDATE tipo_harina for existing products based on name patterns
+      { sql: `UPDATE "ProductoTerminado" SET tipo_harina = 'con_gluten' WHERE tipo_harina IS NULL AND nombre NOT LIKE '%integral%' AND nombre NOT LIKE '%sin gluten%'`, description: 'Set tipo_harina=con_gluten for regular products' },
+      { sql: `UPDATE "ProductoTerminado" SET tipo_harina = 'integral' WHERE nombre LIKE '%integral%'`, description: 'Set tipo_harina=integral for integral products' },
+      { sql: `UPDATE "ProductoTerminado" SET tipo_harina = 'sin_gluten' WHERE nombre LIKE '%sin gluten%'`, description: 'Set tipo_harina=sin_gluten for gluten-free products' },
+      // Ensure all products have tipo_harina (fallback for any remaining NULL)
+      { sql: `UPDATE "ProductoTerminado" SET tipo_harina = 'con_gluten' WHERE tipo_harina IS NULL`, description: 'Fallback: set tipo_harina=con_gluten for any remaining NULL' },
     ]
 
     for (const migration of migrations) {
