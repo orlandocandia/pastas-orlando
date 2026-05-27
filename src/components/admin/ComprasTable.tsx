@@ -395,7 +395,7 @@ export default function ComprasTable() {
           if (!open) setSelectedCompra(null)
         }}
       >
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="sm:max-w-7xl w-full max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-marron">
               {selectedCompra ? 'Editar Compra' : 'Nueva Compra'}
