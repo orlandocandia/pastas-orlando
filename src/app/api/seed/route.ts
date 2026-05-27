@@ -644,6 +644,25 @@ export async function POST(request: NextRequest) {
     // 3. DEPARTAMENTOS
     // ============================================
     const departamentosData: { nombre: string; provincia: string }[] = [
+      // ── Misiones (17 departamentos) ──
+      { nombre: 'Apóstoles', provincia: 'Misiones' },
+      { nombre: 'Cainguás', provincia: 'Misiones' },
+      { nombre: 'Candelaria', provincia: 'Misiones' },
+      { nombre: 'Capital', provincia: 'Misiones' },
+      { nombre: 'Concepción', provincia: 'Misiones' },
+      { nombre: 'Eldorado', provincia: 'Misiones' },
+      { nombre: 'General Manuel Belgrano', provincia: 'Misiones' },
+      { nombre: 'Guaraní', provincia: 'Misiones' },
+      { nombre: 'Iguazú', provincia: 'Misiones' },
+      { nombre: 'Leandro N. Alem', provincia: 'Misiones' },
+      { nombre: 'Libertador General San Martín', provincia: 'Misiones' },
+      { nombre: 'Montecarlo', provincia: 'Misiones' },
+      { nombre: 'Oberá', provincia: 'Misiones' },
+      { nombre: 'San Ignacio', provincia: 'Misiones' },
+      { nombre: 'San Javier', provincia: 'Misiones' },
+      { nombre: 'San Pedro', provincia: 'Misiones' },
+      { nombre: 'Veinticinco de Mayo', provincia: 'Misiones' },
+      // ── Corrientes ──
       { nombre: 'Capital', provincia: 'Corrientes' },
       { nombre: 'General Paz', provincia: 'Corrientes' },
       { nombre: 'San Cosme', provincia: 'Corrientes' },
@@ -659,11 +678,13 @@ export async function POST(request: NextRequest) {
       { nombre: 'Monte Caseros', provincia: 'Corrientes' },
       { nombre: 'Curuzú Cuatiá', provincia: 'Corrientes' },
       { nombre: 'Mercedes', provincia: 'Corrientes' },
+      // ── Ciudad Autónoma de Buenos Aires ──
       { nombre: 'Comuna 1', provincia: 'Ciudad Autónoma de Buenos Aires' },
       { nombre: 'Comuna 2', provincia: 'Ciudad Autónoma de Buenos Aires' },
       { nombre: 'Comuna 3', provincia: 'Ciudad Autónoma de Buenos Aires' },
       { nombre: 'Comuna 4', provincia: 'Ciudad Autónoma de Buenos Aires' },
       { nombre: 'Comuna 5', provincia: 'Ciudad Autónoma de Buenos Aires' },
+      // ── Buenos Aires ──
       { nombre: 'General San Martín', provincia: 'Buenos Aires' },
       { nombre: 'La Matanza', provincia: 'Buenos Aires' },
       { nombre: 'Lomas de Zamora', provincia: 'Buenos Aires' },
@@ -674,18 +695,58 @@ export async function POST(request: NextRequest) {
       { nombre: 'Tres de Febrero', provincia: 'Buenos Aires' },
       { nombre: 'San Isidro', provincia: 'Buenos Aires' },
       { nombre: 'Vicente López', provincia: 'Buenos Aires' },
+      // ── Córdoba ──
       { nombre: 'Capital', provincia: 'Córdoba' },
       { nombre: 'Colón', provincia: 'Córdoba' },
       { nombre: 'San Justo', provincia: 'Córdoba' },
+      // ── Santa Fe ──
       { nombre: 'La Capital', provincia: 'Santa Fe' },
       { nombre: 'Rosario', provincia: 'Santa Fe' },
+      // ── Mendoza ──
       { nombre: 'Capital', provincia: 'Mendoza' },
       { nombre: 'Godoy Cruz', provincia: 'Mendoza' },
+      // ── Tucumán ──
       { nombre: 'Capital', provincia: 'Tucumán' },
       { nombre: 'Cruz Alta', provincia: 'Tucumán' },
+      // ── Salta ──
       { nombre: 'Capital', provincia: 'Salta' },
+      // ── Entre Ríos ──
       { nombre: 'Paraná', provincia: 'Entre Ríos' },
       { nombre: 'Concordia', provincia: 'Entre Ríos' },
+      // ── Chaco ──
+      { nombre: 'Comandante Fernández', provincia: 'Chaco' },
+      { nombre: 'San Fernando', provincia: 'Chaco' },
+      { nombre: '1° de Mayo', provincia: 'Chaco' },
+      // ── Formosa ──
+      { nombre: 'Formosa', provincia: 'Formosa' },
+      { nombre: 'Pilcomayo', provincia: 'Formosa' },
+      // ── Jujuy ──
+      { nombre: 'Capital', provincia: 'Jujuy' },
+      { nombre: 'El Carmen', provincia: 'Jujuy' },
+      // ── Catamarca ──
+      { nombre: 'Capital', provincia: 'Catamarca' },
+      { nombre: 'Valle Viejo', provincia: 'Catamarca' },
+      // ── Chubut ──
+      { nombre: 'Rawson', provincia: 'Chubut' },
+      { nombre: 'Gaiman', provincia: 'Chubut' },
+      // ── La Pampa ──
+      { nombre: 'Capital', provincia: 'La Pampa' },
+      // ── La Rioja ──
+      { nombre: 'Capital', provincia: 'La Rioja' },
+      // ── Neuquén ──
+      { nombre: 'Confluencia', provincia: 'Neuquén' },
+      // ── Río Negro ──
+      { nombre: 'General Roca', provincia: 'Río Negro' },
+      // ── San Juan ──
+      { nombre: 'Capital', provincia: 'San Juan' },
+      // ── San Luis ──
+      { nombre: 'Capital', provincia: 'San Luis' },
+      // ── Santa Cruz ──
+      { nombre: 'Güer Aike', provincia: 'Santa Cruz' },
+      // ── Santiago del Estero ──
+      { nombre: 'Capital', provincia: 'Santiago del Estero' },
+      // ── Tierra del Fuego ──
+      { nombre: 'Ushuaia', provincia: 'Tierra del Fuego' },
     ]
 
     const departamentos: Record<string, number> = {}
@@ -705,6 +766,46 @@ export async function POST(request: NextRequest) {
     // 4. MUNICIPIOS
     // ============================================
     const municipiosData: { nombre: string; deptoKey: string }[] = [
+      // ── Misiones ──
+      { nombre: 'Posadas', deptoKey: 'Misiones-Capital' },
+      { nombre: 'Garupá', deptoKey: 'Misiones-Capital' },
+      { nombre: 'Apóstoles', deptoKey: 'Misiones-Apóstoles' },
+      { nombre: 'San José', deptoKey: 'Misiones-Apóstoles' },
+      { nombre: 'Campo Grande', deptoKey: 'Misiones-Cainguás' },
+      { nombre: 'Aristóbulo del Valle', deptoKey: 'Misiones-Cainguás' },
+      { nombre: 'Candelaria', deptoKey: 'Misiones-Candelaria' },
+      { nombre: 'Santa Ana', deptoKey: 'Misiones-Candelaria' },
+      { nombre: 'Mártires', deptoKey: 'Misiones-Candelaria' },
+      { nombre: 'Concepción de la Sierra', deptoKey: 'Misiones-Concepción' },
+      { nombre: 'Santa María', deptoKey: 'Misiones-Concepción' },
+      { nombre: 'Eldorado', deptoKey: 'Misiones-Eldorado' },
+      { nombre: '9 de Julio', deptoKey: 'Misiones-Eldorado' },
+      { nombre: 'Colonia Wanda', deptoKey: 'Misiones-Eldorado' },
+      { nombre: 'Bernardo de Irigoyen', deptoKey: 'Misiones-General Manuel Belgrano' },
+      { nombre: 'Comandante Andrés Guacurarí', deptoKey: 'Misiones-General Manuel Belgrano' },
+      { nombre: 'El Soberbio', deptoKey: 'Misiones-Guaraní' },
+      { nombre: 'Oberá', deptoKey: 'Misiones-Oberá' },
+      { nombre: 'Campo Viera', deptoKey: 'Misiones-Oberá' },
+      { nombre: 'Puerto Rico', deptoKey: 'Misiones-Guaraní' },
+      { nombre: 'Puerto Iguazú', deptoKey: 'Misiones-Iguazú' },
+      { nombre: 'Wanda', deptoKey: 'Misiones-Iguazú' },
+      { nombre: 'Leandro N. Alem', deptoKey: 'Misiones-Leandro N. Alem' },
+      { nombre: 'Caá Yarí', deptoKey: 'Misiones-Leandro N. Alem' },
+      { nombre: 'Puerto Libertad', deptoKey: 'Misiones-Libertador General San Martín' },
+      { nombre: 'Capioví', deptoKey: 'Misiones-Libertador General San Martín' },
+      { nombre: 'Ruiz de Montoya', deptoKey: 'Misiones-Libertador General San Martín' },
+      { nombre: 'Montecarlo', deptoKey: 'Misiones-Montecarlo' },
+      { nombre: 'Caraguatay', deptoKey: 'Misiones-Montecarlo' },
+      { nombre: 'San Ignacio', deptoKey: 'Misiones-San Ignacio' },
+      { nombre: 'Jardín América', deptoKey: 'Misiones-San Ignacio' },
+      { nombre: 'Hipólito Yrigoyen', deptoKey: 'Misiones-San Ignacio' },
+      { nombre: 'San Javier', deptoKey: 'Misiones-San Javier' },
+      { nombre: 'Itacaruaré', deptoKey: 'Misiones-San Javier' },
+      { nombre: 'San Pedro', deptoKey: 'Misiones-San Pedro' },
+      { nombre: 'General Urquiza', deptoKey: 'Misiones-San Pedro' },
+      { nombre: 'Alba Posse', deptoKey: 'Misiones-Veinticinco de Mayo' },
+      { nombre: 'Colonia Aurora', deptoKey: 'Misiones-Veinticinco de Mayo' },
+      // ── Corrientes ──
       { nombre: 'Corrientes', deptoKey: 'Corrientes-Capital' },
       { nombre: 'Barrio Esperanza', deptoKey: 'Corrientes-Capital' },
       { nombre: 'Nuestra Señora del Rosario de Caa Catí', deptoKey: 'Corrientes-General Paz' },
@@ -719,12 +820,14 @@ export async function POST(request: NextRequest) {
       { nombre: 'Monte Caseros', deptoKey: 'Corrientes-Monte Caseros' },
       { nombre: 'Curuzú Cuatiá', deptoKey: 'Corrientes-Curuzú Cuatiá' },
       { nombre: 'Santo Tomé', deptoKey: 'Corrientes-Santo Tomé' },
+      // ── Ciudad Autónoma de Buenos Aires ──
       { nombre: 'Retiro', deptoKey: 'Ciudad Autónoma de Buenos Aires-Comuna 1' },
       { nombre: 'San Nicolás', deptoKey: 'Ciudad Autónoma de Buenos Aires-Comuna 1' },
       { nombre: 'Puerto Madero', deptoKey: 'Ciudad Autónoma de Buenos Aires-Comuna 1' },
       { nombre: 'Recoleta', deptoKey: 'Ciudad Autónoma de Buenos Aires-Comuna 2' },
       { nombre: 'Palermo', deptoKey: 'Ciudad Autónoma de Buenos Aires-Comuna 2' },
       { nombre: 'Balvanera', deptoKey: 'Ciudad Autónoma de Buenos Aires-Comuna 3' },
+      // ── Buenos Aires ──
       { nombre: 'San Martín', deptoKey: 'Buenos Aires-General San Martín' },
       { nombre: 'Ramos Mejía', deptoKey: 'Buenos Aires-La Matanza' },
       { nombre: 'Banfield', deptoKey: 'Buenos Aires-Lomas de Zamora' },
@@ -735,15 +838,56 @@ export async function POST(request: NextRequest) {
       { nombre: 'Caseros', deptoKey: 'Buenos Aires-Tres de Febrero' },
       { nombre: 'San Isidro', deptoKey: 'Buenos Aires-San Isidro' },
       { nombre: 'Olivos', deptoKey: 'Buenos Aires-Vicente López' },
+      // ── Córdoba ──
       { nombre: 'Córdoba', deptoKey: 'Córdoba-Capital' },
+      // ── Santa Fe ──
       { nombre: 'Santa Fe', deptoKey: 'Santa Fe-La Capital' },
       { nombre: 'Rosario', deptoKey: 'Santa Fe-Rosario' },
+      // ── Mendoza ──
       { nombre: 'Mendoza', deptoKey: 'Mendoza-Capital' },
       { nombre: 'Godoy Cruz', deptoKey: 'Mendoza-Godoy Cruz' },
+      // ── Tucumán ──
       { nombre: 'San Miguel de Tucumán', deptoKey: 'Tucumán-Capital' },
+      // ── Salta ──
       { nombre: 'Salta', deptoKey: 'Salta-Capital' },
+      // ── Entre Ríos ──
       { nombre: 'Paraná', deptoKey: 'Entre Ríos-Paraná' },
       { nombre: 'Concordia', deptoKey: 'Entre Ríos-Concordia' },
+      // ── Chaco ──
+      { nombre: 'Presidencia Roque Sáenz Peña', deptoKey: 'Chaco-Comandante Fernández' },
+      { nombre: 'Resistencia', deptoKey: 'Chaco-San Fernando' },
+      { nombre: 'Barranqueras', deptoKey: 'Chaco-1° de Mayo' },
+      // ── Formosa ──
+      { nombre: 'Formosa', deptoKey: 'Formosa-Formosa' },
+      { nombre: 'Clorinda', deptoKey: 'Formosa-Pilcomayo' },
+      // ── Jujuy ──
+      { nombre: 'San Salvador de Jujuy', deptoKey: 'Jujuy-Capital' },
+      { nombre: 'El Carmen', deptoKey: 'Jujuy-El Carmen' },
+      // ── Catamarca ──
+      { nombre: 'San Fernando del Valle de Catamarca', deptoKey: 'Catamarca-Capital' },
+      { nombre: 'San Isidro', deptoKey: 'Catamarca-Valle Viejo' },
+      // ── Chubut ──
+      { nombre: 'Rawson', deptoKey: 'Chubut-Rawson' },
+      { nombre: 'Gaiman', deptoKey: 'Chubut-Gaiman' },
+      // ── La Pampa ──
+      { nombre: 'Santa Rosa', deptoKey: 'La Pampa-Capital' },
+      // ── La Rioja ──
+      { nombre: 'La Rioja', deptoKey: 'La Rioja-Capital' },
+      // ── Neuquén ──
+      { nombre: 'Neuquén', deptoKey: 'Neuquén-Confluencia' },
+      { nombre: 'Plottier', deptoKey: 'Neuquén-Confluencia' },
+      // ── Río Negro ──
+      { nombre: 'General Roca', deptoKey: 'Río Negro-General Roca' },
+      // ── San Juan ──
+      { nombre: 'San Juan', deptoKey: 'San Juan-Capital' },
+      // ── San Luis ──
+      { nombre: 'San Luis', deptoKey: 'San Luis-Capital' },
+      // ── Santa Cruz ──
+      { nombre: 'Río Gallegos', deptoKey: 'Santa Cruz-Güer Aike' },
+      // ── Santiago del Estero ──
+      { nombre: 'Santiago del Estero', deptoKey: 'Santiago del Estero-Capital' },
+      // ── Tierra del Fuego ──
+      { nombre: 'Ushuaia', deptoKey: 'Tierra del Fuego-Ushuaia' },
     ]
 
     for (const muni of municipiosData) {
