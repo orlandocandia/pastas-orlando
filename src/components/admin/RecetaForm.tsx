@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
-import { Checkbox } from '@/components/ui/checkbox'
+import { Switch } from '@/components/ui/switch'
 import {
   Select,
   SelectContent,
@@ -16,6 +16,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
 
 interface ProductoTerminado {
   id: number
@@ -329,8 +337,8 @@ export default function RecetaForm({ receta, onSuccess, onCancel }: RecetaFormPr
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header info */}
+    <div className="space-y-5">
+      {/* Header info when editing */}
       {isEditing && (
         <div className="bg-muted/30 rounded-lg p-3 border border-marron/10">
           <p className="text-sm text-muted-foreground">
@@ -339,65 +347,70 @@ export default function RecetaForm({ receta, onSuccess, onCancel }: RecetaFormPr
         </div>
       )}
 
-      {/* Main fields */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        {/* Nombre Receta */}
-        <div>
-          <Label className="text-sm font-medium text-marron mb-1 block">Nombre Receta *</Label>
-          <Input
-            placeholder="Ej: Fettuccine al huevo"
-            value={nombreReceta}
-            onChange={(e) => setNombreReceta(e.target.value)}
-          />
+      {/* ── RECETA ── */}
+      <div>
+        <h4 className="text-sm font-semibold text-marron mb-3">Receta</h4>
+
+        {/* Row 1: Nombre + Producto Terminado */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <Label className="text-sm font-medium mb-1.5 block">Nombre Receta *</Label>
+            <Input
+              placeholder="Ej: Fettuccine al huevo"
+              value={nombreReceta}
+              onChange={(e) => setNombreReceta(e.target.value)}
+            />
+          </div>
+
+          <div>
+            <Label className="text-sm font-medium mb-1.5 block">Producto Terminado *</Label>
+            <Select value={idProductoTerminado} onValueChange={setIdProductoTerminado}>
+              <SelectTrigger>
+                <SelectValue placeholder="Seleccionar producto..." />
+              </SelectTrigger>
+              <SelectContent>
+                {productosTerminados.map((pt) => (
+                  <SelectItem key={pt.id} value={pt.id.toString()}>
+                    {pt.nombre}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
 
-        {/* Producto Terminado */}
-        <div>
-          <Label className="text-sm font-medium text-marron mb-1 block">Producto Terminado *</Label>
-          <Select value={idProductoTerminado} onValueChange={setIdProductoTerminado}>
-            <SelectTrigger>
-              <SelectValue placeholder="Seleccionar..." />
-            </SelectTrigger>
-            <SelectContent>
-              {productosTerminados.map((pt) => (
-                <SelectItem key={pt.id} value={pt.id.toString()}>
-                  {pt.nombre}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+        {/* Row 2: Rendimiento + Activo */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+          <div>
+            <Label className="text-sm font-medium mb-1.5 block">Rendimiento (unidades) *</Label>
+            <Input
+              type="number"
+              min="1"
+              placeholder="1"
+              value={rendimientoUnidades}
+              onChange={(e) => setRendimientoUnidades(e.target.value)}
+            />
+          </div>
 
-        {/* Rendimiento */}
-        <div>
-          <Label className="text-sm font-medium text-marron mb-1 block">Rendimiento (unidades) *</Label>
-          <Input
-            type="number"
-            min="1"
-            placeholder="1"
-            value={rendimientoUnidades}
-            onChange={(e) => setRendimientoUnidades(e.target.value)}
-          />
-        </div>
-
-        {/* Activo */}
-        <div className="flex items-center gap-2 pt-6">
-          <Checkbox
-            id="activo"
-            checked={activo}
-            onCheckedChange={(checked) => setActivo(checked === true)}
-          />
-          <Label htmlFor="activo" className="text-sm font-medium text-marron cursor-pointer">
-            Activo
-          </Label>
+          <div className="flex items-center gap-2 pt-7">
+            <Switch
+              id="activo"
+              checked={activo}
+              onCheckedChange={setActivo}
+            />
+            <Label htmlFor="activo" className="text-sm font-medium cursor-pointer">
+              Activo
+            </Label>
+          </div>
         </div>
       </div>
 
-      {/* Detail rows */}
       <Separator />
+
+      {/* ── INGREDIENTES DE LA RECETA ── */}
       <div>
         <div className="flex items-center justify-between mb-3">
-          <Label className="text-sm font-semibold text-marron">Ingredientes de la Receta</Label>
+          <h4 className="text-sm font-semibold text-marron">Ingredientes de la Receta</h4>
           <Button
             type="button"
             variant="outline"
@@ -410,117 +423,119 @@ export default function RecetaForm({ receta, onSuccess, onCancel }: RecetaFormPr
           </Button>
         </div>
 
-        <div className="space-y-3">
-          {detalles.map((detalle, index) => (
-            <div
-              key={detalle.key}
-              className="p-3 rounded-lg border border-marron/10 bg-muted/20 space-y-3"
-            >
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-medium text-muted-foreground">
-                  Ingrediente {index + 1}
-                </span>
-                {detalles.length > 1 && (
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    className="h-7 w-7 hover:bg-rojo/10"
-                    onClick={() => removeDetailRow(detalle.key)}
-                  >
-                    <Trash2 className="h-3.5 w-3.5 text-rojo" />
-                  </Button>
-                )}
-              </div>
-
-              <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
-                {/* Tipo */}
-                <div>
-                  <Label className="text-xs text-muted-foreground">Tipo</Label>
-                  <Select
-                    value={detalle.tipo}
-                    onValueChange={(v) => updateDetalle(detalle.key, 'tipo', v)}
-                  >
-                    <SelectTrigger className="h-9">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="mp">Materia Prima</SelectItem>
-                      <SelectItem value="insumo">Insumo</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {/* Item */}
-                <div className="col-span-2 sm:col-span-1">
-                  <Label className="text-xs text-muted-foreground">
-                    {detalle.tipo === 'mp' ? 'Materia Prima' : 'Insumo'}
-                  </Label>
-                  <Select
-                    value={detalle.idItem}
-                    onValueChange={(v) => updateDetalle(detalle.key, 'idItem', v)}
-                  >
-                    <SelectTrigger className="h-9">
-                      <SelectValue placeholder="Seleccionar..." />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {getAvailableItems(detalle.tipo).map((item) => (
-                        <SelectItem key={item.id} value={item.id.toString()}>
-                          {item.nombre}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {/* Cantidad */}
-                <div>
-                  <Label className="text-xs text-muted-foreground">Cantidad</Label>
-                  <Input
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    placeholder="0"
-                    className="h-9"
-                    value={detalle.cantidadNecesaria}
-                    onChange={(e) => updateDetalle(detalle.key, 'cantidadNecesaria', e.target.value)}
-                  />
-                </div>
-
-                {/* Unidad (auto-filled, read-only) */}
-                <div>
-                  <Label className="text-xs text-muted-foreground">Unidad</Label>
-                  <Input
-                    className="h-9 bg-muted/50"
-                    value={detalle.nombreUnidad || '-'}
-                    disabled
-                  />
-                </div>
-
-                {/* Costo Estimado (auto-calculated) */}
-                <div>
-                  <Label className="text-xs text-muted-foreground">Costo Est.</Label>
-                  <Input
-                    className="h-9 bg-muted/50 font-semibold"
-                    value={detalle.costoEstimado ? formatCurrency(parseFloat(detalle.costoEstimado)) : ''}
-                    disabled
-                  />
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Total */}
-      <Separator />
-      <div className="flex justify-end">
-        <div className="w-full sm:w-72 space-y-2">
-          <div className="flex justify-between text-base font-bold">
-            <span className="text-marron">Costo Total Estimado</span>
-            <span className="text-marron">{formatCurrency(totalCostoEstimado)}</span>
+        {detalles.length === 0 ? (
+          <div className="text-center py-6 border border-dashed rounded-lg border-marron/15 text-muted-foreground text-sm">
+            No hay ingredientes. Hacé clic en &quot;Agregar Ingrediente&quot; para comenzar.
           </div>
-        </div>
+        ) : (
+          <div className="rounded-lg border border-marron/10 overflow-hidden">
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow className="bg-muted/50">
+                    <TableHead className="w-[140px]">Tipo</TableHead>
+                    <TableHead>Producto</TableHead>
+                    <TableHead className="w-[110px]">Cantidad</TableHead>
+                    <TableHead className="w-[100px]">Unidad</TableHead>
+                    <TableHead className="w-[130px] text-right">Costo Est.</TableHead>
+                    <TableHead className="w-[50px]"></TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {detalles.map((detalle, index) => (
+                    <TableRow key={detalle.key}>
+                      {/* Tipo */}
+                      <TableCell>
+                        <Select
+                          value={detalle.tipo}
+                          onValueChange={(v) => updateDetalle(detalle.key, 'tipo', v)}
+                        >
+                          <SelectTrigger className="h-9">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="mp">Materia Prima</SelectItem>
+                            <SelectItem value="insumo">Insumo</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </TableCell>
+
+                      {/* Producto */}
+                      <TableCell>
+                        <Select
+                          value={detalle.idItem}
+                          onValueChange={(v) => updateDetalle(detalle.key, 'idItem', v)}
+                        >
+                          <SelectTrigger className="h-9">
+                            <SelectValue placeholder="Seleccionar..." />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {getAvailableItems(detalle.tipo).map((item) => (
+                              <SelectItem key={item.id} value={item.id.toString()}>
+                                {item.nombre}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </TableCell>
+
+                      {/* Cantidad */}
+                      <TableCell>
+                        <Input
+                          type="number"
+                          step="0.001"
+                          min="0"
+                          placeholder="0"
+                          className="h-9 text-right"
+                          value={detalle.cantidadNecesaria}
+                          onChange={(e) => updateDetalle(detalle.key, 'cantidadNecesaria', e.target.value)}
+                        />
+                      </TableCell>
+
+                      {/* Unidad (auto-filled) */}
+                      <TableCell>
+                        <Input
+                          className="h-9 bg-muted/50 text-center"
+                          value={detalle.nombreUnidad || '-'}
+                          disabled
+                        />
+                      </TableCell>
+
+                      {/* Costo Estimado (auto-calculated) */}
+                      <TableCell className="text-right">
+                        <span className="text-sm font-semibold text-marron">
+                          {detalle.costoEstimado ? formatCurrency(parseFloat(detalle.costoEstimado)) : '—'}
+                        </span>
+                      </TableCell>
+
+                      {/* Eliminar */}
+                      <TableCell>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 hover:bg-rojo/10"
+                          onClick={() => removeDetailRow(detalle.key)}
+                          disabled={detalles.length <= 1}
+                        >
+                          <Trash2 className="h-4 w-4 text-rojo" />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+
+            {/* Total row */}
+            <div className="flex items-center justify-end gap-3 px-4 py-3 bg-muted/30 border-t border-marron/10">
+              <span className="text-sm font-semibold text-marron">Costo Total Estimado:</span>
+              <span className="text-base font-bold text-marron">
+                {formatCurrency(totalCostoEstimado)}
+              </span>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Actions */}
