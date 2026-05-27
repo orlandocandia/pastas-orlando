@@ -52,6 +52,7 @@ interface ProductoTerminado {
   descripcion?: string | null
   codigo_barras?: string | null
   id_categoria: number
+  tipo_harina?: string | null
   peso_unitario_aprox: number
   precio_venta: number
   stock_actual: number
@@ -225,6 +226,7 @@ export default function ProductosTerminadosTable() {
                 <TableHead className="hidden lg:table-cell">Código Barras</TableHead>
                 <TableHead>Nombre</TableHead>
                 <TableHead className="hidden sm:table-cell">Categoría</TableHead>
+                <TableHead className="hidden md:table-cell">Harina</TableHead>
                 <TableHead>Precio</TableHead>
                 <TableHead>Stock</TableHead>
                 <TableHead className="hidden md:table-cell">Landing</TableHead>
@@ -235,7 +237,7 @@ export default function ProductosTerminadosTable() {
             <TableBody>
               {productos.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={10} className="text-center py-8 text-muted-foreground">
+                  <TableCell colSpan={11} className="text-center py-8 text-muted-foreground">
                     {search || filtroCategoria || filtroEstado
                       ? 'No se encontraron productos con los filtros aplicados'
                       : 'No hay productos terminados cargados'}
@@ -292,6 +294,23 @@ export default function ProductosTerminadosTable() {
                         <Badge variant="outline" className="border-marron/20 text-marron">
                           {pt.categoria?.nombre || '-'}
                         </Badge>
+                      </TableCell>
+                      <TableCell className="hidden md:table-cell">
+                        {pt.tipo_harina ? (
+                          <Badge
+                            className={
+                              pt.tipo_harina === 'sin_gluten'
+                                ? 'bg-oliva/10 text-oliva hover:bg-oliva/20'
+                                : pt.tipo_harina === 'integral'
+                                ? 'bg-mostaza/10 text-mostaza hover:bg-mostaza/20'
+                                : 'bg-blue-100 text-blue-700 hover:bg-blue-200'
+                            }
+                          >
+                            {pt.tipo_harina === 'con_gluten' ? 'Con Gluten' : pt.tipo_harina === 'integral' ? 'Integral' : 'Sin Gluten'}
+                          </Badge>
+                        ) : (
+                          <span className="text-xs text-muted-foreground">—</span>
+                        )}
                       </TableCell>
                       <TableCell className="font-medium">
                         {formatPrice(pt.precio_venta)}

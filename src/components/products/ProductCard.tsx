@@ -15,6 +15,7 @@ interface ProductCardProps {
     imagen: string | null
     stock_actual: number
     destacado: boolean
+    tipo_harina?: string | null
     categoria: {
       id: number
       nombre: string
@@ -96,6 +97,25 @@ export default function ProductCard({ producto }: ProductCardProps) {
           <span className="text-xs text-muted-foreground">
             {producto.categoria?.nombre}
           </span>
+          {producto.tipo_harina && (
+            <Badge
+              className={`
+                text-xs border-0
+                ${producto.tipo_harina === 'sin_gluten'
+                  ? 'bg-oliva/15 text-oliva'
+                  : producto.tipo_harina === 'integral'
+                  ? 'bg-mostaza/15 text-mostaza'
+                  : 'bg-marron/8 text-marron/60'
+                }
+              `}
+            >
+              {producto.tipo_harina === 'con_gluten'
+                ? 'Con Gluten'
+                : producto.tipo_harina === 'integral'
+                ? 'Integral'
+                : 'Sin Gluten'}
+            </Badge>
+          )}
         </div>
         <h3 className="font-bold text-marron text-base mb-1 line-clamp-1">
           {producto.nombre}

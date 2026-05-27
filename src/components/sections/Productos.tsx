@@ -1,8 +1,8 @@
 'use client'
 
 import { useState, useEffect, useMemo } from 'react'
-import { motion } from 'framer-motion'
-import { PackageOpen } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { PackageOpen, ArrowLeft, Wheat, Leaf, Sparkles } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import ProductCard from '@/components/products/ProductCard'
 
@@ -15,13 +15,73 @@ interface ProductoPublico {
   imagen: string | null
   stock_actual: number
   destacado: boolean
+  tipo_harina: string | null
   categoria: {
     id: number
     nombre: string
   }
 }
 
-const PRODUCTOS_POR_PAGINA = 6
+type FiltroHarina = 'todos' | 'con_gluten' | 'integral' | 'sin_gluten'
+
+interface Familia {
+  nombre: string
+  emoji: string
+  descripcion: string
+  categoriaFiltro: string
+}
+
+const FAMILIAS: Familia[] = [
+  {
+    nombre: 'Sorrentinos',
+    emoji: '🥟',
+    descripcion: 'Rellenos de jamón, queso, pollo y más',
+    categoriaFiltro: 'Sorrentinos',
+  },
+  {
+    nombre: 'Ñoquis',
+    emoji: '🥔',
+    descripcion: 'De papa, calabaza, espinaca y más',
+    categoriaFiltro: 'Ñoquis',
+  },
+  {
+    nombre: 'Tallarines',
+    emoji: '🍝',
+    descripcion: 'Al huevo, al morrón, a la espinaca y más',
+    categoriaFiltro: 'Tallarines',
+  },
+  {
+    nombre: 'Ravioles',
+    emoji: '🧀',
+    descripcion: 'De ricotta, carne, jamón y más',
+    categoriaFiltro: 'Ravioles',
+  },
+  {
+    nombre: 'Tapas',
+    emoji: '🫓',
+    descripcion: 'Para empanadas, pascualinas y pastelitos',
+    categoriaFiltro: 'Tapas',
+  },
+  {
+    nombre: 'Empanadas',
+    emoji: '🥧',
+    descripcion: 'Crudas y al horno, variedad de rellenos',
+    categoriaFiltro: 'Empanadas',
+  },
+  {
+    nombre: 'Tartas',
+    emoji: '🥧',
+    descripcion: 'De verduras, jamón, pollo y choclo',
+    categoriaFiltro: 'Tartas',
+  },
+]
+
+const FILTROS: { key: FiltroHarina; label: string; icon: React.ReactNode }[] = [
+  { key: 'todos', label: 'TODOS', icon: null },
+  { key: 'con_gluten', label: 'CON GLUTEN', icon: <Wheat className="h-3.5 w-3.5" /> },
+  { key: 'integral', label: 'INTEGRALES', icon: <Leaf className="h-3.5 w-3.5" /> },
+  { key: 'sin_gluten', label: 'SIN GLUTEN', icon: <Sparkles className="h-3.5 w-3.5" /> },
+]
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -42,18 +102,34 @@ const cardVariants = {
   },
 }
 
+const expandedVariants = {
+  hidden: { opacity: 0, height: 0 },
+  visible: {
+    opacity: 1,
+    height: 'auto',
+    transition: { duration: 0.4, ease: 'easeOut' },
+  },
+  exit: {
+    opacity: 0,
+    height: 0,
+    transition: { duration: 0.3, ease: 'easeIn' },
+  },
+}
+
 export default function Productos() {
   const [productos, setProductos] = useState<ProductoPublico[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
-  const [categoriaActiva, setCategoriaActiva] = useState<string>('Todos')
-  const [productosMostrados, setProductosMostrados] = useState(PRODUCTOS_POR_PAGINA)
+  const [filtro, setFiltro] = useState<FiltroHarina>('todos')
+  const [familiaActiva, setFamiliaActiva] = useState<string | null>(null)
 
   useEffect(() => {
     async function fetchProductos() {
       try {
         setError('')
-        const res = await fetch('/api/productos-terminados/public')
+        const params = new URLSearchParams()
+        if (filtro !== 'todos') params.set('tipo', filtro)
+        const res = await fetch(`/api/productos-terminados/public?${params.toString()}`)
         if (res.ok) {
           const data = await res.json()
           setProductos(data.productos || [])
@@ -67,59 +143,90 @@ export default function Productos() {
       }
     }
     fetchProductos()
-  }, [])
+  }, [filtro])
 
-  // Extraer categorías únicas desde los productos
-  const categorias = useMemo(() => {
-    const cats = [...new Set(productos.map((p) => p.categoria.nombre))]
-    cats.sort()
-    return ['Todos', ...cats]
+  // When changing filter, reset active family
+  const handleFiltroChange = (nuevoFiltro: FiltroHarina) => {
+    setFiltro(nuevoFiltro)
+    setFamiliaActiva(null)
+  }
+
+  // Compute product counts per family (considering the current filter)
+  const familiaData = useMemo(() => {
+    const data: Record<string, { count: number; hasProducts: boolean }> = {}
+    for (const familia of FAMILIAS) {
+      const prods = productos.filter(
+        (p) => p.categoria.nombre === familia.categoriaFiltro
+      )
+      data[familia.nombre] = {
+        count: prods.length,
+        hasProducts: prods.length > 0,
+      }
+    }
+    return data
   }, [productos])
 
-  // Filtrar productos por categoría
-  const productosFiltrados = useMemo(() => {
-    if (categoriaActiva === 'Todos') return productos
-    return productos.filter((p) => p.categoria.nombre === categoriaActiva)
-  }, [productos, categoriaActiva])
+  // Products for the active family
+  const productosFamilia = useMemo(() => {
+    if (!familiaActiva) return []
+    const familia = FAMILIAS.find((f) => f.nombre === familiaActiva)
+    if (!familia) return []
+    return productos.filter((p) => p.categoria.nombre === familia.categoriaFiltro)
+  }, [productos, familiaActiva])
 
-  const productosVisible = productosFiltrados.slice(0, productosMostrados)
-  const hayMas = productosVisible.length < productosFiltrados.length
-
-  // Cambiar categoría → reset paginación
-  const handleCategoriaChange = (cat: string) => {
-    setCategoriaActiva(cat)
-    setProductosMostrados(PRODUCTOS_POR_PAGINA)
+  const handleFamiliaClick = (nombre: string) => {
+    setFamiliaActiva((prev) => (prev === nombre ? null : nombre))
   }
+
+  // Filter out families with no products for current filter
+  const familiasVisibles = FAMILIAS.filter(
+    (f) => familiaData[f.nombre]?.hasProducts
+  )
 
   return (
     <section id="productos" className="min-h-screen flex flex-col justify-center py-12 sm:py-16 md:py-20 bg-crema">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
         {/* Title */}
-        <div className="text-center mb-10">
+        <div className="text-center mb-8">
           <h2 className="text-3xl sm:text-4xl font-bold text-marron">
             Nuestros <span className="text-rojo">Productos</span>
           </h2>
           <div className="h-1 w-20 bg-mostaza mx-auto mt-4 rounded-full" />
           <p className="text-muted-foreground mt-3 max-w-lg mx-auto text-sm sm:text-base">
-            Pastas artesanales elaboradas con ingredientes frescos y de calidad. Stock en tiempo real.
+            Pastas artesanales elaboradas con ingredientes frescos y de calidad. Filtrá por tipo de harina y explorá nuestras familias.
           </p>
+        </div>
+
+        {/* Filter Buttons */}
+        <div className="flex flex-wrap justify-center gap-2 sm:gap-3 mb-8">
+          {FILTROS.map((f) => (
+            <button
+              key={f.key}
+              onClick={() => handleFiltroChange(f.key)}
+              className={`
+                inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold
+                transition-all duration-200 border
+                ${filtro === f.key
+                  ? 'bg-mostaza text-marron border-mostaza shadow-md'
+                  : 'bg-white text-marron/70 border-marron/10 hover:border-mostaza/50 hover:text-marron'
+                }
+              `}
+            >
+              {f.icon}
+              {f.label}
+            </button>
+          ))}
         </div>
 
         {/* Loading */}
         {loading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="rounded-xl border border-border bg-card overflow-hidden animate-pulse">
-                <div className="h-48 bg-muted" />
-                <div className="p-4 space-y-3">
-                  <div className="h-4 w-16 bg-muted rounded" />
-                  <div className="h-5 w-3/4 bg-muted rounded" />
-                  <div className="h-4 w-full bg-muted rounded" />
-                  <div className="flex justify-between items-center mt-2">
-                    <div className="h-6 w-20 bg-muted rounded" />
-                    <div className="h-8 w-24 bg-muted rounded" />
-                  </div>
-                </div>
+              <div key={i} className="rounded-2xl border border-marron/10 bg-white p-8 animate-pulse flex flex-col items-center gap-4">
+                <div className="h-16 w-16 bg-muted rounded-full" />
+                <div className="h-5 w-24 bg-muted rounded" />
+                <div className="h-4 w-40 bg-muted rounded" />
+                <div className="h-5 w-16 bg-muted rounded-full" />
               </div>
             ))}
           </div>
@@ -132,7 +239,9 @@ export default function Productos() {
               onClick={() => {
                 setLoading(true)
                 setError('')
-                fetch('/api/productos-terminados/public')
+                const params = new URLSearchParams()
+                if (filtro !== 'todos') params.set('tipo', filtro)
+                fetch(`/api/productos-terminados/public?${params.toString()}`)
                   .then((res) => res.json())
                   .then((data) => {
                     setProductos(data.productos || [])
@@ -145,80 +254,140 @@ export default function Productos() {
               Reintentar
             </Button>
           </div>
-        ) : productos.length === 0 ? (
+        ) : familiasVisibles.length === 0 ? (
           <div className="text-center py-12">
-            <PackageOpen className="h-16 w-16 mx-auto text-muted-foreground/40 mb-4" />
-            <p className="text-muted-foreground text-lg mb-2">
-              No hay productos disponibles
+            <PackageOpen className="h-16 w-16 mx-auto text-muted-foreground/30 mb-4" />
+            <p className="text-muted-foreground text-lg">
+              No hay productos disponibles para este filtro.
             </p>
-            <p className="text-muted-foreground text-sm">
-              Próximamente más productos disponibles
-            </p>
+            <Button
+              variant="outline"
+              onClick={() => handleFiltroChange('todos')}
+              className="mt-4 border-mostaza text-marron hover:bg-mostaza hover:text-marron"
+            >
+              Ver todos los productos
+            </Button>
           </div>
         ) : (
           <>
-            {/* Tabs de categorías */}
-            <div className="flex flex-wrap justify-center gap-2 mb-8">
-              {categorias.map((cat) => (
-                <button
-                  key={cat}
-                  onClick={() => handleCategoriaChange(cat)}
-                  className={`px-4 py-2 rounded-full text-sm font-semibold transition-all duration-200 ${
-                    categoriaActiva === cat
-                      ? 'bg-mostaza text-marron shadow-md'
-                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                  }`}
-                >
-                  {cat}
-                </button>
-              ))}
-            </div>
+            {/* Family Cards Grid */}
+            <motion.div
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
+              variants={containerVariants}
+              initial="hidden"
+              animate="visible"
+              key={`familias-${filtro}`}
+            >
+              {familiasVisibles.map((familia) => {
+                const data = familiaData[familia.nombre]
+                const count = data?.count ?? 0
+                const isActive = familiaActiva === familia.nombre
 
-            {/* Título de categoría activa */}
-            <div className="mb-6">
-              <h3 className="text-xl font-bold text-marron">
-                {categoriaActiva === 'Todos' ? 'Todos los productos' : categoriaActiva}
-              </h3>
-              <p className="text-sm text-muted-foreground mt-1">
-                Mostrando {productosVisible.length} de {productosFiltrados.length} producto{productosFiltrados.length !== 1 ? 's' : ''}
-              </p>
-            </div>
+                return (
+                  <motion.div key={familia.nombre} variants={cardVariants}>
+                    <button
+                      onClick={() => handleFamiliaClick(familia.nombre)}
+                      className={`
+                        w-full group relative rounded-2xl border bg-white p-8
+                        flex flex-col items-center gap-3 text-center
+                        transition-all duration-300
+                        border-marron/10 hover:scale-[1.03] hover:shadow-lg cursor-pointer
+                        ${isActive ? 'ring-2 ring-mostaza shadow-lg scale-[1.03]' : ''}
+                      `}
+                    >
+                      {/* Emoji */}
+                      <span className="text-6xl transition-transform duration-300 group-hover:scale-110">
+                        {familia.emoji}
+                      </span>
 
-            {/* Product Grid */}
-            {productosFiltrados.length === 0 ? (
-              <div className="text-center py-12">
-                <PackageOpen className="h-12 w-12 mx-auto text-muted-foreground/40 mb-3" />
-                <p className="text-muted-foreground">
-                  Próximamente más variedades
-                </p>
-              </div>
-            ) : (
-              <motion.div
-                key={categoriaActiva}
-                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
-                variants={containerVariants}
-                initial="hidden"
-                animate="visible"
-              >
-                {productosVisible.map((producto) => (
-                  <motion.div key={producto.id} variants={cardVariants}>
-                    <ProductCard producto={producto} />
+                      {/* Name */}
+                      <h3 className="text-xl font-bold text-marron">
+                        {familia.nombre}
+                      </h3>
+
+                      {/* Description */}
+                      <p className="text-sm text-muted-foreground">
+                        {familia.descripcion}
+                      </p>
+
+                      {/* Badge */}
+                      <span className="bg-mostaza/20 text-marron text-xs rounded-full px-2 py-0.5 font-semibold">
+                        {count} {count === 1 ? 'variedad' : 'variedades'}
+                      </span>
+
+                      {/* Active indicator dot */}
+                      {isActive && (
+                        <motion.div
+                          layoutId="activeFamilia"
+                          className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-mostaza"
+                          transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                        />
+                      )}
+                    </button>
                   </motion.div>
-                ))}
-              </motion.div>
-            )}
+                )
+              })}
+            </motion.div>
 
-            {/* Ver más productos */}
-            {hayMas && (
-              <div className="text-center mt-8">
-                <Button
-                  onClick={() => setProductosMostrados((prev) => prev + PRODUCTOS_POR_PAGINA)}
-                  className="bg-mostaza text-marron hover:bg-mostaza/80 font-semibold px-8 rounded-full"
+            {/* Expanded Family Products */}
+            <AnimatePresence mode="wait">
+              {familiaActiva && (
+                <motion.div
+                  key={familiaActiva}
+                  variants={expandedVariants}
+                  initial="hidden"
+                  animate="visible"
+                  exit="exit"
+                  className="overflow-hidden"
                 >
-                  Ver más productos
-                </Button>
-              </div>
-            )}
+                  <div className="bg-crema/50 rounded-2xl p-6 mt-4">
+                    {/* Header */}
+                    <div className="flex items-center gap-3 mb-6">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setFamiliaActiva(null)}
+                        className="text-marron hover:bg-mostaza/20 gap-1.5 -ml-2"
+                      >
+                        <ArrowLeft className="h-4 w-4" />
+                        Volver
+                      </Button>
+                      <div className="h-6 w-px bg-marron/20" />
+                      <h3 className="text-xl font-bold text-marron">
+                        {FAMILIAS.find((f) => f.nombre === familiaActiva)?.emoji}{' '}
+                        {familiaActiva}
+                      </h3>
+                      <span className="text-sm text-muted-foreground">
+                        — {productosFamilia.length} {productosFamilia.length === 1 ? 'variedad' : 'variedades'}
+                      </span>
+                    </div>
+
+                    {/* Products Grid */}
+                    {productosFamilia.length === 0 ? (
+                      <div className="text-center py-8">
+                        <PackageOpen className="h-12 w-12 mx-auto text-muted-foreground/40 mb-3" />
+                        <p className="text-muted-foreground">
+                          No hay productos para este filtro en esta familia
+                        </p>
+                      </div>
+                    ) : (
+                      <motion.div
+                        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
+                        variants={containerVariants}
+                        initial="hidden"
+                        animate="visible"
+                      >
+                        {productosFamilia.map((producto) => (
+                          <motion.div key={producto.id} variants={cardVariants}>
+                            <ProductCard producto={producto} />
+                          </motion.div>
+                        ))}
+                      </motion.div>
+                    )}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </>
         )}
       </div>

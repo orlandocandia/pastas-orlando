@@ -442,6 +442,7 @@ model ProductoTerminado {
   nombre              String
   descripcion         String?
   id_categoria        Int
+  tipo_harina         String?   // "con_gluten", "integral", "sin_gluten"
   peso_unitario_aprox Float     @default(0)
   precio_venta        Float     @default(0)
   stock_actual        Float     @default(0)

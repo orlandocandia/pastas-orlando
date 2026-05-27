@@ -36,6 +36,7 @@ const productoTerminadoSchema = z.object({
   nombre: z.string().min(2, 'El nombre debe tener al menos 2 caracteres'),
   descripcion: z.string().optional(),
   id_categoria: z.string().min(1, 'Seleccioná una categoría'),
+  tipo_harina: z.string().optional(),
   peso_unitario_aprox: z.coerce.number().min(0, 'El peso no puede ser negativo').default(0),
   precio_venta: z.coerce.number().min(0, 'El precio no puede ser negativo').default(0),
   stock_minimo: z.coerce.number().min(0, 'El stock mínimo no puede ser negativo').default(0),
@@ -77,6 +78,7 @@ export default function ProductoTerminadoForm({ productoTerminado, onSuccess }: 
       nombre: productoTerminado?.nombre || '',
       descripcion: productoTerminado?.descripcion || '',
       id_categoria: productoTerminado?.id_categoria?.toString() || '',
+      tipo_harina: productoTerminado?.tipo_harina || '',
       peso_unitario_aprox: productoTerminado?.peso_unitario_aprox ?? 0,
       precio_venta: productoTerminado?.precio_venta ?? 0,
       stock_minimo: productoTerminado?.stock_minimo ?? 0,
@@ -115,6 +117,7 @@ export default function ProductoTerminadoForm({ productoTerminado, onSuccess }: 
         codigo: data.codigo || null,
         codigo_barras: data.codigo_barras || null,
         id_categoria: parseInt(data.id_categoria),
+        tipo_harina: data.tipo_harina || null,
       }
 
       let url = '/api/productos-terminados'
@@ -236,6 +239,29 @@ export default function ProductoTerminadoForm({ productoTerminado, onSuccess }: 
                         {cat.nombre}
                       </SelectItem>
                     ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="tipo_harina"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Tipo de Harina</FormLabel>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Sin especificar" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="con_gluten">Con Gluten</SelectItem>
+                    <SelectItem value="integral">Integral</SelectItem>
+                    <SelectItem value="sin_gluten">Sin Gluten</SelectItem>
                   </SelectContent>
                 </Select>
                 <FormMessage />

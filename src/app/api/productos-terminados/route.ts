@@ -8,12 +8,16 @@ export async function GET(request: NextRequest) {
     const buscar = searchParams.get('buscar')
     const id_categoria = searchParams.get('id_categoria')
     const estado = searchParams.get('estado')
+    const tipo_harina = searchParams.get('tipo_harina')
     const pagina = parseInt(searchParams.get('pagina') || '1')
     const limite = parseInt(searchParams.get('limite') || '10')
 
     const where: Record<string, unknown> = {}
     if (id_categoria) where.id_categoria = parseInt(id_categoria)
     if (estado !== null && estado !== '') where.estado = estado === 'true'
+    if (tipo_harina && ['con_gluten', 'integral', 'sin_gluten'].includes(tipo_harina)) {
+      where.tipo_harina = tipo_harina
+    }
     if (buscar) {
       where.OR = [
         { nombre: { contains: buscar } },
@@ -57,6 +61,7 @@ export async function POST(request: NextRequest) {
       nombre,
       descripcion,
       id_categoria,
+      tipo_harina,
       peso_unitario_aprox,
       precio_venta,
       stock_minimo,
@@ -96,6 +101,7 @@ export async function POST(request: NextRequest) {
         nombre,
         descripcion: descripcion || null,
         id_categoria: parseInt(id_categoria),
+        tipo_harina: tipo_harina || null,
         peso_unitario_aprox: parseFloat(peso_unitario_aprox) || 0,
         precio_venta: parseFloat(precio_venta) || 0,
         stock_minimo: parseFloat(stock_minimo) || 0,
