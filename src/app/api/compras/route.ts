@@ -92,9 +92,16 @@ export async function POST(request: NextRequest) {
     } = body
 
     // Validaciones básicas
-    if (!id_proveedor || !id_forma_pago || !fecha_compra || !detalles || detalles.length === 0) {
+    const missingFields: string[] = []
+    if (!id_proveedor) missingFields.push('id_proveedor')
+    if (!id_forma_pago) missingFields.push('id_forma_pago')
+    if (!fecha_compra) missingFields.push('fecha_compra')
+    if (!detalles || detalles.length === 0) missingFields.push('detalles')
+
+    if (missingFields.length > 0) {
+      console.error('Compra POST - Campos faltantes:', missingFields, { id_proveedor, id_forma_pago, fecha_compra, detallesCount: detalles?.length })
       return NextResponse.json(
-        { error: 'Faltan campos requeridos: id_proveedor, id_forma_pago, fecha_compra, detalles' },
+        { error: `Faltan campos requeridos: ${missingFields.join(', ')}` },
         { status: 400 }
       )
     }

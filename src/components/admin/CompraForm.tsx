@@ -353,14 +353,14 @@ export default function CompraForm({ compra, onSuccess, onCancel }: CompraFormPr
             subtotal,
             iva,
             total,
-            detalle: detalles.map((d) => ({
-              tipo: d.tipo,
-              id_producto: parseInt(d.id_producto),
+            detalles: detalles.map((d) => ({
+              tipo: d.tipo === 'mp' ? 'materia_prima' : 'insumo',
+              id_materia_prima: d.tipo === 'mp' ? parseInt(d.id_producto) : null,
+              id_insumo: d.tipo === 'insumo' ? parseInt(d.id_producto) : null,
               id_marca: d.id_marca ? parseInt(d.id_marca) : null,
               cantidad_comprada: parseFloat(d.cantidad),
               id_unidad_compra: parseInt(d.unidad),
               precio_unitario: parseFloat(d.precioUnitario),
-              precio_total: parseFloat(d.precioTotal),
               fecha_vencimiento: d.fechaVencimiento || null,
               lote: d.lote.trim() || null,
             })),

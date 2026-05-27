@@ -437,6 +437,9 @@ async function main() {
     { nombre_forma: 'Efectivo', requiere_identificacion: false, requiere_cuenta: false },
     { nombre_forma: 'Mercado Pago', requiere_identificacion: false, requiere_cuenta: true },
     { nombre_forma: 'Transferencia bancaria', requiere_identificacion: true, requiere_cuenta: true },
+    { nombre_forma: 'Débito', requiere_identificacion: true, requiere_cuenta: true },
+    { nombre_forma: 'Crédito', requiere_identificacion: true, requiere_cuenta: true },
+    { nombre_forma: 'Otros', requiere_identificacion: false, requiere_cuenta: false },
   ]
   for (const fp of formasPago) {
     await prisma.formaPago.upsert({
