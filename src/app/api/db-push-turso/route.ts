@@ -1194,19 +1194,6 @@ export async function POST(request: NextRequest) {
     // 5. Run ALTER TABLE migrations for existing databases
     const migrations = [
       { sql: 'ALTER TABLE "Opinion" ADD COLUMN "email" TEXT', description: 'Add email column to Opinion table' },
-      { sql: 'ALTER TABLE "ProductoTerminado" ADD COLUMN "codigo_barras" TEXT', description: 'Add codigo_barras column to ProductoTerminado' },
-      { sql: 'ALTER TABLE "DetalleCompra" ADD COLUMN "codigo_barras_escaner" TEXT', description: 'Add codigo_barras_escaner to DetalleCompra' },
-      { sql: 'ALTER TABLE "DetallePedidoCliente" ADD COLUMN "codigo_barras_escaner" TEXT', description: 'Add codigo_barras_escaner to DetallePedidoCliente' },
-      { sql: 'ALTER TABLE "DetalleVenta" ADD COLUMN "codigo_barras_escaner" TEXT', description: 'Add codigo_barras_escaner to DetalleVenta' },
-      // Indexes for codigo_barras (idempotent — will be skipped if they exist)
-      { sql: 'CREATE UNIQUE INDEX "ProductoTerminado_codigo_barras_key" ON "ProductoTerminado"("codigo_barras")', description: 'Create unique index on ProductoTerminado.codigo_barras' },
-      { sql: 'CREATE INDEX "ProductoTerminado_codigo_barras_idx" ON "ProductoTerminado"("codigo_barras")', description: 'Create index on ProductoTerminado.codigo_barras' },
-      { sql: 'CREATE INDEX "Consulta_fecha_idx" ON "Consulta"("fecha")', description: 'Create index on Consulta.fecha' },
-      { sql: 'CREATE INDEX "Consulta_leido_idx" ON "Consulta"("leido")', description: 'Create index on Consulta.leido' },
-      { sql: 'CREATE UNIQUE INDEX "Presupuesto_numero_key" ON "Presupuesto"("numero")', description: 'Create unique index on Presupuesto.numero' },
-      { sql: 'CREATE INDEX "Presupuesto_id_cliente_idx" ON "Presupuesto"("id_cliente")', description: 'Create index on Presupuesto.id_cliente' },
-      { sql: 'CREATE INDEX "Presupuesto_estado_idx" ON "Presupuesto"("estado")', description: 'Create index on Presupuesto.estado' },
-      { sql: 'CREATE INDEX "DetallePresupuesto_id_presupuesto_idx" ON "DetallePresupuesto"("id_presupuesto")', description: 'Create index on DetallePresupuesto.id_presupuesto' },
     ]
 
     for (const migration of migrations) {
