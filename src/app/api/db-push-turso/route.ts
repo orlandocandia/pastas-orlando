@@ -1194,6 +1194,9 @@ export async function POST(request: NextRequest) {
     // 5. Run ALTER TABLE migrations for existing databases
     const migrations = [
       { sql: 'ALTER TABLE "Opinion" ADD COLUMN "email" TEXT', description: 'Add email column to Opinion table' },
+      { sql: 'ALTER TABLE "ProductoTerminado" ADD COLUMN "codigo_barras" TEXT', description: 'Add codigo_barras column to ProductoTerminado' },
+      { sql: 'ALTER TABLE "ProductoTerminado" ADD COLUMN "tipo_harina" TEXT', description: 'Add tipo_harina column to ProductoTerminado (con_gluten, integral, sin_gluten)' },
+      { sql: 'CREATE UNIQUE INDEX IF NOT EXISTS "ProductoTerminado_codigo_barras_key" ON "ProductoTerminado"("codigo_barras")', description: 'Add unique index on codigo_barras' },
     ]
 
     for (const migration of migrations) {
