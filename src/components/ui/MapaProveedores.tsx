@@ -86,8 +86,16 @@ export default function MapaProveedores() {
 
   const center: [number, number] = [-27.3666, -55.8969] // Posadas, Misiones
 
+  // Prevent map events from bubbling up to parent forms
+  const stopFormPropagation = {
+    onMouseDown: (e: React.MouseEvent) => e.stopPropagation(),
+    onClick: (e: React.MouseEvent) => e.stopPropagation(),
+    onKeyDown: (e: React.KeyboardEvent) => e.stopPropagation(),
+    onTouchStart: (e: React.TouchEvent) => e.stopPropagation(),
+  }
+
   return (
-    <div>
+    <div {...stopFormPropagation}>
       <div className="mb-3 flex items-center gap-2">
         <span className="inline-block w-3 h-3 rounded-full bg-green-600" />
         <p className="text-sm text-muted-foreground">

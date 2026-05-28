@@ -157,8 +157,16 @@ export default function SelectorUbicacion({
     [onLocationSelect],
   );
 
+  // Prevent map events from bubbling up to parent forms (avoids accidental form submission)
+  const stopFormPropagation = {
+    onMouseDown: (e: React.MouseEvent) => e.stopPropagation(),
+    onClick: (e: React.MouseEvent) => e.stopPropagation(),
+    onKeyDown: (e: React.KeyboardEvent) => e.stopPropagation(),
+    onTouchStart: (e: React.TouchEvent) => e.stopPropagation(),
+  }
+
   return (
-    <div className="w-full">
+    <div className="w-full" {...stopFormPropagation}>
       <div style={{ height, width: '100%' }} className="relative">
         <MapContainer
           center={[start.lat, start.lng]}

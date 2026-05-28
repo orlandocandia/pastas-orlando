@@ -217,8 +217,16 @@ export default function MapaLeaflet({
     }
   }, [usandoFallback, activarFallback, layerKey]);
 
+  // Prevent map events from bubbling up to parent forms (avoids accidental form submission)
+  const stopFormPropagation = {
+    onMouseDown: (e: React.MouseEvent) => e.stopPropagation(),
+    onClick: (e: React.MouseEvent) => e.stopPropagation(),
+    onKeyDown: (e: React.KeyboardEvent) => e.stopPropagation(),
+    onTouchStart: (e: React.TouchEvent) => e.stopPropagation(),
+  }
+
   return (
-    <div ref={containerRef} style={{ height, width: '100%' }} className={`relative ${className}`}>
+    <div ref={containerRef} style={{ height, width: '100%' }} className={`relative ${className}`} {...stopFormPropagation}>
       <MapContainer
         center={centerLatLng}
         zoom={zoom}

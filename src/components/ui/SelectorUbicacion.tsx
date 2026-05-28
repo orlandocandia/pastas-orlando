@@ -87,8 +87,16 @@ export default function SelectorUbicacion({
 
   const center: [number, number] = initialPosition ?? defaultCenter
 
+  // Prevent map events from bubbling up to parent forms (avoids accidental form submission)
+  const stopFormPropagation = {
+    onMouseDown: (e: React.MouseEvent) => e.stopPropagation(),
+    onClick: (e: React.MouseEvent) => e.stopPropagation(),
+    onKeyDown: (e: React.KeyboardEvent) => e.stopPropagation(),
+    onTouchStart: (e: React.TouchEvent) => e.stopPropagation(),
+  }
+
   return (
-    <div>
+    <div {...stopFormPropagation}>
       <p className="text-sm text-muted-foreground mb-2">
         📍 Hacé clic en el mapa para marcar la ubicación exacta
       </p>
