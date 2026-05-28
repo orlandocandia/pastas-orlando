@@ -96,6 +96,7 @@ export default function SelectorUbicacion({
         <MapContainer
           center={center}
           zoom={15}
+          maxZoom={20}
           style={{ height: '300px', width: '100%', borderRadius: '8px', zIndex: 0 }}
           scrollWheelZoom={true}
         >
@@ -103,6 +104,8 @@ export default function SelectorUbicacion({
             key={capaActiva}
             attribution={capaAttribution}
             url={capaUrl}
+            maxNativeZoom={18}
+            maxZoom={20}
           />
           <LocationMarker
             position={position}

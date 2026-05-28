@@ -163,6 +163,7 @@ export default function SelectorUbicacion({
         <MapContainer
           center={[start.lat, start.lng]}
           zoom={14}
+          maxZoom={20}
           style={{ height: '100%', width: '100%', borderRadius: '0.5rem' }}
           scrollWheelZoom
         >
@@ -170,6 +171,8 @@ export default function SelectorUbicacion({
             key={capaActiva}
             attribution={capaAttribution}
             url={capaUrl}
+            maxNativeZoom={18}
+            maxZoom={20}
           />
           <MapClickHandler onClick={handleMapClick} />
           <DraggableMarker position={position} onDragEnd={handleDragEnd} />

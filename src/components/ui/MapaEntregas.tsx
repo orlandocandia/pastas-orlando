@@ -134,6 +134,7 @@ export default function MapaEntregas() {
         <MapContainer
           center={center}
           zoom={12}
+          maxZoom={20}
           style={{ height: '400px', width: '100%', borderRadius: '8px', zIndex: 0 }}
           scrollWheelZoom={true}
         >
@@ -141,6 +142,8 @@ export default function MapaEntregas() {
             key={capaActiva}
             attribution={capaAttribution}
             url={capaUrl}
+            maxNativeZoom={18}
+            maxZoom={20}
           />
         {entregasConUbicacion.map((ent) => {
           const googleMapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${ent.latitud},${ent.longitud}`

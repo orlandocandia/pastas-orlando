@@ -109,7 +109,7 @@ export default function MapaLeaflet({
       <MapContainer
         center={[latitud, longitud]}
         zoom={zoom}
-        maxZoom={18}
+        maxZoom={20}
         style={{ height: altura, width: '100%', borderRadius: '8px', zIndex: 0 }}
         scrollWheelZoom={true}
       >
@@ -117,6 +117,8 @@ export default function MapaLeaflet({
           key={`${capaActiva}-${usandoFallback}`}
           attribution={capaAttribution}
           url={capaUrl}
+          maxNativeZoom={18}
+          maxZoom={20}
           detectRetina
           eventHandlers={{
             load: () => setTileStatus((prev) => prev.layerKey === layerKey ? { ...prev, status: 'loaded' } : prev),

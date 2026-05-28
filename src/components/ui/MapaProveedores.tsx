@@ -99,6 +99,7 @@ export default function MapaProveedores() {
         <MapContainer
           center={center}
           zoom={12}
+          maxZoom={20}
           style={{ height: '400px', width: '100%', borderRadius: '8px', zIndex: 0 }}
           scrollWheelZoom={true}
         >
@@ -106,6 +107,8 @@ export default function MapaProveedores() {
             key={capaActiva}
             attribution={capaAttribution}
             url={capaUrl}
+            maxNativeZoom={18}
+            maxZoom={20}
           />
         {proveedoresConUbicacion.map((prov) => {
           const telefono = prov.contactos?.find((c) =>
