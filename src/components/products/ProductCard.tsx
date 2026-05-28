@@ -59,12 +59,12 @@ export default function ProductCard({ producto }: ProductCardProps) {
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
         />
 
-        {/* SIN STOCK overlay */}
+        {/* Consultar disponibilidad badge */}
         {sinStock && (
-          <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-10">
-            <Badge className="bg-rojo text-white text-xs font-bold px-3 py-1 shadow-md border-0">
-              SIN STOCK
-            </Badge>
+          <div className="absolute top-2 right-2 z-10">
+            <span className="bg-yellow-500 text-white px-3 py-1 rounded-full text-xs font-medium shadow-md">
+              📦 Consultar disponibilidad
+            </span>
           </div>
         )}
 
@@ -119,25 +119,19 @@ export default function ProductCard({ producto }: ProductCardProps) {
           <p className="text-mostaza font-bold text-lg">
             {priceFormatter.format(producto.precio_venta)}
           </p>
-          {sinStock ? (
-            <span className="text-xs text-muted-foreground italic">
-              No disponible
-            </span>
-          ) : (
-            <a
-              href={whatsappUrl}
-              target="_blank"
-              rel="noopener noreferrer"
+          <a
+            href={whatsappUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <Button
+              size="sm"
+              className="bg-whatsapp hover:bg-[#1DA851] text-white font-semibold gap-1.5 transition-colors duration-300"
             >
-              <Button
-                size="sm"
-                className="bg-whatsapp hover:bg-[#1DA851] text-white font-semibold gap-1.5 transition-colors duration-300"
-              >
-                <MessageCircle className="h-4 w-4" />
-                Consultar
-              </Button>
-            </a>
-          )}
+              <MessageCircle className="h-4 w-4" />
+              {sinStock ? 'Consultar por WhatsApp' : 'Consultar'}
+            </Button>
+          </a>
         </div>
       </div>
     </div>
