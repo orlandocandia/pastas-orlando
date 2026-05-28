@@ -255,9 +255,50 @@ export default function PersonaForm({ persona, onSuccess }: PersonaFormProps) {
     }
   }, [persona])
 
+  // Load initial data (paises, tipos)
   useEffect(() => {
     fetchInitialData()
   }, [fetchInitialData])
+
+  // ==================== Precargar datos geográficos al editar ====================
+  // Cuando se edita una persona existente con municipio, precargar en cascada:
+  // provincias del país → departamentos de la provincia → municipios del departamento
+  useEffect(() => {
+    if (!isEditing || !initialPais) return
+
+    let cancelled = false
+
+    async function preloadGeo() {
+      try {
+        // 1. Cargar provincias del país inicial
+        const provRes = await fetch(`/api/geografia?tipo=provincias&id=${initialPais}`)
+        const provData = await provRes.json()
+        if (cancelled) return
+        setProvincias(Array.isArray(provData) ? provData : [])
+
+        // 2. Cargar departamentos de la provincia inicial
+        if (initialProvincia) {
+          const depRes = await fetch(`/api/geografia?tipo=departamentos&id=${initialProvincia}`)
+          const depData = await depRes.json()
+          if (cancelled) return
+          setDepartamentos(Array.isArray(depData) ? depData : [])
+
+          // 3. Cargar municipios del departamento inicial
+          if (initialDepartamento) {
+            const munRes = await fetch(`/api/geografia?tipo=municipios&id=${initialDepartamento}`)
+            const munData = await munRes.json()
+            if (cancelled) return
+            setMunicipios(Array.isArray(munData) ? munData : [])
+          }
+        }
+      } catch (err) {
+        console.error('Error al precargar datos geográficos:', err)
+      }
+    }
+
+    preloadGeo()
+    return () => { cancelled = true }
+  }, [isEditing, initialPais, initialProvincia, initialDepartamento])
 
   // ==================== Cascading geographic selects ====================
 
