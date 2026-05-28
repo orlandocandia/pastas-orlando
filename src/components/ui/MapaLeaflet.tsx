@@ -109,6 +109,7 @@ export default function MapaLeaflet({
       <MapContainer
         center={[latitud, longitud]}
         zoom={zoom}
+        maxZoom={18}
         style={{ height: altura, width: '100%', borderRadius: '8px', zIndex: 0 }}
         scrollWheelZoom={true}
       >
