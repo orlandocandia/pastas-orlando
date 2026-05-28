@@ -43,19 +43,15 @@ export default function ProductCard({ producto }: ProductCardProps) {
 
   return (
     <div
-      className={`group rounded-xl border border-border bg-card overflow-hidden shadow-md hover:shadow-xl hover:-translate-y-1 hover:border-mostaza/40 transition-all duration-300 ${
-        sinStock ? 'opacity-80' : ''
-      }`}
+      className="group rounded-xl border border-border bg-card overflow-hidden shadow-md hover:shadow-xl hover:-translate-y-1 hover:border-mostaza/40 transition-all duration-300"
     >
-      {/* Image — overflow-hidden for zoom containment */}
-      <div className="relative w-full h-48 overflow-hidden bg-gray-100 rounded-t-lg">
+      {/* Image — aspect ratio container with object-contain */}
+      <div className="aspect-[4/3] relative bg-gray-100 rounded-t-lg">
         <Image
           src={producto.imagen || '/images/placeholder-producto.jpg'}
           alt={producto.nombre}
           fill
-          className={`object-cover object-center transition-transform duration-300 group-hover:scale-105 ${
-            sinStock ? 'grayscale-[50%]' : ''
-          }`}
+          className="object-contain p-2 transition-transform duration-300 group-hover:scale-105"
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
         />
 
