@@ -160,45 +160,103 @@ export async function POST(request: NextRequest) {
 
     // 4. Municipios
     const municipiosData: { nombre: string; deptoKey: string }[] = [
-      // ── Misiones ──
+      // ── Misiones (79 municipios oficiales) ──
+      // Departamento Capital (5)
       { nombre: 'Posadas', deptoKey: 'Misiones-Capital' },
       { nombre: 'Garupá', deptoKey: 'Misiones-Capital' },
+      { nombre: 'Fachinal', deptoKey: 'Misiones-Capital' },
+      { nombre: 'Villa Lanús', deptoKey: 'Misiones-Capital' },
+      { nombre: 'Itaembé Miní', deptoKey: 'Misiones-Capital' },
+      // Departamento Apóstoles (4)
       { nombre: 'Apóstoles', deptoKey: 'Misiones-Apóstoles' },
+      { nombre: 'Azara', deptoKey: 'Misiones-Apóstoles' },
       { nombre: 'San José', deptoKey: 'Misiones-Apóstoles' },
+      { nombre: 'Tres Capones', deptoKey: 'Misiones-Apóstoles' },
+      // Departamento Candelaria (7)
+      { nombre: 'Santa Ana', deptoKey: 'Misiones-Candelaria' },
+      { nombre: 'Candelaria', deptoKey: 'Misiones-Candelaria' },
+      { nombre: 'Profundidad', deptoKey: 'Misiones-Candelaria' },
+      { nombre: 'Cerro Corá', deptoKey: 'Misiones-Candelaria' },
+      { nombre: 'Bonpland', deptoKey: 'Misiones-Candelaria' },
+      { nombre: 'Loreto', deptoKey: 'Misiones-Candelaria' },
+      { nombre: 'Mártires', deptoKey: 'Misiones-Candelaria' },
+      // Departamento Leandro N. Alem (8)
+      { nombre: 'Leandro N. Alem', deptoKey: 'Misiones-Leandro N. Alem' },
+      { nombre: 'Cerro Azul', deptoKey: 'Misiones-Leandro N. Alem' },
+      { nombre: 'Dos Arroyos', deptoKey: 'Misiones-Leandro N. Alem' },
+      { nombre: 'Gobernador López', deptoKey: 'Misiones-Leandro N. Alem' },
+      { nombre: 'Arroyo del Medio', deptoKey: 'Misiones-Leandro N. Alem' },
+      { nombre: 'Olegario Víctor Andrade', deptoKey: 'Misiones-Leandro N. Alem' },
+      { nombre: 'Caá Yarí', deptoKey: 'Misiones-Leandro N. Alem' },
+      { nombre: 'Almafuerte', deptoKey: 'Misiones-Leandro N. Alem' },
+      // Departamento Cainguás (3)
       { nombre: 'Campo Grande', deptoKey: 'Misiones-Cainguás' },
       { nombre: 'Aristóbulo del Valle', deptoKey: 'Misiones-Cainguás' },
-      { nombre: 'Candelaria', deptoKey: 'Misiones-Candelaria' },
-      { nombre: 'Santa Ana', deptoKey: 'Misiones-Candelaria' },
-      { nombre: 'Mártires', deptoKey: 'Misiones-Candelaria' },
+      { nombre: 'Dos de Mayo', deptoKey: 'Misiones-Cainguás' },
+      // Departamento Concepción (2)
       { nombre: 'Concepción de la Sierra', deptoKey: 'Misiones-Concepción' },
       { nombre: 'Santa María', deptoKey: 'Misiones-Concepción' },
+      // Departamento Eldorado (5)
       { nombre: 'Eldorado', deptoKey: 'Misiones-Eldorado' },
+      { nombre: 'Colonia Victoria', deptoKey: 'Misiones-Eldorado' },
       { nombre: '9 de Julio', deptoKey: 'Misiones-Eldorado' },
-      { nombre: 'Colonia Wanda', deptoKey: 'Misiones-Eldorado' },
+      { nombre: 'Santiago de Liniers', deptoKey: 'Misiones-Eldorado' },
+      { nombre: 'Colonia Delicia', deptoKey: 'Misiones-Eldorado' },
+      // Departamento General Manuel Belgrano (3)
       { nombre: 'Bernardo de Irigoyen', deptoKey: 'Misiones-General Manuel Belgrano' },
-      { nombre: 'Comandante Andrés Guacurarí', deptoKey: 'Misiones-General Manuel Belgrano' },
+      { nombre: 'Comandante Andresito', deptoKey: 'Misiones-General Manuel Belgrano' },
+      { nombre: 'San Antonio', deptoKey: 'Misiones-General Manuel Belgrano' },
+      // Departamento Guaraní (3)
       { nombre: 'El Soberbio', deptoKey: 'Misiones-Guaraní' },
-      { nombre: 'Puerto Rico', deptoKey: 'Misiones-Guaraní' },
-      { nombre: 'Oberá', deptoKey: 'Misiones-Oberá' },
-      { nombre: 'Campo Viera', deptoKey: 'Misiones-Oberá' },
+      { nombre: 'San Vicente', deptoKey: 'Misiones-Guaraní' },
+      { nombre: 'Fracrán', deptoKey: 'Misiones-Guaraní' },
+      // Departamento Iguazú (4)
+      { nombre: 'Puerto Esperanza', deptoKey: 'Misiones-Iguazú' },
       { nombre: 'Puerto Iguazú', deptoKey: 'Misiones-Iguazú' },
-      { nombre: 'Wanda', deptoKey: 'Misiones-Iguazú' },
-      { nombre: 'Leandro N. Alem', deptoKey: 'Misiones-Leandro N. Alem' },
-      { nombre: 'Caá Yarí', deptoKey: 'Misiones-Leandro N. Alem' },
-      { nombre: 'Puerto Libertad', deptoKey: 'Misiones-Libertador General San Martín' },
+      { nombre: 'Colonia Wanda', deptoKey: 'Misiones-Iguazú' },
+      { nombre: 'Puerto Libertad', deptoKey: 'Misiones-Iguazú' },
+      // Departamento Libertador General San Martín (6)
+      { nombre: 'Puerto Rico', deptoKey: 'Misiones-Libertador General San Martín' },
+      { nombre: 'Garuhapé', deptoKey: 'Misiones-Libertador General San Martín' },
       { nombre: 'Capioví', deptoKey: 'Misiones-Libertador General San Martín' },
+      { nombre: 'El Alcázar', deptoKey: 'Misiones-Libertador General San Martín' },
+      { nombre: 'Puerto Leoni', deptoKey: 'Misiones-Libertador General San Martín' },
       { nombre: 'Ruiz de Montoya', deptoKey: 'Misiones-Libertador General San Martín' },
+      // Departamento Montecarlo (3)
       { nombre: 'Montecarlo', deptoKey: 'Misiones-Montecarlo' },
+      { nombre: 'Puerto Piray', deptoKey: 'Misiones-Montecarlo' },
       { nombre: 'Caraguatay', deptoKey: 'Misiones-Montecarlo' },
+      // Departamento Oberá (9)
+      { nombre: 'Oberá', deptoKey: 'Misiones-Oberá' },
+      { nombre: 'Campo Ramón', deptoKey: 'Misiones-Oberá' },
+      { nombre: 'Campo Viera', deptoKey: 'Misiones-Oberá' },
+      { nombre: 'Guaraní', deptoKey: 'Misiones-Oberá' },
+      { nombre: 'Los Helechos', deptoKey: 'Misiones-Oberá' },
+      { nombre: 'Colonia Alberdi', deptoKey: 'Misiones-Oberá' },
+      { nombre: 'Panambí', deptoKey: 'Misiones-Oberá' },
+      { nombre: 'San Martín', deptoKey: 'Misiones-Oberá' },
+      { nombre: 'General Alvear', deptoKey: 'Misiones-Oberá' },
+      // Departamento San Ignacio (8)
       { nombre: 'San Ignacio', deptoKey: 'Misiones-San Ignacio' },
       { nombre: 'Jardín América', deptoKey: 'Misiones-San Ignacio' },
+      { nombre: 'Santo Pipó', deptoKey: 'Misiones-San Ignacio' },
+      { nombre: 'Corpus', deptoKey: 'Misiones-San Ignacio' },
       { nombre: 'Hipólito Yrigoyen', deptoKey: 'Misiones-San Ignacio' },
+      { nombre: 'General Urquiza', deptoKey: 'Misiones-San Ignacio' },
+      { nombre: 'Colonia Polana', deptoKey: 'Misiones-San Ignacio' },
+      { nombre: 'Gobernador Roca', deptoKey: 'Misiones-San Ignacio' },
+      // Departamento San Javier (4)
       { nombre: 'San Javier', deptoKey: 'Misiones-San Javier' },
       { nombre: 'Itacaruaré', deptoKey: 'Misiones-San Javier' },
+      { nombre: 'Mojón Grande', deptoKey: 'Misiones-San Javier' },
+      { nombre: 'Florentino Ameghino', deptoKey: 'Misiones-San Javier' },
+      // Departamento San Pedro (2)
       { nombre: 'San Pedro', deptoKey: 'Misiones-San Pedro' },
-      { nombre: 'General Urquiza', deptoKey: 'Misiones-San Pedro' },
+      { nombre: 'Pozo Azul', deptoKey: 'Misiones-San Pedro' },
+      // Departamento Veinticinco de Mayo (3)
       { nombre: 'Alba Posse', deptoKey: 'Misiones-Veinticinco de Mayo' },
       { nombre: 'Colonia Aurora', deptoKey: 'Misiones-Veinticinco de Mayo' },
+      { nombre: '25 de Mayo', deptoKey: 'Misiones-Veinticinco de Mayo' },
       // ── Corrientes ──
       { nombre: 'Corrientes', deptoKey: 'Corrientes-Capital' },
       { nombre: 'Barrio Esperanza', deptoKey: 'Corrientes-Capital' },
