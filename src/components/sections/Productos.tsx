@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useMemo } from 'react'
+import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
 import { PackageOpen, ArrowLeft, Wheat, Leaf, Sparkles } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -26,7 +27,7 @@ type FiltroHarina = 'todos' | 'con_gluten' | 'integral' | 'sin_gluten'
 
 interface Familia {
   nombre: string
-  emoji: string
+  imagen: string
   descripcion: string
   categoriaFiltro: string
 }
@@ -34,43 +35,43 @@ interface Familia {
 const FAMILIAS: Familia[] = [
   {
     nombre: 'Sorrentinos',
-    emoji: '🥟',
+    imagen: '/images/familias/sorrentinos.png',
     descripcion: 'Rellenos de jamón, queso, pollo y más',
     categoriaFiltro: 'Sorrentinos',
   },
   {
     nombre: 'Ñoquis',
-    emoji: '🥔',
+    imagen: '/images/familias/noquis.png',
     descripcion: 'De papa, calabaza, espinaca y más',
     categoriaFiltro: 'Ñoquis',
   },
   {
     nombre: 'Tallarines',
-    emoji: '🍝',
+    imagen: '/images/familias/tallarines.png',
     descripcion: 'Al huevo, al morrón, a la espinaca y más',
     categoriaFiltro: 'Tallarines',
   },
   {
     nombre: 'Ravioles',
-    emoji: '🧀',
+    imagen: '/images/familias/ravioles.png',
     descripcion: 'De ricotta, carne, jamón y más',
     categoriaFiltro: 'Ravioles',
   },
   {
     nombre: 'Tapas',
-    emoji: '🫓',
+    imagen: '/images/familias/tapas.png',
     descripcion: 'Para empanadas, pascualinas y pastelitos',
     categoriaFiltro: 'Tapas',
   },
   {
     nombre: 'Empanadas',
-    emoji: '🥧',
+    imagen: '/images/familias/empanadas.png',
     descripcion: 'Crudas y al horno, variedad de rellenos',
     categoriaFiltro: 'Empanadas',
   },
   {
     nombre: 'Tartas',
-    emoji: '🥧',
+    imagen: '/images/familias/tartas.png',
     descripcion: 'De verduras, jamón, pollo y choclo',
     categoriaFiltro: 'Tartas',
   },
@@ -223,7 +224,7 @@ export default function Productos() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {Array.from({ length: 6 }).map((_, i) => (
               <div key={i} className="rounded-2xl border border-marron/10 bg-white p-8 animate-pulse flex flex-col items-center gap-4">
-                <div className="h-16 w-16 bg-muted rounded-full" />
+                <div className="h-20 w-20 bg-muted rounded-full" />
                 <div className="h-5 w-24 bg-muted rounded" />
                 <div className="h-4 w-40 bg-muted rounded" />
                 <div className="h-5 w-16 bg-muted rounded-full" />
@@ -295,10 +296,16 @@ export default function Productos() {
                         ${isActive ? 'ring-2 ring-mostaza shadow-lg scale-[1.03]' : ''}
                       `}
                     >
-                      {/* Emoji */}
-                      <span className="text-6xl transition-transform duration-300 group-hover:scale-110">
-                        {familia.emoji}
-                      </span>
+                      {/* Imagen representativa */}
+                      <div className="w-20 h-20 mx-auto rounded-full overflow-hidden bg-crema border-2 border-mostaza/20 transition-transform duration-300 group-hover:scale-110">
+                        <Image
+                          src={familia.imagen}
+                          alt={familia.nombre}
+                          width={80}
+                          height={80}
+                          className="object-cover w-full h-full"
+                        />
+                      </div>
 
                       {/* Name */}
                       <h3 className="text-xl font-bold text-marron">
@@ -353,8 +360,16 @@ export default function Productos() {
                         Volver
                       </Button>
                       <div className="h-6 w-px bg-marron/20" />
-                      <h3 className="text-xl font-bold text-marron">
-                        {FAMILIAS.find((f) => f.nombre === familiaActiva)?.emoji}{' '}
+                      <h3 className="text-xl font-bold text-marron flex items-center gap-2">
+                        <span className="w-7 h-7 rounded-full overflow-hidden inline-block bg-crema border border-mostaza/20 flex-shrink-0">
+                          <Image
+                            src={FAMILIAS.find((f) => f.nombre === familiaActiva)?.imagen || '/images/placeholder-producto.jpg'}
+                            alt={familiaActiva}
+                            width={28}
+                            height={28}
+                            className="object-cover w-full h-full"
+                          />
+                        </span>
                         {familiaActiva}
                       </h3>
                       <span className="text-sm text-muted-foreground">
