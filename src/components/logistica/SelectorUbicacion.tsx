@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback, useRef } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
 import type { LatLngExpression, LatLng } from 'leaflet';
+import CapasControl, { useCapaMapa, type CapaKey } from '@/components/ui/CapasControl';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -13,6 +14,10 @@ export interface SelectorUbicacionProps {
   onLocationSelect: (lat: number, lng: number) => void;
   initialPosition?: { lat: number; lng: number };
   height?: string;
+  /** Initial map layer */
+  capaInicial?: CapaKey;
+  /** Show layer selector control */
+  mostrarCapas?: boolean;
 }
 
 // ---------------------------------------------------------------------------
@@ -127,8 +132,11 @@ export default function SelectorUbicacion({
   onLocationSelect,
   initialPosition,
   height = '400px',
+  capaInicial = 'calle',
+  mostrarCapas = true,
 }: SelectorUbicacionProps) {
   useLeafletCSS();
+  const { capaActiva, setCapaActiva, capaUrl, capaAttribution } = useCapaMapa(capaInicial);
 
   const start = initialPosition ?? DEFAULT_CENTER;
   const [position, setPosition] = useState<[number, number]>([start.lat, start.lng]);
@@ -151,7 +159,7 @@ export default function SelectorUbicacion({
 
   return (
     <div className="w-full">
-      <div style={{ height, width: '100%' }}>
+      <div style={{ height, width: '100%' }} className="relative">
         <MapContainer
           center={[start.lat, start.lng]}
           zoom={14}
@@ -159,12 +167,17 @@ export default function SelectorUbicacion({
           scrollWheelZoom
         >
           <TileLayer
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            key={capaActiva}
+            attribution={capaAttribution}
+            url={capaUrl}
           />
           <MapClickHandler onClick={handleMapClick} />
           <DraggableMarker position={position} onDragEnd={handleDragEnd} />
         </MapContainer>
+
+        {mostrarCapas && (
+          <CapasControl capaActiva={capaActiva} onCapaChange={setCapaActiva} />
+        )}
       </div>
 
       <div className="mt-2 flex items-center gap-2 text-sm text-muted-foreground">

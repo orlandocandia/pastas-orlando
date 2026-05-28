@@ -5,6 +5,7 @@ import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import { isToday, isTomorrow, parseISO } from 'date-fns'
+import CapasControl, { useCapaMapa } from '@/components/ui/CapasControl'
 
 // Fix Leaflet default icon issue
 delete (L.Icon.Default.prototype as Record<string, unknown>)._getIconUrl
@@ -56,6 +57,7 @@ function getMarkerIcon(fechaEntrega: string): L.DivIcon {
 export default function MapaEntregas() {
   const [entregas, setEntregas] = useState<Entrega[]>([])
   const [loading, setLoading] = useState(true)
+  const { capaActiva, setCapaActiva, capaUrl, capaAttribution } = useCapaMapa()
 
   useEffect(() => {
     async function fetchEntregas() {
@@ -128,16 +130,18 @@ export default function MapaEntregas() {
           {entregasConUbicacion.length !== 1 ? 's' : ''} en el mapa
         </p>
       </div>
-      <MapContainer
-        center={center}
-        zoom={12}
-        style={{ height: '400px', width: '100%', borderRadius: '8px', zIndex: 0 }}
-        scrollWheelZoom={true}
-      >
-        <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        />
+      <div className="relative">
+        <MapContainer
+          center={center}
+          zoom={12}
+          style={{ height: '400px', width: '100%', borderRadius: '8px', zIndex: 0 }}
+          scrollWheelZoom={true}
+        >
+          <TileLayer
+            key={capaActiva}
+            attribution={capaAttribution}
+            url={capaUrl}
+          />
         {entregasConUbicacion.map((ent) => {
           const googleMapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${ent.latitud},${ent.longitud}`
           const icon = getMarkerIcon(ent.fecha_entrega)
@@ -176,6 +180,8 @@ export default function MapaEntregas() {
           )
         })}
       </MapContainer>
+      <CapasControl capaActiva={capaActiva} onCapaChange={setCapaActiva} />
+      </div>
       {/* Legend */}
       <div className="mt-3 flex items-center justify-center gap-4">
         <span className="flex items-center gap-1 text-xs">

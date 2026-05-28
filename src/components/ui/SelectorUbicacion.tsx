@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from 'react-leaflet'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
+import CapasControl, { useCapaMapa, type CapaKey } from '@/components/ui/CapasControl'
 
 // Fix Leaflet default icon issue
 delete (L.Icon.Default.prototype as Record<string, unknown>)._getIconUrl
@@ -29,6 +30,10 @@ interface SelectorUbicacionProps {
   onLocationSelect: (lat: number, lng: number) => void
   latitudInicial?: number
   longitudInicial?: number
+  /** Initial map layer */
+  capaInicial?: CapaKey
+  /** Show layer selector control */
+  mostrarCapas?: boolean
 }
 
 function LocationMarker({
@@ -67,7 +72,10 @@ export default function SelectorUbicacion({
   onLocationSelect,
   latitudInicial,
   longitudInicial,
+  capaInicial = 'calle',
+  mostrarCapas = true,
 }: SelectorUbicacionProps) {
+  const { capaActiva, setCapaActiva, capaUrl, capaAttribution } = useCapaMapa(capaInicial)
   const defaultCenter: [number, number] = [-27.3666, -55.8969] // Posadas, Misiones
 
   const initialPosition =
@@ -84,22 +92,29 @@ export default function SelectorUbicacion({
       <p className="text-sm text-muted-foreground mb-2">
         📍 Hacé clic en el mapa para marcar la ubicación exacta
       </p>
-      <MapContainer
-        center={center}
-        zoom={15}
-        style={{ height: '300px', width: '100%', borderRadius: '8px', zIndex: 0 }}
-        scrollWheelZoom={true}
-      >
-        <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        />
-        <LocationMarker
-          position={position}
-          setPosition={setPosition}
-          onLocationSelect={onLocationSelect}
-        />
-      </MapContainer>
+      <div className="relative">
+        <MapContainer
+          center={center}
+          zoom={15}
+          style={{ height: '300px', width: '100%', borderRadius: '8px', zIndex: 0 }}
+          scrollWheelZoom={true}
+        >
+          <TileLayer
+            key={capaActiva}
+            attribution={capaAttribution}
+            url={capaUrl}
+          />
+          <LocationMarker
+            position={position}
+            setPosition={setPosition}
+            onLocationSelect={onLocationSelect}
+          />
+        </MapContainer>
+
+        {mostrarCapas && (
+          <CapasControl capaActiva={capaActiva} onCapaChange={setCapaActiva} />
+        )}
+      </div>
     </div>
   )
 }

@@ -4,6 +4,7 @@ import { useEffect, useRef } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import type { LatLngExpression } from 'leaflet';
+import CapasControl, { useCapaMapa, type CapaKey } from '@/components/ui/CapasControl';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -25,6 +26,10 @@ export interface MapaLeafletProps {
   className?: string;
   /** When set, the map will fly to these coordinates */
   flyToMarker?: { lat: number; lng: number } | null;
+  /** Initial map layer */
+  capaInicial?: CapaKey;
+  /** Show layer selector control */
+  mostrarCapas?: boolean;
 }
 
 // ---------------------------------------------------------------------------
@@ -144,15 +149,18 @@ export default function MapaLeaflet({
   height = '400px',
   className = '',
   flyToMarker,
+  capaInicial = 'calle',
+  mostrarCapas = true,
 }: MapaLeafletProps) {
   useLeafletCSS();
+  const { capaActiva, setCapaActiva, capaUrl, capaAttribution } = useCapaMapa(capaInicial);
 
   const containerRef = useRef<HTMLDivElement>(null);
 
   const centerLatLng: LatLngExpression = [center.lat, center.lng];
 
   return (
-    <div ref={containerRef} style={{ height, width: '100%' }} className={className}>
+    <div ref={containerRef} style={{ height, width: '100%' }} className={`relative ${className}`}>
       <MapContainer
         center={centerLatLng}
         zoom={zoom}
@@ -160,8 +168,9 @@ export default function MapaLeaflet({
         scrollWheelZoom
       >
         <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          key={capaActiva}
+          attribution={capaAttribution}
+          url={capaUrl}
         />
 
         <FitBounds markers={markers} />
@@ -184,6 +193,10 @@ export default function MapaLeaflet({
           </Marker>
         ))}
       </MapContainer>
+
+      {mostrarCapas && (
+        <CapasControl capaActiva={capaActiva} onCapaChange={setCapaActiva} />
+      )}
     </div>
   );
 }
