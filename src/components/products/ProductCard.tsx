@@ -50,15 +50,6 @@ export default function ProductCard({ producto }: ProductCardProps) {
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
         />
 
-        {/* Consultar disponibilidad badge */}
-        {sinStock && (
-          <div className="absolute top-2 right-2 z-10">
-            <span className="bg-yellow-500 text-white px-3 py-1 rounded-full text-xs font-medium shadow-md">
-              📦 Consultar disponibilidad
-            </span>
-          </div>
-        )}
-
         {/* Destacado Badge */}
         {producto.destacado && !sinStock && (
           <div className="absolute top-3 left-3 z-10">
