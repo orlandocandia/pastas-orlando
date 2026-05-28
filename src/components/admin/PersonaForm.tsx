@@ -302,72 +302,15 @@ export default function PersonaForm({ persona, onSuccess }: PersonaFormProps) {
 
   // ==================== Cascading geographic selects ====================
 
-  // Load provincias when pais changes
-  useEffect(() => {
-    const subscription = form.watch((value, { name }) => {
-      if (name === 'id_pais') {
-        const paisId = value.id_pais
-        if (paisId) {
-          fetch(`/api/geografia?tipo=provincias&id=${paisId}`)
-            .then((res) => res.json())
-            .then((data) => {
-              setProvincias(Array.isArray(data) ? data : [])
-            })
-            .catch(() => setProvincias([]))
-        } else {
-          setProvincias([])
-        }
-      }
-    })
-    return () => subscription.unsubscribe()
-  }, [form])
+  // These handlers are the SOLE source of truth for cascading selects.
+  // No useEffect subscriptions needed — the Select onValueChange calls these directly.
 
-  // Load departamentos when provincia changes
-  useEffect(() => {
-    const subscription = form.watch((value, { name }) => {
-      if (name === 'id_provincia') {
-        const provId = value.id_provincia
-        if (provId) {
-          fetch(`/api/geografia?tipo=departamentos&id=${provId}`)
-            .then((res) => res.json())
-            .then((data) => {
-              setDepartamentos(Array.isArray(data) ? data : [])
-            })
-            .catch(() => setDepartamentos([]))
-        } else {
-          setDepartamentos([])
-        }
-      }
-    })
-    return () => subscription.unsubscribe()
-  }, [form])
-
-  // Load municipios when departamento changes
-  useEffect(() => {
-    const subscription = form.watch((value, { name }) => {
-      if (name === 'id_departamento') {
-        const deptoId = value.id_departamento
-        if (deptoId) {
-          fetch(`/api/geografia?tipo=municipios&id=${deptoId}`)
-            .then((res) => res.json())
-            .then((data) => {
-              setMunicipios(Array.isArray(data) ? data : [])
-            })
-            .catch(() => setMunicipios([]))
-        } else {
-          setMunicipios([])
-        }
-      }
-    })
-    return () => subscription.unsubscribe()
-  }, [form])
-
-  // Handle pais change: fetch provincias + clear downstream selects
   const handlePaisChange = (value: string) => {
     form.setValue('id_pais', value)
     form.setValue('id_provincia', '')
     form.setValue('id_departamento', '')
     form.setValue('id_municipio', '')
+    setProvincias([])
     setDepartamentos([])
     setMunicipios([])
     if (value) {
@@ -375,38 +318,32 @@ export default function PersonaForm({ persona, onSuccess }: PersonaFormProps) {
         .then((res) => res.json())
         .then((data) => setProvincias(Array.isArray(data) ? data : []))
         .catch(() => setProvincias([]))
-    } else {
-      setProvincias([])
     }
   }
 
-  // Handle provincia change: fetch departamentos + clear downstream selects
   const handleProvinciaChange = (value: string) => {
     form.setValue('id_provincia', value)
     form.setValue('id_departamento', '')
     form.setValue('id_municipio', '')
+    setDepartamentos([])
     setMunicipios([])
     if (value) {
       fetch(`/api/geografia?tipo=departamentos&id=${value}`)
         .then((res) => res.json())
         .then((data) => setDepartamentos(Array.isArray(data) ? data : []))
         .catch(() => setDepartamentos([]))
-    } else {
-      setDepartamentos([])
     }
   }
 
-  // Handle departamento change: fetch municipios + clear municipio
   const handleDepartamentoChange = (value: string) => {
     form.setValue('id_departamento', value)
     form.setValue('id_municipio', '')
+    setMunicipios([])
     if (value) {
       fetch(`/api/geografia?tipo=municipios&id=${value}`)
         .then((res) => res.json())
         .then((data) => setMunicipios(Array.isArray(data) ? data : []))
         .catch(() => setMunicipios([]))
-    } else {
-      setMunicipios([])
     }
   }
 
