@@ -3,8 +3,17 @@
 import { useState } from 'react'
 
 // ==================== Definiciones de capas ====================
+// Orden: Satélite (más clara) → Calles → Relieve → Ciclismo
 
 export const MAPAS_CAPAS = {
+  satelite: {
+    nombre: 'Satélite',
+    emoji: '🛰️',
+    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+    attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
+    fallbackUrl: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
+    fallbackAttribution: '&copy; <a href="https://carto.com/">CARTO</a> &copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>',
+  },
   calle: {
     nombre: 'Calles',
     emoji: '🗺️',
@@ -12,14 +21,6 @@ export const MAPAS_CAPAS = {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/">CARTO</a>',
     fallbackUrl: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
     fallbackAttribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-  },
-  satelite: {
-    nombre: 'Satélite',
-    emoji: '🛰️',
-    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-    attribution: 'Tiles &copy; Esri',
-    fallbackUrl: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-    fallbackAttribution: 'Tiles &copy; Esri',
   },
   topografico: {
     nombre: 'Relieve',
@@ -93,7 +94,7 @@ export default function CapasControl({
 
 // ==================== Hook para manejar capas ====================
 
-export function useCapaMapa(initial: CapaKey = 'calle') {
+export function useCapaMapa(initial: CapaKey = 'satelite') {
   const [capaActiva, setCapaActiva] = useState<CapaKey>(initial)
   const [usandoFallback, setUsandoFallback] = useState(false)
 

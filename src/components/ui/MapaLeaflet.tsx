@@ -77,7 +77,7 @@ export default function MapaLeaflet({
   direccion,
   altura = '300px',
   zoom = 15,
-  capaInicial = 'calle',
+  capaInicial = 'satelite',
   mostrarCapas = true,
 }: MapaLeafletProps) {
   const { capaActiva, setCapaActiva, capaUrl, capaAttribution, usandoFallback, activarFallback } = useCapaMapa(capaInicial)
@@ -117,6 +117,7 @@ export default function MapaLeaflet({
           key={`${capaActiva}-${usandoFallback}`}
           attribution={capaAttribution}
           url={capaUrl}
+          detectRetina
           eventHandlers={{
             load: () => setTileStatus((prev) => prev.layerKey === layerKey ? { ...prev, status: 'loaded' } : prev),
             tileerror: handleTileError,

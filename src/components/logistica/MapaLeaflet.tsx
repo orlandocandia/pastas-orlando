@@ -186,7 +186,7 @@ export default function MapaLeaflet({
   height = '400px',
   className = '',
   flyToMarker,
-  capaInicial = 'calle',
+  capaInicial = 'satelite',
   mostrarCapas = true,
 }: MapaLeafletProps) {
   useLeafletCSS();
@@ -230,6 +230,7 @@ export default function MapaLeaflet({
           key={`${capaActiva}-${usandoFallback}`}
           attribution={capaAttribution}
           url={capaUrl}
+          detectRetina
           eventHandlers={{
             load: () => setTileStatus((prev) => prev.layerKey === layerKey ? { ...prev, status: 'loaded' } : prev),
             tileerror: handleTileError,
