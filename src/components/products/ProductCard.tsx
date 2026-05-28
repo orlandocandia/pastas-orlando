@@ -31,11 +31,6 @@ const priceFormatter = new Intl.NumberFormat('es-AR', {
 export default function ProductCard({ producto }: ProductCardProps) {
   const sinStock = producto.stock_actual <= 0
 
-  const whatsappMessage = encodeURIComponent(
-    `Hola Orlando, quiero consultar por ${producto.nombre}`
-  )
-  const whatsappUrl = `https://wa.me/5493754419324?text=${whatsappMessage}`
-
   const formatPeso = (kg: number) => {
     if (kg >= 1) return `${kg} kg`
     return `${Math.round(kg * 1000)}g`
@@ -115,19 +110,19 @@ export default function ProductCard({ producto }: ProductCardProps) {
           <p className="text-mostaza font-bold text-lg">
             {priceFormatter.format(producto.precio_venta)}
           </p>
-          <a
-            href={whatsappUrl}
-            target="_blank"
-            rel="noopener noreferrer"
+          <Button
+            size="sm"
+            onClick={() => {
+              const contactoSection = document.getElementById('contacto');
+              if (contactoSection) {
+                contactoSection.scrollIntoView({ behavior: 'smooth' });
+              }
+            }}
+            className="bg-mostaza hover:bg-mostaza/90 text-marron font-semibold gap-1.5 transition-colors duration-300"
           >
-            <Button
-              size="sm"
-              className="bg-whatsapp hover:bg-[#1DA851] text-white font-semibold gap-1.5 transition-colors duration-300"
-            >
-              <MessageCircle className="h-4 w-4" />
-              {sinStock ? 'Consultar por WhatsApp' : 'Consultar'}
-            </Button>
-          </a>
+            <MessageCircle className="h-4 w-4" />
+            Consultar disponibilidad
+          </Button>
         </div>
       </div>
     </div>
