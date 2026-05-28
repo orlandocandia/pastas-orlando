@@ -64,6 +64,7 @@ export default function CapasControl({
       <div className="flex gap-1">
         {Object.entries(MAPAS_CAPAS).map(([key, capa]) => (
           <button
+            type="button"
             key={key}
             onClick={() => onCapaChange(key as CapaKey)}
             className={`px-2 py-1 text-xs rounded-md transition-all ${
