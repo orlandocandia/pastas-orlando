@@ -12,8 +12,8 @@ export async function GET(request: NextRequest) {
     const limite = parseInt(searchParams.get('limite') || '10')
 
     const where: Record<string, unknown> = {}
-    if (id_tipo_insumo) where.id_tipo_insumo = parseInt(id_tipo_insumo)
-    if (estado !== null && estado !== '') where.estado = estado === 'true'
+    if (id_tipo_insumo && !isNaN(parseInt(id_tipo_insumo))) where.id_tipo_insumo = parseInt(id_tipo_insumo)
+    if (estado && estado !== 'all') where.estado = estado === 'true'
     if (buscar) {
       where.OR = [
         { nombre: { contains: buscar } },

@@ -83,8 +83,8 @@ export default function InsumosTable() {
       params.set('pagina', pagina.toString())
       params.set('limite', '10')
       if (search) params.set('buscar', search)
-      if (filtroTipo) params.set('id_tipo_insumo', filtroTipo)
-      if (filtroEstado) params.set('estado', filtroEstado)
+      if (filtroTipo && filtroTipo !== 'all') params.set('id_tipo_insumo', filtroTipo)
+      if (filtroEstado && filtroEstado !== 'all') params.set('estado', filtroEstado)
 
       const res = await fetch(`/api/insumos?${params.toString()}`)
       if (!res.ok) throw new Error('Error al cargar insumos')
