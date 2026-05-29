@@ -539,29 +539,29 @@ export default function EtiquetasPage() {
                   style={{ width: '220px', minHeight: '280px' }}
                 >
                   <div className="flex flex-col" style={{ fontSize: '8px' }}>
-                    {/* FILA 1: Logo (izq) + Nombre (más a la derecha) */}
+                    {/* FILA 1: Logo (izq, grande) + Nombre (der del logo) */}
                     <div className="flex items-center mb-2">
-                      {/* Logo izquierda */}
+                      {/* Logo izquierda - DOBLE TAMAÑO */}
                       {incluirLogo && (
-                        <div className="w-[22%] flex items-center justify-center pr-1">
+                        <div className="w-[35%] flex items-center justify-center pr-1">
                           <img
                             src="/images/logoweb.png"
                             alt="Logo"
-                            className="w-11 h-11 object-contain"
+                            className="w-[52px] h-[52px] object-contain"
                           />
                         </div>
                       )}
-                      {/* Nombre (más a la derecha del logo) */}
-                      <div className={incluirLogo ? 'w-[78%] pl-2' : 'w-full pl-2'}>
+                      {/* Nombre (derecha del logo) */}
+                      <div className={incluirLogo ? 'w-[65%] pl-2' : 'w-full pl-2'}>
                         <div className="font-bold text-gray-800 text-[9px] leading-tight">
                           {selectedProducto.nombre}
                         </div>
                       </div>
                     </div>
 
-                    {/* FILA 2: Info extra (texto plano, sin bordes) */}
-                    {infoExtra.length > 0 && (
-                      <div className="flex flex-wrap mb-1.5">
+                    {/* FILA 2: Info extra (izq) + Precio/Peso (der) a la misma altura */}
+                    <div className="flex justify-between items-end mb-1.5">
+                      <div className="flex flex-wrap flex-1">
                         {infoExtra.map((id) => {
                           const option = INFO_EXTRA_OPCIONES.find((o) => o.id === id)
                           return option ? (
@@ -575,16 +575,14 @@ export default function EtiquetasPage() {
                           ) : null
                         })}
                       </div>
-                    )}
-
-                    {/* Precio arriba + Peso abajo (a la derecha) */}
-                    <div className="flex flex-col items-end mb-1.5">
-                      <span className="font-bold text-black text-[10px]">
-                        ${selectedProducto.precio_venta.toLocaleString('es-AR')}
-                      </span>
-                      <span className="text-gray-600 text-[6px]">
-                        Peso: {getPesoDisplay()}
-                      </span>
+                      <div className="flex flex-col items-end">
+                        <span className="font-bold text-black text-[10px]">
+                          ${selectedProducto.precio_venta.toLocaleString('es-AR')}
+                        </span>
+                        <span className="text-gray-600 text-[6px]">
+                          Peso: {getPesoDisplay()}
+                        </span>
+                      </div>
                     </div>
 
                     {/* Texto "Vencimiento" sobre el calendario */}

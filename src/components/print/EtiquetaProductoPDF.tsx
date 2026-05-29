@@ -66,16 +66,16 @@ const styles = StyleSheet.create({
     marginBottom: 2,
   },
   logoCol: {
-    width: '22%',
+    width: '35%',
     alignItems: 'center',
     justifyContent: 'center',
   },
   logoImg: {
-    width: 30,
-    height: 30,
+    width: 60,
+    height: 60,
   },
   nameCol: {
-    width: '78%',
+    width: '65%',
     justifyContent: 'center',
     paddingLeft: 4,
   },
@@ -85,11 +85,21 @@ const styles = StyleSheet.create({
     color: '#1f2937',
   },
 
-  // ===== FILA 2: PRECIO ARRIBA + PESO ABAJO (a la derecha) =====
+  // ===== FILA 2: INFO EXTRA (izq) + PRECIO/PESO (der) a la misma altura =====
+  infoPriceRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-end',
+    marginBottom: 2,
+  },
+  infoExtraLeft: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    flex: 1,
+  },
   priceWeightCol: {
     flexDirection: 'column',
     alignItems: 'flex-end',
-    marginBottom: 2,
   },
   priceText: {
     fontSize: 7.5,
@@ -108,12 +118,7 @@ const styles = StyleSheet.create({
     marginBottom: 1,
   },
 
-  // ===== FILA 2: INFO EXTRA (texto plano, sin bordes) =====
-  infoExtraRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    marginBottom: 2,
-  },
+  // ===== INFO EXTRA (texto plano, sin bordes) - dentro de infoPriceRow =====
   infoText: {
     fontSize: 4,
     color: '#374151',
@@ -252,19 +257,17 @@ export function EtiquetaProductoPDF({ etiquetas }: EtiquetaProductoPDFProps) {
                         </View>
                       </View>
 
-                      {/* ====== FILA 2: INFO EXTRA (texto plano sin bordes) ====== */}
-                      {etiqueta.info_extra.length > 0 && (
-                        <View style={styles.infoExtraRow}>
+                      {/* ====== FILA 2: INFO EXTRA (izq) + PRECIO/PESO (der) a la misma altura ====== */}
+                      <View style={styles.infoPriceRow}>
+                        <View style={styles.infoExtraLeft}>
                           {etiqueta.info_extra.map((info, idx) => (
                             <Text key={idx} style={styles.infoText}>{info}</Text>
                           ))}
                         </View>
-                      )}
-
-                      {/* ====== PRECIO ARRIBA + PESO ABAJO (a la derecha) ====== */}
-                      <View style={styles.priceWeightCol}>
-                        <Text style={styles.priceText}>${etiqueta.precio_venta.toLocaleString('es-AR')}</Text>
-                        <Text style={styles.pesoText}>Peso: {etiqueta.peso}</Text>
+                        <View style={styles.priceWeightCol}>
+                          <Text style={styles.priceText}>${etiqueta.precio_venta.toLocaleString('es-AR')}</Text>
+                          <Text style={styles.pesoText}>Peso: {etiqueta.peso}</Text>
+                        </View>
                       </View>
 
                       {/* ====== TEXTO "VENCIMIENTO" SOBRE EL CALENDARIO ====== */}
