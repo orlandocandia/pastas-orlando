@@ -137,6 +137,9 @@ export default function EtiquetasPage() {
   // Background image data URL (loaded once)
   const [fondoDataUrl, setFondoDataUrl] = useState<string | null>(null)
 
+  // Watermark image data URL (loaded once)
+  const [watermarkDataUrl, setWatermarkDataUrl] = useState<string | null>(null)
+
   // PDF component (lazy loaded)
   const [PDFComponent, setPDFComponent] = useState<EtiquetaProductoPDFType | null>(null)
 
@@ -209,6 +212,24 @@ export default function EtiquetasPage() {
       }
     }
     loadFondo()
+  }, [])
+
+  // Load watermark image as base64
+  useEffect(() => {
+    async function loadWatermark() {
+      try {
+        const res = await fetch('/images/watermark-pastas.png')
+        const blob = await res.blob()
+        const reader = new FileReader()
+        reader.onloadend = () => {
+          setWatermarkDataUrl(reader.result as string)
+        }
+        reader.readAsDataURL(blob)
+      } catch {
+        setWatermarkDataUrl(null)
+      }
+    }
+    loadWatermark()
   }, [])
 
   // Lazy load @react-pdf/renderer components
@@ -307,6 +328,7 @@ export default function EtiquetasPage() {
         vencimientoDia: getVencimientoDia(),
         vencimientoMes: getVencimientoMes(),
         fondoDataUrl,
+        watermarkDataUrl,
       }
 
       // Create array with requested copies
@@ -345,6 +367,7 @@ export default function EtiquetasPage() {
     logoDataUrl,
     qrCodeDataUrl,
     fondoDataUrl,
+    watermarkDataUrl,
     pesoOption,
     pesoCustom,
   ])
