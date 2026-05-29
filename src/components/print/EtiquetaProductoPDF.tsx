@@ -14,6 +14,7 @@ export interface EtiquetaData {
   whatsappIconDataUrl: string | null
   vencimientoDia: number
   vencimientoMes: number
+  info_extra: string[]
 }
 
 interface EtiquetaProductoPDFProps {
@@ -26,11 +27,9 @@ const ETIQUETAS_POR_HOJA = 24 // 3 columnas x 8 filas
 // Márgenes: 0.5cm ≈ 14pt
 const PAGE_MARGIN = 14
 const PAGE_WIDTH = 595.28
-const PAGE_HEIGHT = 841.89
 const CONTENT_WIDTH = PAGE_WIDTH - PAGE_MARGIN * 2
-const CONTENT_HEIGHT = PAGE_HEIGHT - PAGE_MARGIN * 2
 const CELL_WIDTH = CONTENT_WIDTH / 3
-const CELL_HEIGHT = CONTENT_HEIGHT / 8
+const CELL_HEIGHT = (841.89 - PAGE_MARGIN * 2) / 8
 const CELL_GAP = 2
 const BORDER_RADIUS = 6
 
@@ -55,85 +54,82 @@ const styles = StyleSheet.create({
     borderRadius: BORDER_RADIUS,
     backgroundColor: '#FFFFFF',
     border: '1px solid #d1d5db',
-    padding: 4,
+    padding: 5,
     flexDirection: 'column',
+    justifyContent: 'space-between',
   },
 
-  // ===== LOGO CENTRADO =====
-  logoContainer: {
-    alignItems: 'center',
+  // ===== TOP: LOGO IZQUIERDA + NOMBRE/PRECIO DERECHA =====
+  topRow: {
+    flexDirection: 'row',
     marginBottom: 2,
   },
-  logoImg: {
-    width: 28,
-    height: 28,
+  logoCol: {
+    width: '30%',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+    paddingRight: 3,
   },
-
-  // ===== NOMBRE DEL PRODUCTO =====
+  logoImg: {
+    width: 24,
+    height: 24,
+  },
+  infoCol: {
+    width: '70%',
+    justifyContent: 'flex-start',
+  },
   productName: {
-    fontSize: 6.5,
+    fontSize: 7,
     fontWeight: 'bold',
     color: '#1f2937',
-    textAlign: 'center',
     marginBottom: 1,
   },
-
-  // ===== PRECIO Y PESO =====
   priceWeightRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 2,
+    marginBottom: 1,
   },
   pesoText: {
-    fontSize: 4.5,
+    fontSize: 5,
     color: '#6b7280',
   },
   priceText: {
-    fontSize: 7,
+    fontSize: 8,
     fontWeight: 'bold',
     color: '#C41E3A',
   },
 
-  // ===== CALENDARIO DE VENCIMIENTO =====
+  // ===== CALENDARIO DE VENCIMIENTO (grid 31 columnas) =====
   calendarSection: {
-    marginBottom: 2,
+    marginVertical: 2,
     borderWidth: 0.5,
-    borderColor: '#93a5cf',
+    borderColor: '#4a6fa5',
     borderRadius: 1,
     overflow: 'hidden',
   },
   calendarRow: {
     flexDirection: 'row',
   },
-  calendarLabel: {
-    fontSize: 3.5,
-    color: '#4a5eb0',
-    fontWeight: 'bold',
-    paddingVertical: 0.5,
-    paddingHorizontal: 1,
-    textAlign: 'center',
-  },
-  // Día normal
+  // Cada celda de día: 100%/31 ≈ 3.226%
   dayCell: {
-    width: 5.3,
-    height: 4.5,
+    width: '3.226%',
+    height: 5,
     alignItems: 'center',
     justifyContent: 'center',
     borderRightWidth: 0.3,
     borderBottomWidth: 0.3,
-    borderColor: '#b0bdd4',
+    borderColor: '#8fa8cc',
   },
-  // Día resaltado (vencimiento)
   dayCellActive: {
-    width: 5.3,
-    height: 4.5,
+    width: '3.226%',
+    height: 5,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: '#3b5998',
     borderRightWidth: 0.3,
     borderBottomWidth: 0.3,
-    borderColor: '#b0bdd4',
+    borderColor: '#8fa8cc',
   },
   dayNum: {
     fontSize: 2.8,
@@ -144,24 +140,23 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontWeight: 'bold',
   },
-  // Mes normal
+  // Cada celda de mes: 100%/12 ≈ 8.333%
   monthCell: {
-    width: 13.5,
-    height: 4.5,
+    width: '8.333%',
+    height: 5,
     alignItems: 'center',
     justifyContent: 'center',
     borderRightWidth: 0.3,
-    borderColor: '#b0bdd4',
+    borderColor: '#8fa8cc',
   },
-  // Mes resaltado (vencimiento)
   monthCellActive: {
-    width: 13.5,
-    height: 4.5,
+    width: '8.333%',
+    height: 5,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: '#C41E3A',
     borderRightWidth: 0.3,
-    borderColor: '#b0bdd4',
+    borderColor: '#8fa8cc',
   },
   monthName: {
     fontSize: 2.8,
@@ -173,7 +168,24 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 
-  // ===== BARRA INFERIOR: Código barras + QR + WhatsApp =====
+  // ===== INFO EXTRA (badges) =====
+  infoExtraRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 1,
+    marginVertical: 1,
+  },
+  infoBadge: {
+    fontSize: 2.8,
+    color: '#4a5eb0',
+    borderWidth: 0.5,
+    borderColor: '#8fa8cc',
+    borderRadius: 1,
+    paddingHorizontal: 2,
+    paddingVertical: 0.5,
+  },
+
+  // ===== BOTTOM: Código de barras + QR + WhatsApp =====
   bottomRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -182,46 +194,48 @@ const styles = StyleSheet.create({
   barcodeCol: {
     flexDirection: 'column',
     flex: 1,
+    marginRight: 2,
   },
   barcodeImg: {
-    width: 75,
+    width: 70,
     height: 14,
   },
   noBarcode: {
-    fontSize: 3.5,
+    fontSize: 4,
     color: '#d1d5db',
   },
   qrCol: {
     flexDirection: 'column',
     alignItems: 'center',
-    marginLeft: 2,
   },
   qrImg: {
-    width: 16,
-    height: 16,
+    width: 22,
+    height: 22,
   },
   whatsappRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 0.5,
+    marginTop: 1,
   },
   whatsappIcon: {
-    width: 4,
-    height: 4,
-    marginRight: 0.5,
+    width: 5,
+    height: 5,
+    marginRight: 1,
   },
   whatsappText: {
-    fontSize: 3,
+    fontSize: 3.5,
     color: '#25D366',
     fontWeight: 'bold',
   },
 
   // ===== FECHA DE ELABORACIÓN =====
- elabRow: {
-    marginTop: 1.5,
+  elabRow: {
+    marginTop: 2,
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
   },
   elabText: {
-    fontSize: 3.5,
+    fontSize: 4,
     color: '#6b7280',
   },
 })
@@ -255,25 +269,25 @@ export function EtiquetaProductoPDF({ etiquetas }: EtiquetaProductoPDFProps) {
                 return (
                   <View key={cellIdx} style={styles.cell}>
                     <View style={styles.etiqueta}>
-                      {/* ====== LOGO CENTRADO ====== */}
-                      {etiqueta.incluir_logo && etiqueta.logoDataUrl ? (
-                        <View style={styles.logoContainer}>
-                          <Image src={etiqueta.logoDataUrl} style={styles.logoImg} alt="Logo" />
+                      {/* ====== TOP: LOGO IZQUIERDA + NOMBRE/PRECIO DERECHA ====== */}
+                      <View style={styles.topRow}>
+                        <View style={styles.logoCol}>
+                          {etiqueta.incluir_logo && etiqueta.logoDataUrl ? (
+                            <Image src={etiqueta.logoDataUrl} style={styles.logoImg} alt="Logo" />
+                          ) : null}
                         </View>
-                      ) : null}
-
-                      {/* ====== NOMBRE DEL PRODUCTO ====== */}
-                      <Text style={styles.productName}>{etiqueta.nombre}</Text>
-
-                      {/* ====== PESO Y PRECIO ====== */}
-                      <View style={styles.priceWeightRow}>
-                        <Text style={styles.pesoText}>{etiqueta.peso}</Text>
-                        <Text style={styles.priceText}>
-                          ${etiqueta.precio_venta.toLocaleString('es-AR')}
-                        </Text>
+                        <View style={styles.infoCol}>
+                          <Text style={styles.productName}>{etiqueta.nombre}</Text>
+                          <View style={styles.priceWeightRow}>
+                            <Text style={styles.pesoText}>{etiqueta.peso}</Text>
+                            <Text style={styles.priceText}>
+                              ${etiqueta.precio_venta.toLocaleString('es-AR')}
+                            </Text>
+                          </View>
+                        </View>
                       </View>
 
-                      {/* ====== CALENDARIO DE VENCIMIENTO ====== */}
+                      {/* ====== CALENDARIO DE VENCIMIENTO (31 cols = 3.226% cada una) ====== */}
                       <View style={styles.calendarSection}>
                         {/* Fila de días: 1-31 */}
                         <View style={styles.calendarRow}>
@@ -288,7 +302,7 @@ export function EtiquetaProductoPDF({ etiquetas }: EtiquetaProductoPDFProps) {
                             )
                           })}
                         </View>
-                        {/* Fila de meses: ene-dic */}
+                        {/* Fila de meses: ene-dic (12 cols = 8.333% cada una) */}
                         <View style={styles.calendarRow}>
                           {MESES.map((mes, idx) => {
                             const isActive = idx + 1 === vencMes
@@ -302,6 +316,15 @@ export function EtiquetaProductoPDF({ etiquetas }: EtiquetaProductoPDFProps) {
                           })}
                         </View>
                       </View>
+
+                      {/* ====== INFO EXTRA (badges opcionales) ====== */}
+                      {etiqueta.info_extra.length > 0 && (
+                        <View style={styles.infoExtraRow}>
+                          {etiqueta.info_extra.map((info) => (
+                            <Text key={info} style={styles.infoBadge}>{info}</Text>
+                          ))}
+                        </View>
+                      )}
 
                       {/* ====== CÓDIGO DE BARRAS + QR + WHATSAPP ====== */}
                       <View style={styles.bottomRow}>

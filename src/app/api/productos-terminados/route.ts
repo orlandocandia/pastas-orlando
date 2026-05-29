@@ -1,6 +1,50 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 
+/**
+ * Calcula el dígito verificador de un código EAN-13
+ * Fórmula: sumar dígitos en posiciones impares ×1 + posiciones pares ×3,
+ * el check digit = (10 - (sum % 10)) % 10
+ */
+function calcularCheckDigitEAN13(digits12: string): string {
+  const digits = digits12.split('').map(Number)
+  let sum = 0
+  for (let i = 0; i < 12; i++) {
+    sum += digits[i] * (i % 2 === 0 ? 1 : 3)
+  }
+  return String((10 - (sum % 10)) % 10)
+}
+
+/**
+ * Genera un código EAN-13 único con prefijo 779 (Argentina)
+ * Formato: 779 + 9 dígitos secuenciales + 1 dígito verificador
+ */
+async function generarEAN13Unico(): Promise<string> {
+  let attempts = 0
+  const maxAttempts = 50
+
+  while (attempts < maxAttempts) {
+    attempts++
+    // Prefijo 779 (Argentina) + 9 dígitos aleatorios = 12 dígitos
+    const random9 = Math.floor(Math.random() * 1_000_000_000).toString().padStart(9, '0')
+    const digits12 = `779${random9}`
+    const checkDigit = calcularCheckDigitEAN13(digits12)
+    const ean13 = `${digits12}${checkDigit}`
+
+    // Verificar que no exista en la base de datos
+    const existente = await db.productoTerminado.findUnique({ where: { codigo_barras: ean13 } })
+    if (!existente) {
+      return ean13
+    }
+  }
+
+  // Fallback: usar timestamp si no se encuentra uno único rápido
+  const timestamp9 = Date.now().toString().slice(-9)
+  const digits12 = `779${timestamp9}`
+  const checkDigit = calcularCheckDigitEAN13(digits12)
+  return `${digits12}${checkDigit}`
+}
+
 // GET /api/productos-terminados - Listar productos terminados con filtros y paginación
 export async function GET(request: NextRequest) {
   try {
@@ -83,9 +127,13 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Verificar código de barras único si se proporciona
-    if (codigo_barras) {
-      const existenteCB = await db.productoTerminado.findUnique({ where: { codigo_barras } })
+    // Auto-generar código de barras EAN-13 si no se proporciona
+    let codigoBarrasFinal = codigo_barras || null
+    if (!codigoBarrasFinal) {
+      codigoBarrasFinal = await generarEAN13Unico()
+    } else {
+      // Verificar código de barras único si se proporciona manualmente
+      const existenteCB = await db.productoTerminado.findUnique({ where: { codigo_barras: codigoBarrasFinal } })
       if (existenteCB) {
         return NextResponse.json(
           { error: 'Ya existe un producto terminado con ese código de barras' },
@@ -97,7 +145,7 @@ export async function POST(request: NextRequest) {
     const productoTerminado = await db.productoTerminado.create({
       data: {
         codigo: codigo || null,
-        codigo_barras: codigo_barras || null,
+        codigo_barras: codigoBarrasFinal,
         nombre,
         descripcion: descripcion || null,
         id_categoria: parseInt(id_categoria),

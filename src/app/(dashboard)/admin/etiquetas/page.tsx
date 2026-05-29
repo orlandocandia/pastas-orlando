@@ -41,6 +41,14 @@ const PESOS_PREDEFINIDOS = [
   { label: 'Personalizado', value: 'custom' },
 ]
 
+const INFO_EXTRA_OPCIONES = [
+  { id: 'sin_gluten', label: 'Sin gluten' },
+  { id: 'con_gluten', label: 'Con gluten' },
+  { id: 'integral', label: 'Integral' },
+  { id: 'congelado', label: 'Congelado' },
+  { id: 'artesanal', label: 'Producto artesanal' },
+]
+
 const MESES_CORTOS = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic']
 
 function formatDateForInput(date: Date): string {
@@ -106,15 +114,12 @@ export default function EtiquetasPage() {
   const [cantidad, setCantidad] = useState<number>(24)
   const [fechaElaboracion, setFechaElaboracion] = useState<string>(formatDateForInput(new Date()))
   const [fechaVencimiento, setFechaVencimiento] = useState<string>('')
+  const [infoExtra, setInfoExtra] = useState<string[]>([])
   const [incluirLogo, setIncluirLogo] = useState<boolean>(true)
 
-  // Logo data URL (loaded once)
+  // Data URLs
   const [logoDataUrl, setLogoDataUrl] = useState<string | null>(null)
-
-  // QR Code data URL (generated once)
   const [qrCodeDataUrl, setQrCodeDataUrl] = useState<string | null>(null)
-
-  // WhatsApp icon data URL (loaded once)
   const [whatsappIconDataUrl, setWhatsappIconDataUrl] = useState<string | null>(null)
 
   // PDF component (lazy loaded)
@@ -145,9 +150,7 @@ export default function EtiquetasPage() {
         const res = await fetch('/images/logoweb.png')
         const blob = await res.blob()
         const reader = new FileReader()
-        reader.onloadend = () => {
-          setLogoDataUrl(reader.result as string)
-        }
+        reader.onloadend = () => setLogoDataUrl(reader.result as string)
         reader.readAsDataURL(blob)
       } catch {
         setLogoDataUrl(null)
@@ -162,7 +165,7 @@ export default function EtiquetasPage() {
       try {
         const url = await QRCode.toDataURL(
           'https://wa.me/5493754419324?text=Hola%20Orlando%20quiero%20hacer%20un%20pedido',
-          { width: 200, margin: 1, color: { dark: '#333333', light: '#FFFFFF' } }
+          { width: 256, margin: 1, color: { dark: '#333333', light: '#FFFFFF' } }
         )
         setQrCodeDataUrl(url)
       } catch (err) {
@@ -180,9 +183,7 @@ export default function EtiquetasPage() {
         const res = await fetch('/images/whatsapp-icon.png')
         const blob = await res.blob()
         const reader = new FileReader()
-        reader.onloadend = () => {
-          setWhatsappIconDataUrl(reader.result as string)
-        }
+        reader.onloadend = () => setWhatsappIconDataUrl(reader.result as string)
         reader.readAsDataURL(blob)
       } catch {
         setWhatsappIconDataUrl(null)
@@ -191,7 +192,7 @@ export default function EtiquetasPage() {
     loadWhatsappIcon()
   }, [])
 
-  // Lazy load @react-pdf/renderer components
+  // Lazy load PDF component
   useEffect(() => {
     async function loadPDFComponent() {
       try {
@@ -222,24 +223,26 @@ export default function EtiquetasPage() {
       (p.codigo && p.codigo.toLowerCase().includes(searchTerm.toLowerCase()))
   )
 
+  const handleInfoExtraToggle = (id: string) => {
+    setInfoExtra((prev) =>
+      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
+    )
+  }
+
   const getPesoDisplay = (): string => {
-    if (pesoOption === 'custom') {
-      return pesoCustom || '—'
-    }
+    if (pesoOption === 'custom') return pesoCustom || '—'
     const found = PESOS_PREDEFINIDOS.find((p) => p.value === pesoOption)
     return found ? found.label : pesoOption
   }
 
   const getVencimientoDia = (): number => {
     if (!fechaVencimiento) return 1
-    const d = new Date(fechaVencimiento + 'T12:00:00')
-    return d.getDate()
+    return new Date(fechaVencimiento + 'T12:00:00').getDate()
   }
 
   const getVencimientoMes = (): number => {
     if (!fechaVencimiento) return 1
-    const d = new Date(fechaVencimiento + 'T12:00:00')
-    return d.getMonth() + 1
+    return new Date(fechaVencimiento + 'T12:00:00').getMonth() + 1
   }
 
   const hojasNecesarias = Math.ceil(cantidad / 24)
@@ -250,12 +253,15 @@ export default function EtiquetasPage() {
     setGenerating(true)
 
     try {
-      // Generate barcode image
       const barcodeDataUrl = selectedProducto.codigo_barras
         ? generateBarcodeDataUrl(selectedProducto.codigo_barras)
         : null
 
-      // Build etiqueta data (new simplified interface)
+      const infoExtraLabels = infoExtra.map((id) => {
+        const option = INFO_EXTRA_OPCIONES.find((o) => o.id === id)
+        return option ? option.label : id
+      })
+
       const etiquetaData = {
         nombre: selectedProducto.nombre,
         codigo_barras: selectedProducto.codigo_barras,
@@ -270,18 +276,13 @@ export default function EtiquetasPage() {
         whatsappIconDataUrl,
         vencimientoDia: getVencimientoDia(),
         vencimientoMes: getVencimientoMes(),
+        info_extra: infoExtraLabels,
       }
 
-      // Create array with requested copies
       const etiquetas = Array.from({ length: cantidad }, () => etiquetaData)
-
-      // Dynamic import of pdf function
       const { pdf } = await import('@react-pdf/renderer')
-
-      // Generate PDF blob
       const blob = await pdf(<PDFComponent etiquetas={etiquetas} />).toBlob()
 
-      // Download
       const url = URL.createObjectURL(blob)
       const link = document.createElement('a')
       link.href = url
@@ -306,6 +307,7 @@ export default function EtiquetasPage() {
     logoDataUrl,
     qrCodeDataUrl,
     whatsappIconDataUrl,
+    infoExtra,
     pesoOption,
     pesoCustom,
   ])
@@ -349,7 +351,6 @@ export default function EtiquetasPage() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              {/* Search */}
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
@@ -359,8 +360,6 @@ export default function EtiquetasPage() {
                   className="pl-9"
                 />
               </div>
-
-              {/* Product list */}
               <div className="max-h-64 overflow-y-auto border rounded-lg">
                 {filteredProductos.length === 0 ? (
                   <div className="p-4 text-center text-sm text-muted-foreground">
@@ -378,9 +377,7 @@ export default function EtiquetasPage() {
                       }`}
                     >
                       <div className="flex-1 min-w-0">
-                        <div className="font-medium text-marron truncate">
-                          {producto.nombre}
-                        </div>
+                        <div className="font-medium text-marron truncate">{producto.nombre}</div>
                         <div className="text-xs text-muted-foreground flex gap-2">
                           {producto.codigo && <span>Cód: {producto.codigo}</span>}
                           {producto.codigo_barras && (
@@ -494,6 +491,25 @@ export default function EtiquetasPage() {
                 </div>
               </div>
 
+              {/* Info extra checkboxes */}
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Información adicional</Label>
+                <div className="flex flex-wrap gap-3">
+                  {INFO_EXTRA_OPCIONES.map((opcion) => (
+                    <label
+                      key={opcion.id}
+                      className="flex items-center gap-1.5 cursor-pointer"
+                    >
+                      <Checkbox
+                        checked={infoExtra.includes(opcion.id)}
+                        onCheckedChange={() => handleInfoExtraToggle(opcion.id)}
+                      />
+                      <span className="text-sm">{opcion.label}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
               {/* Incluir logo */}
               <label className="flex items-center gap-2 cursor-pointer">
                 <Checkbox
@@ -508,7 +524,6 @@ export default function EtiquetasPage() {
 
         {/* Preview Column */}
         <div className="space-y-4">
-          {/* Live Preview */}
           <Card>
             <CardHeader className="pb-3">
               <CardTitle className="text-base">Vista previa</CardTitle>
@@ -516,63 +531,63 @@ export default function EtiquetasPage() {
             <CardContent>
               {selectedProducto ? (
                 <div
-                  className="mx-auto rounded-lg overflow-hidden bg-white border-2 border-gray-300 p-2"
-                  style={{ width: '200px' }}
+                  className="mx-auto rounded-lg overflow-hidden bg-white border-2 border-gray-300 p-3"
+                  style={{ width: '220px', minHeight: '280px' }}
                 >
-                  <div className="flex flex-col" style={{ fontSize: '7px' }}>
-                    {/* Logo centrado */}
-                    {incluirLogo && (
-                      <div className="flex justify-center mb-1">
-                        <img
-                          src="/images/logoweb.png"
-                          alt="Logo"
-                          className="w-8 h-8 object-contain"
-                        />
+                  <div className="flex flex-col" style={{ fontSize: '8px' }}>
+                    {/* Logo izquierda + Nombre/Precio derecha */}
+                    <div className="flex mb-2">
+                      {incluirLogo && (
+                        <div className="w-[30%] flex items-start justify-center pr-2">
+                          <img
+                            src="/images/logoweb.png"
+                            alt="Logo"
+                            className="w-10 h-10 object-contain"
+                          />
+                        </div>
+                      )}
+                      <div className={incluirLogo ? 'w-[70%]' : 'w-full'}>
+                        <div className="font-bold text-gray-800 text-[8px] leading-tight mb-1">
+                          {selectedProducto.nombre}
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-gray-500 text-[6px]">{getPesoDisplay()}</span>
+                          <span className="font-bold text-rojo text-[10px]">
+                            ${selectedProducto.precio_venta.toLocaleString('es-AR')}
+                          </span>
+                        </div>
                       </div>
-                    )}
-
-                    {/* Nombre del producto */}
-                    <div className="text-center font-bold text-gray-800 text-[7px] mb-1">
-                      {selectedProducto.nombre}
-                    </div>
-
-                    {/* Peso y Precio */}
-                    <div className="flex justify-between items-center mb-1">
-                      <span className="text-gray-500 text-[5px]">{getPesoDisplay()}</span>
-                      <span className="font-bold text-rojo text-[8px]">
-                        ${selectedProducto.precio_venta.toLocaleString('es-AR')}
-                      </span>
                     </div>
 
                     {/* Calendario de vencimiento */}
-                    <div className="border border-blue-300 rounded-sm mb-1 overflow-hidden">
+                    <div className="border border-blue-400 rounded-sm mb-1 overflow-hidden">
                       {/* Días 1-31 */}
-                      <div className="flex flex-wrap">
+                      <div className="flex">
                         {Array.from({ length: 31 }, (_, i) => i + 1).map((dia) => (
                           <div
                             key={dia}
-                            className={`flex items-center justify-center leading-none border-r border-b border-blue-200 ${
+                            className={`flex items-center justify-center leading-none border-r border-b border-blue-300 ${
                               dia === vencDia
                                 ? 'bg-blue-700 text-white font-bold'
                                 : 'text-gray-500'
                             }`}
-                            style={{ width: '5.5px', height: '5.5px', fontSize: '2.8px' }}
+                            style={{ width: '3.226%', height: '7px', fontSize: '3px' }}
                           >
                             {dia}
                           </div>
                         ))}
                       </div>
                       {/* Meses */}
-                      <div className="flex flex-wrap">
+                      <div className="flex">
                         {MESES_CORTOS.map((mes, idx) => (
                           <div
                             key={mes}
-                            className={`flex items-center justify-center leading-none border-r border-blue-200 ${
+                            className={`flex items-center justify-center leading-none border-r border-blue-300 ${
                               idx + 1 === vencMes
                                 ? 'bg-rojo text-white font-bold'
                                 : 'text-gray-500'
                             }`}
-                            style={{ width: '14px', height: '5.5px', fontSize: '2.8px' }}
+                            style={{ width: '8.333%', height: '7px', fontSize: '3px' }}
                           >
                             {mes}
                           </div>
@@ -580,44 +595,62 @@ export default function EtiquetasPage() {
                       </div>
                     </div>
 
+                    {/* Info extra badges */}
+                    {infoExtra.length > 0 && (
+                      <div className="flex flex-wrap gap-0.5 my-1">
+                        {infoExtra.map((id) => {
+                          const option = INFO_EXTRA_OPCIONES.find((o) => o.id === id)
+                          return option ? (
+                            <span
+                              key={id}
+                              className="text-blue-700 border border-blue-300 rounded-sm px-1"
+                              style={{ fontSize: '3px' }}
+                            >
+                              {option.label}
+                            </span>
+                          ) : null
+                        })}
+                      </div>
+                    )}
+
                     {/* Código de barras + QR + WhatsApp */}
-                    <div className="flex items-end justify-between">
+                    <div className="flex items-end justify-between mt-1">
                       <div className="flex-1">
                         {selectedProducto.codigo_barras ? (
-                          <div className="flex gap-px items-end h-3">
-                            {Array.from({ length: 30 }, (_, i) => (
+                          <div className="flex gap-px items-end h-4">
+                            {Array.from({ length: 35 }, (_, i) => (
                               <div
                                 key={i}
                                 className="bg-black"
                                 style={{
-                                  width: Math.random() > 0.5 ? '1px' : '0.5px',
-                                  height: `${6 + Math.random() * 4}px`,
+                                  width: Math.random() > 0.5 ? '1.5px' : '0.7px',
+                                  height: `${8 + Math.random() * 6}px`,
                                 }}
                               />
                             ))}
                           </div>
                         ) : (
-                          <span className="text-[3px] text-gray-300">Sin código</span>
+                          <span className="text-[4px] text-gray-300">Sin código de barras</span>
                         )}
                       </div>
-                      <div className="flex flex-col items-center ml-1">
-                        <div className="w-5 h-5 border border-gray-200 rounded-sm bg-white flex items-center justify-center">
-                          <span className="text-[3px] text-gray-400">QR</span>
+                      <div className="flex flex-col items-center ml-2">
+                        <div className="w-7 h-7 border border-gray-200 rounded-sm bg-white flex items-center justify-center">
+                          <span className="text-[4px] text-gray-400 font-bold">QR</span>
                         </div>
                         <div className="flex items-center gap-0.5 mt-0.5">
                           <img
                             src="/images/whatsapp-icon.png"
                             alt="WA"
-                            className="w-2 h-2 object-contain"
+                            className="w-2.5 h-2.5 object-contain"
                           />
-                          <span className="text-[3px] text-green-600 font-bold">3754-419324</span>
+                          <span className="text-[3.5px] text-green-600 font-bold">3754-419324</span>
                         </div>
                       </div>
                     </div>
 
                     {/* Fecha de elaboración */}
-                    <div className="mt-1">
-                      <span className="text-gray-400 text-[4px]">
+                    <div className="mt-1.5">
+                      <span className="text-gray-500 text-[5px]">
                         Elab: {formatDateDisplay(fechaElaboracion)}
                       </span>
                     </div>
@@ -659,7 +692,7 @@ export default function EtiquetasPage() {
 
           {selectedProducto && !selectedProducto.codigo_barras && (
             <p className="text-xs text-center text-amber-600">
-              ⚠️ Este producto no tiene código de barras. La etiqueta se generará sin código de barras.
+              ⚠️ Este producto no tiene código de barras. Se generará uno automáticamente al crear el producto.
             </p>
           )}
 
