@@ -125,7 +125,7 @@ const styles = StyleSheet.create({
 
   // ===== CALENDARIO (bordes negros visibles, neutro) =====
   calendarSection: {
-    borderWidth: 0.7,
+    borderWidth: 0.3,
     borderColor: '#000000',
     marginBottom: 2,
   },
@@ -137,8 +137,8 @@ const styles = StyleSheet.create({
     height: 5,
     alignItems: 'center',
     justifyContent: 'center',
-    borderRightWidth: 0.5,
-    borderBottomWidth: 0.5,
+    borderRightWidth: 0.2,
+    borderBottomWidth: 0.2,
     borderColor: '#000000',
   },
   dayNum: {
@@ -150,8 +150,8 @@ const styles = StyleSheet.create({
     height: 5,
     alignItems: 'center',
     justifyContent: 'center',
-    borderRightWidth: 0.5,
-    borderBottomWidth: 0.5,
+    borderRightWidth: 0.2,
+    borderBottomWidth: 0.2,
     borderColor: '#000000',
   },
   monthName: {
@@ -185,7 +185,7 @@ const styles = StyleSheet.create({
   },
   rightBottomCol: {
     flexDirection: 'column',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     width: 20,
   },
   qrImg: {
@@ -197,7 +197,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 1,
     width: 20,
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
   },
   whatsappIconImg: {
     width: 4,
