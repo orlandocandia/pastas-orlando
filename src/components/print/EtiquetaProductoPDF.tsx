@@ -190,7 +190,7 @@ const styles = StyleSheet.create({
   rightBottomCol: {
     flexDirection: 'column',
     alignItems: 'flex-end',
-    width: 20,
+    width: 28,
   },
   qrImg: {
     width: 20,
@@ -200,7 +200,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginTop: 1,
-    width: 20,
+    alignSelf: 'stretch',
     justifyContent: 'flex-end',
   },
   whatsappIconImg: {

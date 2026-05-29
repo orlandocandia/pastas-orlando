@@ -656,7 +656,7 @@ export default function EtiquetasPage() {
                           Elab: {formatDateDisplay(fechaElaboracion)}
                         </div>
                       </div>
-                      <div className="flex flex-col items-end ml-2 shrink-0" style={{ width: '28px' }}>
+                      <div className="flex flex-col items-end ml-2 shrink-0" style={{ width: '36px' }}>
                         <div className="w-7 h-7 border border-gray-200 rounded-sm bg-white flex items-center justify-center">
                           <span className="text-[4px] text-gray-400 font-bold">QR</span>
                         </div>
