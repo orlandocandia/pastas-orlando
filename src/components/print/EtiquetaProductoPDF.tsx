@@ -8,6 +8,7 @@ export interface EtiquetaData {
   fecha_elaboracion: string
   fecha_vencimiento: string
   incluir_logo: boolean
+  incluir_vencimiento: boolean
   barcodeDataUrl: string | null
   logoDataUrl: string | null
   qrCodeDataUrl: string | null
@@ -149,6 +150,11 @@ const styles = StyleSheet.create({
     fontSize: 2.5,
     color: '#4b5563',
   },
+  dayNumHighlight: {
+    fontSize: 2.5,
+    color: '#C41E3A',
+    fontWeight: 'bold',
+  },
   monthCell: {
     width: '8.333%',
     height: 5,
@@ -161,6 +167,11 @@ const styles = StyleSheet.create({
   monthName: {
     fontSize: 2.5,
     color: '#4b5563',
+  },
+  monthNameHighlight: {
+    fontSize: 2.5,
+    color: '#C41E3A',
+    fontWeight: 'bold',
   },
 
   // ===== FILA INFERIOR: CÓDIGO DE BARRAS (izq) | QR + WHATSAPP (der) =====
@@ -322,21 +333,21 @@ export function EtiquetaProductoPDF({ etiquetas }: EtiquetaProductoPDFProps) {
                       {/* ====== TEXTO "VENCIMIENTO" SOBRE EL CALENDARIO ====== */}
                       <Text style={styles.vencimientoLabel}>Vencimiento</Text>
 
-                      {/* ====== CALENDARIO NEUTRO (bordes negros visibles, sin selección) ====== */}
+                      {/* ====== CALENDARIO (bordes negros visibles, con resaltado si incluir_vencimiento) ====== */}
                       <View style={styles.calendarSection}>
                         {/* Días 1-31 */}
                         <View style={styles.calendarRow}>
                           {Array.from({ length: 31 }, (_, i) => i + 1).map((dia) => (
                             <View key={dia} style={styles.dayCell}>
-                              <Text style={styles.dayNum}>{dia}</Text>
+                              <Text style={etiqueta.incluir_vencimiento && dia === etiqueta.vencimientoDia ? styles.dayNumHighlight : styles.dayNum}>{dia}</Text>
                             </View>
                           ))}
                         </View>
                         {/* Meses ene-dic */}
                         <View style={styles.calendarRow}>
-                          {MESES.map((mes) => (
+                          {MESES.map((mes, idx) => (
                             <View key={mes} style={styles.monthCell}>
-                              <Text style={styles.monthName}>{mes}</Text>
+                              <Text style={etiqueta.incluir_vencimiento && (idx + 1) === etiqueta.vencimientoMes ? styles.monthNameHighlight : styles.monthName}>{mes}</Text>
                             </View>
                           ))}
                         </View>

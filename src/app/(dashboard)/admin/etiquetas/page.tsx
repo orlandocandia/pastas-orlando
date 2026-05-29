@@ -116,6 +116,7 @@ export default function EtiquetasPage() {
   const [fechaVencimiento, setFechaVencimiento] = useState<string>('')
   const [infoExtra, setInfoExtra] = useState<string[]>([])
   const [incluirLogo, setIncluirLogo] = useState<boolean>(true)
+  const [incluirVencimiento, setIncluirVencimiento] = useState<boolean>(true)
 
   // Data URLs
   const [logoDataUrl, setLogoDataUrl] = useState<string | null>(null)
@@ -277,6 +278,7 @@ export default function EtiquetasPage() {
         fecha_elaboracion: formatDateDisplay(fechaElaboracion),
         fecha_vencimiento: formatDateDisplay(fechaVencimiento),
         incluir_logo: incluirLogo,
+        incluir_vencimiento: incluirVencimiento,
         barcodeDataUrl,
         logoDataUrl,
         qrCodeDataUrl,
@@ -311,6 +313,7 @@ export default function EtiquetasPage() {
     fechaElaboracion,
     fechaVencimiento,
     incluirLogo,
+    incluirVencimiento,
     logoDataUrl,
     qrCodeDataUrl,
     whatsappIconDataUrl,
@@ -522,6 +525,15 @@ export default function EtiquetasPage() {
                 />
                 <span className="text-sm">Incluir logo en la etiqueta</span>
               </label>
+
+              {/* Incluir fecha de vencimiento */}
+              <label className="flex items-center gap-2 cursor-pointer">
+                <Checkbox
+                  checked={incluirVencimiento}
+                  onCheckedChange={(v) => setIncluirVencimiento(v === true)}
+                />
+                <span className="text-sm">Incluir fecha de vencimiento</span>
+              </label>
             </CardContent>
           </Card>
         </div>
@@ -588,43 +600,53 @@ export default function EtiquetasPage() {
                       Vencimiento
                     </div>
 
-                    {/* Calendario (bordes negros finos, neutro) */}
+                    {/* Calendario (bordes negros finos, con resaltado si incluir_vencimiento) */}
                     <div className="border border-black overflow-hidden mb-1.5" style={{ borderWidth: '0.5px' }}>
                       {/* Días 1-31 */}
                       <div className="flex">
-                        {Array.from({ length: 31 }, (_, i) => i + 1).map((dia) => (
-                          <div
-                            key={dia}
-                            className="flex items-center justify-center leading-none text-gray-500"
-                            style={{
-                              width: '3.226%',
-                              height: '6px',
-                              fontSize: '3px',
-                              borderRight: '0.25px solid black',
-                              borderBottom: '0.25px solid black',
-                            }}
-                          >
-                            {dia}
-                          </div>
-                        ))}
+                        {Array.from({ length: 31 }, (_, i) => i + 1).map((dia) => {
+                          const isHighlight = incluirVencimiento && dia === getVencimientoDia()
+                          return (
+                            <div
+                              key={dia}
+                              className="flex items-center justify-center leading-none"
+                              style={{
+                                width: '3.226%',
+                                height: '6px',
+                                fontSize: '3px',
+                                borderRight: '0.25px solid black',
+                                borderBottom: '0.25px solid black',
+                                color: isHighlight ? '#C41E3A' : '#6b7280',
+                                fontWeight: isHighlight ? 'bold' : 'normal',
+                              }}
+                            >
+                              {dia}
+                            </div>
+                          )
+                        })}
                       </div>
                       {/* Meses */}
                       <div className="flex">
-                        {MESES_CORTOS.map((mes) => (
-                          <div
-                            key={mes}
-                            className="flex items-center justify-center leading-none text-gray-500"
-                            style={{
-                              width: '8.333%',
-                              height: '6px',
-                              fontSize: '3px',
-                              borderRight: '0.25px solid black',
-                              borderBottom: '0.25px solid black',
-                            }}
-                          >
-                            {mes}
-                          </div>
-                        ))}
+                        {MESES_CORTOS.map((mes, idx) => {
+                          const isHighlight = incluirVencimiento && (idx + 1) === getVencimientoMes()
+                          return (
+                            <div
+                              key={mes}
+                              className="flex items-center justify-center leading-none"
+                              style={{
+                                width: '8.333%',
+                                height: '6px',
+                                fontSize: '3px',
+                                borderRight: '0.25px solid black',
+                                borderBottom: '0.25px solid black',
+                                color: isHighlight ? '#C41E3A' : '#6b7280',
+                                fontWeight: isHighlight ? 'bold' : 'normal',
+                              }}
+                            >
+                              {mes}
+                            </div>
+                          )
+                        })}
                       </div>
                     </div>
 
