@@ -538,33 +538,7 @@ export default function EtiquetasPage() {
                   className="mx-auto rounded-lg overflow-hidden bg-white border-2 border-gray-300 p-3 relative"
                   style={{ width: '220px', minHeight: '280px' }}
                 >
-                  {/* Marca de agua: espiga de trigo */}
-                  <div className="absolute top-[15%] left-0 right-0 flex justify-center pointer-events-none" style={{ opacity: 0.08 }}>
-                    <svg width="55" height="95" viewBox="0 0 60 110" fill="none">
-                      {/* Tallo */}
-                      <line x1="30" y1="106" x2="30" y2="12" stroke="#5C3A21" strokeWidth="1.8" />
-                      {/* Grano superior */}
-                      <path d="M30 2 Q36 2 37 10 Q36 18 30 18 Q24 18 23 10 Q24 2 30 2 Z" fill="#5C3A21" />
-                      {/* Aristas */}
-                      <line x1="30" y1="2" x2="24" y2="-5" stroke="#5C3A21" strokeWidth="0.6" />
-                      <line x1="30" y1="2" x2="36" y2="-5" stroke="#5C3A21" strokeWidth="0.6" />
-                      <line x1="30" y1="2" x2="30" y2="-6" stroke="#5C3A21" strokeWidth="0.6" />
-                      {/* Granos derechos */}
-                      <path d="M32 21 Q43 16 45 25 Q43 34 32 29 Z" fill="#5C3A21" />
-                      <path d="M32 38 Q43 33 45 42 Q43 51 32 46 Z" fill="#5C3A21" />
-                      <path d="M33 55 Q43 50 44 58 Q43 66 33 62 Z" fill="#5C3A21" />
-                      <path d="M33 71 Q42 67 43 74 Q42 81 33 78 Z" fill="#5C3A21" />
-                      {/* Granos izquierdos */}
-                      <path d="M28 21 Q17 16 15 25 Q17 34 28 29 Z" fill="#5C3A21" />
-                      <path d="M28 38 Q17 33 15 42 Q17 51 28 46 Z" fill="#5C3A21" />
-                      <path d="M27 55 Q17 50 16 58 Q17 66 27 62 Z" fill="#5C3A21" />
-                      <path d="M27 71 Q18 67 17 74 Q18 81 27 78 Z" fill="#5C3A21" />
-                      {/* Hojitas inferiores */}
-                      <path d="M30 90 Q38 84 36 90 Q34 96 30 92 Z" fill="#5C3A21" />
-                      <path d="M30 94 Q22 88 24 94 Q26 100 30 96 Z" fill="#5C3A21" />
-                    </svg>
-                  </div>
-                  <div className="flex flex-col relative z-10" style={{ fontSize: '8px' }}>
+                  <div className="flex flex-col" style={{ fontSize: '8px' }}>
                     {/* FILA 1: Logo (izq) + Nombre (der del logo) */}
                     <div className="flex items-center mb-1">
                       {incluirLogo && (
