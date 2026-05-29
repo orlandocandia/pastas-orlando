@@ -1,4 +1,4 @@
-import { Document, Page, Text, View, Image, StyleSheet } from '@react-pdf/renderer'
+import { Document, Page, Text, View, Image, StyleSheet, Svg, Path, Line } from '@react-pdf/renderer'
 
 export interface EtiquetaData {
   nombre: string
@@ -57,6 +57,17 @@ const styles = StyleSheet.create({
     padding: 4,
     flexDirection: 'column',
     justifyContent: 'flex-start',
+    position: 'relative',
+  },
+
+  // ===== MARCA DE AGUA: ESPIGA DE TRIGO =====
+  watermarkContainer: {
+    position: 'absolute',
+    top: '15%',
+    left: 0,
+    right: 0,
+    alignItems: 'center',
+    opacity: 0.08,
   },
 
   // ===== FILA 1: LOGO (izquierda) + NOMBRE (derecha del logo) =====
@@ -218,7 +229,6 @@ const styles = StyleSheet.create({
 function WhatsAppIcon() {
   return (
     <View style={{ width: 4, height: 4, marginRight: 0.5 }}>
-      {/* Círculo verde de fondo */}
       <View
         style={{
           position: 'absolute',
@@ -230,7 +240,6 @@ function WhatsAppIcon() {
           backgroundColor: '#25D366',
         }}
       />
-      {/* Teléfono simplificado */}
       <View
         style={{
           position: 'absolute',
@@ -268,6 +277,39 @@ function WhatsAppIcon() {
   )
 }
 
+/** Marca de agua: espiga de trigo SVG, sutil y elegante */
+function WheatSpikeWatermark() {
+  const color = '#5C3A21' // Marrón de la paleta
+  return (
+    <View style={styles.watermarkContainer}>
+      <Svg width="55" height="95" viewBox="0 0 60 110">
+        {/* Tallo central */}
+        <Line x1="30" y1="106" x2="30" y2="12" stroke={color} strokeWidth="1.8" />
+        {/* Grano superior (punta de la espiga) */}
+        <Path d="M30 2 Q36 2 37 10 Q36 18 30 18 Q24 18 23 10 Q24 2 30 2 Z" fill={color} />
+        {/* Aristas (barbas de la espiga) */}
+        <Line x1="30" y1="2" x2="24" y2="-5" stroke={color} strokeWidth="0.6" />
+        <Line x1="30" y1="2" x2="36" y2="-5" stroke={color} strokeWidth="0.6" />
+        <Line x1="30" y1="2" x2="30" y2="-6" stroke={color} strokeWidth="0.6" />
+        {/* Granos derechos (de arriba hacia abajo) */}
+        <Path d="M32 21 Q43 16 45 25 Q43 34 32 29 Z" fill={color} />
+        <Path d="M32 38 Q43 33 45 42 Q43 51 32 46 Z" fill={color} />
+        <Path d="M33 55 Q43 50 44 58 Q43 66 33 62 Z" fill={color} />
+        <Path d="M33 71 Q42 67 43 74 Q42 81 33 78 Z" fill={color} />
+        {/* Granos izquierdos (de arriba hacia abajo) */}
+        <Path d="M28 21 Q17 16 15 25 Q17 34 28 29 Z" fill={color} />
+        <Path d="M28 38 Q17 33 15 42 Q17 51 28 46 Z" fill={color} />
+        <Path d="M27 55 Q17 50 16 58 Q17 66 27 62 Z" fill={color} />
+        <Path d="M27 71 Q18 67 17 74 Q18 81 27 78 Z" fill={color} />
+        {/* Hojita inferior derecha */}
+        <Path d="M30 90 Q38 84 36 90 Q34 96 30 92 Z" fill={color} />
+        {/* Hojita inferior izquierda */}
+        <Path d="M30 94 Q22 88 24 94 Q26 100 30 96 Z" fill={color} />
+      </Svg>
+    </View>
+  )
+}
+
 export function EtiquetaProductoPDF({ etiquetas }: EtiquetaProductoPDFProps) {
   const totalHojas = Math.ceil(etiquetas.length / ETIQUETAS_POR_HOJA)
 
@@ -294,6 +336,9 @@ export function EtiquetaProductoPDF({ etiquetas }: EtiquetaProductoPDFProps) {
                 return (
                   <View key={cellIdx} style={styles.cell}>
                     <View style={styles.etiqueta}>
+
+                      {/* ====== MARCA DE AGUA: ESPIGA DE TRIGO (detrás del contenido) ====== */}
+                      <WheatSpikeWatermark />
 
                       {/* ====== FILA 1: LOGO (izq) + NOMBRE (der del logo) ====== */}
                       <View style={styles.topRow}>
@@ -358,7 +403,6 @@ export function EtiquetaProductoPDF({ etiquetas }: EtiquetaProductoPDFProps) {
                             <Image src={etiqueta.qrCodeDataUrl} style={styles.qrImg} alt="QR" />
                           )}
                           <View style={styles.waInfo}>
-                            {/* Logo WhatsApp: usar imagen si existe, sino dibujar con formas */}
                             {etiqueta.whatsappIconDataUrl ? (
                               <Image src={etiqueta.whatsappIconDataUrl} style={styles.whatsappIconImg} alt="WhatsApp" />
                             ) : (
