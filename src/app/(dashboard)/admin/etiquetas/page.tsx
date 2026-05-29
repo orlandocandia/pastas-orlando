@@ -162,7 +162,7 @@ export default function EtiquetasPage() {
   useEffect(() => {
     async function loadLogo() {
       try {
-        const res = await fetch('/images/logo.png')
+        const res = await fetch('/images/logoweb.png')
         const blob = await res.blob()
         const reader = new FileReader()
         reader.onloadend = () => {
@@ -197,7 +197,7 @@ export default function EtiquetasPage() {
   useEffect(() => {
     async function loadFondo() {
       try {
-        const res = await fetch('/images/etiqueta-fondo.png')
+        const res = await fetch('/images/etiqueta-base.png')
         const blob = await res.blob()
         const reader = new FileReader()
         reader.onloadend = () => {
@@ -599,7 +599,7 @@ export default function EtiquetasPage() {
                   style={{
                     width: '200px',
                     minHeight: '130px',
-                    backgroundImage: 'url(/images/etiqueta-fondo.png)',
+                    backgroundImage: 'url(/images/etiqueta-base.png)',
                     backgroundSize: '100% 100%',
                     backgroundPosition: 'center',
                     border: '2px solid #E1AD01',
@@ -611,8 +611,8 @@ export default function EtiquetasPage() {
                     <div className="flex">
                       <div className="w-[28%] flex flex-col items-center justify-center pr-1">
                         {incluirLogo ? (
-                          <div className="w-5 h-5 rounded-full flex items-center justify-center bg-white/70">
-                            <div className="text-[4px] font-bold text-marron">PO</div>
+                          <div className="w-5 h-5 rounded-full overflow-hidden flex items-center justify-center bg-white/70">
+                            <img src="/images/logoweb.png" alt="Logo" className="w-full h-full object-contain" />
                           </div>
                         ) : (
                           <div className="w-5 h-5 rounded-full flex items-center justify-center bg-white/70">
