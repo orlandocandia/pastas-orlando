@@ -41,14 +41,6 @@ const PESOS_PREDEFINIDOS = [
   { label: 'Personalizado', value: 'custom' },
 ]
 
-const INFO_EXTRA_OPCIONES = [
-  { id: 'sin_tacc', label: 'Sin TACC' },
-  { id: 'artesanal', label: 'Producto artesanal' },
-  { id: 'contiene_gluten', label: 'Contiene gluten' },
-  { id: 'congelado', label: 'Producto congelado' },
-  { id: 'refrigerado', label: 'Mantener refrigerado' },
-]
-
 const MESES_CORTOS = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic']
 
 function formatDateForInput(date: Date): string {
@@ -65,16 +57,6 @@ function formatDateDisplay(dateStr: string): string {
   } catch {
     return dateStr
   }
-}
-
-function generateLoteNumber(): string {
-  const now = new Date()
-  const y = now.getFullYear().toString().slice(-2)
-  const m = (now.getMonth() + 1).toString().padStart(2, '0')
-  const d = now.getDate().toString().padStart(2, '0')
-  const h = now.getHours().toString().padStart(2, '0')
-  const min = now.getMinutes().toString().padStart(2, '0')
-  return `L${y}${m}${d}-${h}${min}`
 }
 
 function generateBarcodeDataUrl(code: string): string | null {
@@ -124,8 +106,6 @@ export default function EtiquetasPage() {
   const [cantidad, setCantidad] = useState<number>(24)
   const [fechaElaboracion, setFechaElaboracion] = useState<string>(formatDateForInput(new Date()))
   const [fechaVencimiento, setFechaVencimiento] = useState<string>('')
-  const [lote, setLote] = useState<string>(generateLoteNumber())
-  const [infoExtra, setInfoExtra] = useState<string[]>(['artesanal'])
   const [incluirLogo, setIncluirLogo] = useState<boolean>(true)
 
   // Logo data URL (loaded once)
@@ -134,11 +114,8 @@ export default function EtiquetasPage() {
   // QR Code data URL (generated once)
   const [qrCodeDataUrl, setQrCodeDataUrl] = useState<string | null>(null)
 
-  // Background image data URL (loaded once)
-  const [fondoDataUrl, setFondoDataUrl] = useState<string | null>(null)
-
-  // Watermark image data URL (loaded once)
-  const [watermarkDataUrl, setWatermarkDataUrl] = useState<string | null>(null)
+  // WhatsApp icon data URL (loaded once)
+  const [whatsappIconDataUrl, setWhatsappIconDataUrl] = useState<string | null>(null)
 
   // PDF component (lazy loaded)
   const [PDFComponent, setPDFComponent] = useState<EtiquetaProductoPDFType | null>(null)
@@ -179,13 +156,13 @@ export default function EtiquetasPage() {
     loadLogo()
   }, [])
 
-  // Generate QR code for WhatsApp
+  // Generate QR code for WhatsApp (bigger for new design)
   useEffect(() => {
     async function generateQR() {
       try {
         const url = await QRCode.toDataURL(
           'https://wa.me/5493754419324?text=Hola%20Orlando%20quiero%20hacer%20un%20pedido',
-          { width: 140, margin: 1, color: { dark: '#5C3A21', light: '#FFFFFF' } }
+          { width: 200, margin: 1, color: { dark: '#333333', light: '#FFFFFF' } }
         )
         setQrCodeDataUrl(url)
       } catch (err) {
@@ -196,40 +173,22 @@ export default function EtiquetasPage() {
     generateQR()
   }, [])
 
-  // Load background image as base64
+  // Load WhatsApp icon as base64
   useEffect(() => {
-    async function loadFondo() {
+    async function loadWhatsappIcon() {
       try {
-        const res = await fetch('/images/etiqueta-base.png')
+        const res = await fetch('/images/whatsapp-icon.png')
         const blob = await res.blob()
         const reader = new FileReader()
         reader.onloadend = () => {
-          setFondoDataUrl(reader.result as string)
+          setWhatsappIconDataUrl(reader.result as string)
         }
         reader.readAsDataURL(blob)
       } catch {
-        setFondoDataUrl(null)
+        setWhatsappIconDataUrl(null)
       }
     }
-    loadFondo()
-  }, [])
-
-  // Load watermark image as base64
-  useEffect(() => {
-    async function loadWatermark() {
-      try {
-        const res = await fetch('/images/watermark-pastas.png')
-        const blob = await res.blob()
-        const reader = new FileReader()
-        reader.onloadend = () => {
-          setWatermarkDataUrl(reader.result as string)
-        }
-        reader.readAsDataURL(blob)
-      } catch {
-        setWatermarkDataUrl(null)
-      }
-    }
-    loadWatermark()
+    loadWhatsappIcon()
   }, [])
 
   // Lazy load @react-pdf/renderer components
@@ -262,12 +221,6 @@ export default function EtiquetasPage() {
       (p.codigo_barras && p.codigo_barras.includes(searchTerm)) ||
       (p.codigo && p.codigo.toLowerCase().includes(searchTerm.toLowerCase()))
   )
-
-  const handleInfoExtraToggle = (id: string) => {
-    setInfoExtra((prev) =>
-      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
-    )
-  }
 
   const getPesoDisplay = (): string => {
     if (pesoOption === 'custom') {
@@ -302,33 +255,21 @@ export default function EtiquetasPage() {
         ? generateBarcodeDataUrl(selectedProducto.codigo_barras)
         : null
 
-      // Get info extra labels
-      const infoExtraLabels = infoExtra.map((id) => {
-        const option = INFO_EXTRA_OPCIONES.find((o) => o.id === id)
-        return option ? option.label : id
-      })
-
-      // Build etiqueta data
+      // Build etiqueta data (new simplified interface)
       const etiquetaData = {
         nombre: selectedProducto.nombre,
-        descripcion: selectedProducto.descripcion,
         codigo_barras: selectedProducto.codigo_barras,
-        codigo: selectedProducto.codigo,
         precio_venta: selectedProducto.precio_venta,
         peso: getPesoDisplay(),
-        categoria: selectedProducto.categoria?.nombre || null,
         fecha_elaboracion: formatDateDisplay(fechaElaboracion),
         fecha_vencimiento: formatDateDisplay(fechaVencimiento),
-        lote,
-        info_extra: infoExtraLabels,
         incluir_logo: incluirLogo,
         barcodeDataUrl,
         logoDataUrl,
         qrCodeDataUrl,
+        whatsappIconDataUrl,
         vencimientoDia: getVencimientoDia(),
         vencimientoMes: getVencimientoMes(),
-        fondoDataUrl,
-        watermarkDataUrl,
       }
 
       // Create array with requested copies
@@ -361,13 +302,10 @@ export default function EtiquetasPage() {
     cantidad,
     fechaElaboracion,
     fechaVencimiento,
-    lote,
-    infoExtra,
     incluirLogo,
     logoDataUrl,
     qrCodeDataUrl,
-    fondoDataUrl,
-    watermarkDataUrl,
+    whatsappIconDataUrl,
     pesoOption,
     pesoCustom,
   ])
@@ -554,46 +492,6 @@ export default function EtiquetasPage() {
                     onChange={(e) => setFechaVencimiento(e.target.value)}
                   />
                 </div>
-
-                {/* Lote */}
-                <div className="space-y-1.5 sm:col-span-2">
-                  <Label className="text-sm font-medium">Número de lote</Label>
-                  <div className="flex items-center gap-2">
-                    <Input
-                      value={lote}
-                      onChange={(e) => setLote(e.target.value)}
-                      placeholder="Ej: L260526-1430"
-                      className="flex-1"
-                    />
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setLote(generateLoteNumber())}
-                      title="Generar automáticamente"
-                    >
-                      Auto
-                    </Button>
-                  </div>
-                </div>
-              </div>
-
-              {/* Info extra checkboxes */}
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Información adicional</Label>
-                <div className="flex flex-wrap gap-3">
-                  {INFO_EXTRA_OPCIONES.map((opcion) => (
-                    <label
-                      key={opcion.id}
-                      className="flex items-center gap-1.5 cursor-pointer"
-                    >
-                      <Checkbox
-                        checked={infoExtra.includes(opcion.id)}
-                        onCheckedChange={() => handleInfoExtraToggle(opcion.id)}
-                      />
-                      <span className="text-sm">{opcion.label}</span>
-                    </label>
-                  ))}
-                </div>
               </div>
 
               {/* Incluir logo */}
@@ -618,77 +516,63 @@ export default function EtiquetasPage() {
             <CardContent>
               {selectedProducto ? (
                 <div
-                  className="relative rounded-lg overflow-hidden mx-auto"
-                  style={{
-                    width: '200px',
-                    minHeight: '130px',
-                    backgroundImage: 'url(/images/etiqueta-base.png)',
-                    backgroundSize: '100% 100%',
-                    backgroundPosition: 'center',
-                    border: '2px solid #E1AD01',
-                  }}
+                  className="mx-auto rounded-lg overflow-hidden bg-white border-2 border-gray-300 p-2"
+                  style={{ width: '200px' }}
                 >
-                  {/* Variable data overlay */}
-                  <div className="relative flex flex-col justify-between p-1.5" style={{ minHeight: '130px' }}>
-                    {/* Top: Brand + Product info */}
-                    <div className="flex">
-                      <div className="w-[28%] flex flex-col items-center justify-center pr-1">
-                        {incluirLogo ? (
-                          <div className="w-5 h-5 rounded-full overflow-hidden flex items-center justify-center bg-white/70">
-                            <img src="/images/logoweb.png" alt="Logo" className="w-full h-full object-contain" />
-                          </div>
-                        ) : (
-                          <div className="w-5 h-5 rounded-full flex items-center justify-center bg-white/70">
-                            <span className="text-[5px] text-rojo font-bold">O</span>
-                          </div>
-                        )}
-                        <span className="text-[3px] text-rojo font-bold mt-0.5">Orlando</span>
-                        <span className="text-[2.5px] italic text-marron text-center leading-tight">
-                          El amigo{'\n'}de las pastas
-                        </span>
+                  <div className="flex flex-col" style={{ fontSize: '7px' }}>
+                    {/* Logo centrado */}
+                    {incluirLogo && (
+                      <div className="flex justify-center mb-1">
+                        <img
+                          src="/images/logoweb.png"
+                          alt="Logo"
+                          className="w-8 h-8 object-contain"
+                        />
                       </div>
-                      <div className="w-[72%] flex flex-col justify-center pl-1">
-                        <div className="text-[6px] font-bold text-gray-800 leading-tight">
-                          {selectedProducto.nombre}
-                        </div>
-                        {infoExtra.includes('artesanal') && (
-                          <div className="text-[3.5px] italic text-rojo mt-0.5">producto artesanal</div>
-                        )}
-                        <div className="flex items-center gap-1 mt-1">
-                          <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
-                          <span className="text-[4px] font-bold text-gray-800">3754-419324</span>
-                        </div>
-                      </div>
+                    )}
+
+                    {/* Nombre del producto */}
+                    <div className="text-center font-bold text-gray-800 text-[7px] mb-1">
+                      {selectedProducto.nombre}
                     </div>
 
-                    {/* Calendar with vencimiento highlights */}
-                    <div className="py-0.5">
-                      <div className="text-[2.5px] font-bold text-marron mb-0.5">Vencimiento</div>
-                      <div className="flex justify-between mb-0.5">
+                    {/* Peso y Precio */}
+                    <div className="flex justify-between items-center mb-1">
+                      <span className="text-gray-500 text-[5px]">{getPesoDisplay()}</span>
+                      <span className="font-bold text-rojo text-[8px]">
+                        ${selectedProducto.precio_venta.toLocaleString('es-AR')}
+                      </span>
+                    </div>
+
+                    {/* Calendario de vencimiento */}
+                    <div className="border border-blue-300 rounded-sm mb-1 overflow-hidden">
+                      {/* Días 1-31 */}
+                      <div className="flex flex-wrap">
                         {Array.from({ length: 31 }, (_, i) => i + 1).map((dia) => (
                           <div
                             key={dia}
-                            className={`flex items-center justify-center leading-none ${
+                            className={`flex items-center justify-center leading-none border-r border-b border-blue-200 ${
                               dia === vencDia
-                                ? 'bg-marron text-white font-bold rounded-[0.5px]'
+                                ? 'bg-blue-700 text-white font-bold'
                                 : 'text-gray-500'
                             }`}
-                            style={{ width: '4px', height: '4px', fontSize: '2.2px' }}
+                            style={{ width: '5.5px', height: '5.5px', fontSize: '2.8px' }}
                           >
                             {dia}
                           </div>
                         ))}
                       </div>
-                      <div className="flex justify-between">
+                      {/* Meses */}
+                      <div className="flex flex-wrap">
                         {MESES_CORTOS.map((mes, idx) => (
                           <div
                             key={mes}
-                            className={`flex items-center justify-center leading-none ${
+                            className={`flex items-center justify-center leading-none border-r border-blue-200 ${
                               idx + 1 === vencMes
-                                ? 'bg-rojo text-white font-bold rounded-[0.5px]'
+                                ? 'bg-rojo text-white font-bold'
                                 : 'text-gray-500'
                             }`}
-                            style={{ width: '10px', height: '3.5px', fontSize: '2.2px' }}
+                            style={{ width: '14px', height: '5.5px', fontSize: '2.8px' }}
                           >
                             {mes}
                           </div>
@@ -696,37 +580,46 @@ export default function EtiquetasPage() {
                       </div>
                     </div>
 
-                    {/* Bottom: Barcode + Price + Details + QR */}
+                    {/* Código de barras + QR + WhatsApp */}
                     <div className="flex items-end justify-between">
-                      <div>
+                      <div className="flex-1">
                         {selectedProducto.codigo_barras ? (
-                          <div className="flex gap-px items-end h-2">
-                            {Array.from({ length: 25 }, (_, i) => (
+                          <div className="flex gap-px items-end h-3">
+                            {Array.from({ length: 30 }, (_, i) => (
                               <div
                                 key={i}
                                 className="bg-black"
                                 style={{
                                   width: Math.random() > 0.5 ? '1px' : '0.5px',
-                                  height: `${5 + Math.random() * 3}px`,
+                                  height: `${6 + Math.random() * 4}px`,
                                 }}
                               />
                             ))}
                           </div>
                         ) : (
-                          <span className="text-[2.5px] text-gray-400">Sin código</span>
+                          <span className="text-[3px] text-gray-300">Sin código</span>
                         )}
-                        <div className="text-[7px] font-bold text-rojo mt-0.5">
-                          ${selectedProducto.precio_venta.toLocaleString('es-AR')}
+                      </div>
+                      <div className="flex flex-col items-center ml-1">
+                        <div className="w-5 h-5 border border-gray-200 rounded-sm bg-white flex items-center justify-center">
+                          <span className="text-[3px] text-gray-400">QR</span>
                         </div>
-                        <div className="w-2.5 h-2.5 bg-white/80 border border-gray-200 rounded-sm mt-0.5 flex items-center justify-center">
-                          <span className="text-[1.5px] text-gray-500">QR</span>
+                        <div className="flex items-center gap-0.5 mt-0.5">
+                          <img
+                            src="/images/whatsapp-icon.png"
+                            alt="WA"
+                            className="w-2 h-2 object-contain"
+                          />
+                          <span className="text-[3px] text-green-600 font-bold">3754-419324</span>
                         </div>
                       </div>
-                      <div className="text-right">
-                        <div className="text-[2.5px] text-gray-700">Peso: {getPesoDisplay()}</div>
-                        <div className="text-[2.5px] text-gray-700">Elab: {formatDateDisplay(fechaElaboracion)}</div>
-                        <div className="text-[2.5px] text-gray-700">Lote: {lote}</div>
-                      </div>
+                    </div>
+
+                    {/* Fecha de elaboración */}
+                    <div className="mt-1">
+                      <span className="text-gray-400 text-[4px]">
+                        Elab: {formatDateDisplay(fechaElaboracion)}
+                      </span>
                     </div>
                   </div>
                 </div>
