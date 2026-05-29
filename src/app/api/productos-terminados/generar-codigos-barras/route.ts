@@ -1,8 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 
+// Force dynamic rendering for Vercel serverless
+export const dynamic = 'force-dynamic'
+
 /**
  * Calcula el dígito verificador de un código EAN-13
+ * Algoritmo GS1 mod-10
  */
 function calcularCheckDigitEAN13(digits12: string): string {
   const digits = digits12.split('').map(Number)
@@ -15,14 +19,44 @@ function calcularCheckDigitEAN13(digits12: string): string {
 
 /**
  * Genera un código EAN-13 secuencial a partir de un contador
- * Formato: 779 + 9 dígitos + 1 check digit = 13 dígitos
+ * Formato: 779 (prefijo Argentina) + 9 dígitos del contador + 1 check digit = 13 dígitos
+ * Ejemplo: contador=1 → 779000000001 + check digit = 7790000000010
  */
 function generarCodigoEAN13(contador: number): string {
   const prefijo = '779'
   const numero = contador.toString().padStart(9, '0')
-  const base = prefijo + numero
+  const base = prefijo + numero // 12 dígitos
   const checkDigit = calcularCheckDigitEAN13(base)
-  return base + checkDigit
+  return base + checkDigit // 13 dígitos
+}
+
+/**
+ * Busca el último contador secuencial usado en los códigos EAN-13 existentes
+ * Analiza todos los códigos que empiecen con "779" y extrae el número secuencial
+ */
+async function obtenerUltimoContador(): Promise<number> {
+  const productos = await db.productoTerminado.findMany({
+    where: {
+      codigo_barras: { not: null },
+    },
+    select: { codigo_barras: true },
+    orderBy: { codigo_barras: 'desc' },
+  })
+
+  let maxContador = 0
+
+  for (const p of productos) {
+    const cb = p.codigo_barras
+    if (!cb || !cb.startsWith('779') || cb.length !== 13) continue
+
+    // Extraer los 9 dígitos después del prefijo 779 (posiciones 3-11)
+    const secuencial = parseInt(cb.substring(3, 12), 10)
+    if (secuencial > maxContador) {
+      maxContador = secuencial
+    }
+  }
+
+  return maxContador
 }
 
 /**
@@ -31,32 +65,36 @@ function generarCodigoEAN13(contador: number): string {
  */
 export async function GET() {
   try {
-    const ultimo = await db.productoTerminado.findFirst({
-      where: {
-        codigo_barras: { not: null, startsWith: '779' },
-      },
-      orderBy: { codigo_barras: 'desc' },
-      select: { codigo_barras: true },
+    const ultimoContador = await obtenerUltimoContador()
+    const proximoContador = ultimoContador + 1
+    const proximoCodigo = generarCodigoEAN13(proximoContador)
+
+    return NextResponse.json({
+      proximo_codigo: proximoCodigo,
+      contador: proximoContador,
     })
-
-    let contador = 1
-    if (ultimo?.codigo_barras) {
-      const numeroStr = ultimo.codigo_barras.substring(3, 12)
-      contador = parseInt(numeroStr, 10) + 1
-    }
-
-    const proximoCodigo = generarCodigoEAN13(contador)
-    return NextResponse.json({ proximo_codigo: proximoCodigo, contador })
   } catch (error) {
     console.error('Error al obtener próximo código:', error)
-    return NextResponse.json({ error: 'Error al obtener próximo código' }, { status: 500 })
+    return NextResponse.json(
+      { error: 'Error al obtener próximo código' },
+      { status: 500 }
+    )
   }
 }
 
 /**
  * POST /api/productos-terminados/generar-codigos-barras
- * Genera códigos de barras EAN-13 para todos los productos que no tienen uno.
- * Requiere secret de autorización.
+ * Genera códigos de barras EAN-13 secuenciales para TODOS los productos que no tienen uno.
+ * Usa el último contador existente + 1 para cada nuevo código.
+ *
+ * Query params:
+ *   secret - Token de seguridad (requerido: pastas-orlando-seed-2026)
+ *
+ * Respuesta:
+ *   message - Mensaje descriptivo
+ *   actualizados - Cantidad de productos actualizados
+ *   codigos - Lista de productos con sus nuevos códigos
+ *   errores - Lista de errores (si los hay)
  */
 export async function POST(request: NextRequest) {
   try {
@@ -68,70 +106,87 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
     }
 
-    // Buscar todos los productos sin código de barras
-    const sinCodigo = await db.productoTerminado.findMany({
-      where: { codigo_barras: null },
+    // Obtener todos los productos sin código de barras
+    const todosLosProductos = await db.productoTerminado.findMany({
+      select: { id: true, nombre: true, codigo_barras: true },
       orderBy: { id: 'asc' },
-      select: { id: true, nombre: true },
     })
+
+    const sinCodigo = todosLosProductos.filter(
+      (p) => p.codigo_barras === null || p.codigo_barras === '' || p.codigo_barras === undefined
+    )
 
     if (sinCodigo.length === 0) {
       return NextResponse.json({
-        message: 'Todos los productos ya tienen código de barras',
+        message: 'Todos los productos ya tienen código de barras asignado',
         actualizados: 0,
+        codigos: [],
       })
     }
 
-    // Buscar el último código de barras secuencial existente (que empiece con 779)
-    const conCodigo = await db.productoTerminado.findMany({
-      where: {
-        codigo_barras: { not: null, startsWith: '779' },
-      },
-      orderBy: { codigo_barras: 'desc' },
-      select: { codigo_barras: true },
-      take: 1,
-    })
+    // Obtener el último contador secuencial usado
+    let contador = await obtenerUltimoContador()
 
-    let siguienteContador = 1
-    if (conCodigo.length > 0 && conCodigo[0].codigo_barras) {
-      // Extraer los 9 dígitos después de "779" (posiciones 3-11)
-      const ultimoCodigo = conCodigo[0].codigo_barras
-      const numeroStr = ultimoCodigo.substring(3, 12)
-      siguienteContador = parseInt(numeroStr, 10) + 1
-    }
-
-    // Generar y asignar códigos
-    const resultados: { id: number; nombre: string; codigo_barras: string }[] = []
-    let contador = siguienteContador
+    let actualizados = 0
+    const errores: { id: number; nombre: string; error: string }[] = []
+    const codigos: { id: number; nombre: string; codigo_barras: string }[] = []
 
     for (const producto of sinCodigo) {
-      let ean13 = generarCodigoEAN13(contador)
-
-      // Verificar que no exista (por seguridad)
-      let existe = await db.productoTerminado.findUnique({ where: { codigo_barras: ean13 } })
-      while (existe) {
-        contador++
-        ean13 = generarCodigoEAN13(contador)
-        existe = await db.productoTerminado.findUnique({ where: { codigo_barras: ean13 } })
-      }
-
-      await db.productoTerminado.update({
-        where: { id: producto.id },
-        data: { codigo_barras: ean13 },
-      })
-
-      resultados.push({ id: producto.id, nombre: producto.nombre, codigo_barras: ean13 })
       contador++
+      const barcode = generarCodigoEAN13(contador)
+
+      try {
+        // Verificar que no exista (por seguridad, evitar duplicados)
+        const existente = await db.productoTerminado.findUnique({
+          where: { codigo_barras: barcode },
+        })
+
+        if (existente) {
+          // Si ya existe por alguna razón, saltar e incrementar contador
+          errores.push({
+            id: producto.id,
+            nombre: producto.nombre,
+            error: `Código ${barcode} ya existe, saltando`,
+          })
+          continue
+        }
+
+        await db.productoTerminado.update({
+          where: { id: producto.id },
+          data: { codigo_barras: barcode },
+        })
+
+        codigos.push({
+          id: producto.id,
+          nombre: producto.nombre,
+          codigo_barras: barcode,
+        })
+        actualizados++
+      } catch (updateErr) {
+        console.error(`Error actualizando producto ${producto.id}:`, updateErr)
+        errores.push({
+          id: producto.id,
+          nombre: producto.nombre,
+          error: updateErr instanceof Error ? updateErr.message : String(updateErr),
+        })
+      }
     }
 
     return NextResponse.json({
-      message: `Se generaron ${resultados.length} códigos de barras`,
-      actualizados: resultados.length,
-      contador_siguiente: contador,
-      codigos: resultados,
+      message: `Se generaron ${actualizados} códigos de barras secuenciales`,
+      actualizados,
+      contador_siguiente: contador + 1,
+      codigos,
+      errores: errores.length > 0 ? errores : undefined,
     })
   } catch (error) {
     console.error('Error al generar códigos de barras:', error)
-    return NextResponse.json({ error: 'Error al generar códigos de barras' }, { status: 500 })
+    return NextResponse.json(
+      {
+        error: 'Error al generar códigos de barras',
+        details: error instanceof Error ? error.message : String(error),
+      },
+      { status: 500 }
+    )
   }
 }
