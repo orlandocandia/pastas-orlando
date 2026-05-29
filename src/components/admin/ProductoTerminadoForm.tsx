@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useState, useEffect } from 'react'
-import { Loader2 } from 'lucide-react'
+import { Loader2, Barcode } from 'lucide-react'
 import { toast } from 'sonner'
 
 import { Button } from '@/components/ui/button'
@@ -67,6 +67,7 @@ export default function ProductoTerminadoForm({ productoTerminado, onSuccess }: 
   const [imageUrl, setImageUrl] = useState(productoTerminado?.imagen || '')
   const [categorias, setCategorias] = useState<Categoria[]>([])
   const [loadingCategorias, setLoadingCategorias] = useState(true)
+  const [proximoCodigoBarras, setProximoCodigoBarras] = useState<string | null>(null)
 
   const isEditing = !!productoTerminado
 
@@ -106,6 +107,24 @@ export default function ProductoTerminadoForm({ productoTerminado, onSuccess }: 
 
     fetchCategorias()
   }, [])
+
+  // Fetch next barcode for new products
+  useEffect(() => {
+    if (!isEditing) {
+      async function fetchProximoCodigo() {
+        try {
+          const res = await fetch('/api/productos-terminados/generar-codigos-barras')
+          if (res.ok) {
+            const data = await res.json()
+            setProximoCodigoBarras(data.proximo_codigo)
+          }
+        } catch {
+          // Silently fail - barcode will be generated server-side
+        }
+      }
+      fetchProximoCodigo()
+    }
+  }, [isEditing])
 
   async function onSubmit(data: ProductoTerminadoFormValues) {
     setSubmitting(true)
@@ -195,7 +214,24 @@ export default function ProductoTerminadoForm({ productoTerminado, onSuccess }: 
               <FormControl>
                 <Input type="text" placeholder="Ej: 7791234567890" {...field} />
               </FormControl>
-              <p className="text-xs text-muted-foreground">Código EAN-13 o código de barras del producto</p>
+              {!isEditing && !field.value && proximoCodigoBarras && (
+                <div className="flex items-center gap-2 mt-1">
+                  <Barcode className="h-3.5 w-3.5 text-mostaza" />
+                  <p className="text-xs text-muted-foreground">
+                    Se generará automáticamente: <span className="font-mono font-semibold text-marron">{proximoCodigoBarras}</span>
+                  </p>
+                </div>
+              )}
+              {isEditing && field.value && (
+                <p className="text-xs text-muted-foreground">
+                  Código EAN-13 asignado al producto
+                </p>
+              )}
+              {!isEditing && (
+                <p className="text-xs text-muted-foreground">
+                  Dejá vacío para generar automáticamente un código EAN-13 (779...)
+                </p>
+              )}
               <FormMessage />
             </FormItem>
           )}

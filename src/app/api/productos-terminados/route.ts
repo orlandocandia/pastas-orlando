@@ -16,31 +16,52 @@ function calcularCheckDigitEAN13(digits12: string): string {
 }
 
 /**
- * Genera un código EAN-13 único con prefijo 779 (Argentina)
- * Formato: 779 + 9 dígitos secuenciales + 1 dígito verificador
+ * Genera un código EAN-13 secuencial a partir de un contador
+ * Formato: 779 + 9 dígitos + 1 check digit = 13 dígitos
  */
-async function generarEAN13Unico(): Promise<string> {
+function generarCodigoEAN13(contador: number): string {
+  const prefijo = '779'
+  const numero = contador.toString().padStart(9, '0')
+  const base = prefijo + numero
+  const checkDigit = calcularCheckDigitEAN13(base)
+  return base + checkDigit
+}
+
+/**
+ * Genera el siguiente código EAN-13 secuencial único
+ * Busca el último código existente que empiece con 779, incrementa y verifica unicidad
+ */
+async function generarSiguienteEAN13(): Promise<string> {
+  // Buscar el último código de barras secuencial (que empiece con 779)
+  const ultimo = await db.productoTerminado.findFirst({
+    where: {
+      codigo_barras: { not: null, startsWith: '779' },
+    },
+    orderBy: { codigo_barras: 'desc' },
+    select: { codigo_barras: true },
+  })
+
+  let contador = 1
+  if (ultimo?.codigo_barras) {
+    const numeroStr = ultimo.codigo_barras.substring(3, 12)
+    contador = parseInt(numeroStr, 10) + 1
+  }
+
+  // Intentar generar un código único (con reintentos por si hay colisión)
   let attempts = 0
-  const maxAttempts = 50
-
-  while (attempts < maxAttempts) {
-    attempts++
-    // Prefijo 779 (Argentina) + 9 dígitos aleatorios = 12 dígitos
-    const random9 = Math.floor(Math.random() * 1_000_000_000).toString().padStart(9, '0')
-    const digits12 = `779${random9}`
-    const checkDigit = calcularCheckDigitEAN13(digits12)
-    const ean13 = `${digits12}${checkDigit}`
-
-    // Verificar que no exista en la base de datos
+  while (attempts < 50) {
+    const ean13 = generarCodigoEAN13(contador)
     const existente = await db.productoTerminado.findUnique({ where: { codigo_barras: ean13 } })
     if (!existente) {
       return ean13
     }
+    contador++
+    attempts++
   }
 
-  // Fallback: usar timestamp si no se encuentra uno único rápido
-  const timestamp9 = Date.now().toString().slice(-9)
-  const digits12 = `779${timestamp9}`
+  // Fallback extremo: usar timestamp
+  const ts = Date.now().toString().slice(-9)
+  const digits12 = `779${ts}`
   const checkDigit = calcularCheckDigitEAN13(digits12)
   return `${digits12}${checkDigit}`
 }
@@ -127,10 +148,10 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Auto-generar código de barras EAN-13 si no se proporciona
+    // Auto-generar código de barras EAN-13 secuencial si no se proporciona
     let codigoBarrasFinal = codigo_barras || null
     if (!codigoBarrasFinal) {
-      codigoBarrasFinal = await generarEAN13Unico()
+      codigoBarrasFinal = await generarSiguienteEAN13()
     } else {
       // Verificar código de barras único si se proporciona manualmente
       const existenteCB = await db.productoTerminado.findUnique({ where: { codigo_barras: codigoBarrasFinal } })
