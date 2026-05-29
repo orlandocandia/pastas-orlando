@@ -90,7 +90,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-end',
-    marginBottom: 2,
+    marginBottom: 0,
   },
   infoExtraLeft: {
     flexDirection: 'row',
@@ -115,7 +115,8 @@ const styles = StyleSheet.create({
   vencimientoLabel: {
     fontSize: 3.5,
     color: '#374151',
-    marginBottom: 1,
+    marginBottom: 0,
+    marginTop: 0,
   },
 
   // ===== INFO EXTRA (texto plano, sin bordes) - dentro de infoPriceRow =====
@@ -153,6 +154,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderRightWidth: 0.3,
+    borderBottomWidth: 0.3,
     borderColor: '#000000',
   },
   monthName: {
@@ -189,8 +191,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   qrImg: {
-    width: 22,
-    height: 22,
+    width: 16,
+    height: 16,
   },
   waInfo: {
     flexDirection: 'row',
@@ -198,16 +200,16 @@ const styles = StyleSheet.create({
     marginTop: 1,
   },
   whatsappCircle: {
-    width: 5,
-    height: 5,
-    borderRadius: 2.5,
+    width: 4,
+    height: 4,
+    borderRadius: 2,
     backgroundColor: '#25D366',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 1,
   },
   whatsappPhoneIcon: {
-    fontSize: 3,
+    fontSize: 2.5,
     color: '#FFFFFF',
     fontWeight: 'bold',
   },

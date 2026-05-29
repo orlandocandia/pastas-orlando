@@ -560,7 +560,7 @@ export default function EtiquetasPage() {
                     </div>
 
                     {/* FILA 2: Info extra (izq) + Precio/Peso (der) a la misma altura */}
-                    <div className="flex justify-between items-end mb-1.5">
+                    <div className="flex justify-between items-end mb-0">
                       <div className="flex flex-wrap flex-1">
                         {infoExtra.map((id) => {
                           const option = INFO_EXTRA_OPCIONES.find((o) => o.id === id)
@@ -586,7 +586,7 @@ export default function EtiquetasPage() {
                     </div>
 
                     {/* Texto "Vencimiento" sobre el calendario */}
-                    <div className="text-gray-600 mb-0.5" style={{ fontSize: '4.5px' }}>
+                    <div className="text-gray-600" style={{ fontSize: '4.5px' }}>
                       Vencimiento
                     </div>
 
@@ -609,7 +609,7 @@ export default function EtiquetasPage() {
                         {MESES_CORTOS.map((mes) => (
                           <div
                             key={mes}
-                            className="flex items-center justify-center leading-none border-r border-black text-gray-500"
+                            className="flex items-center justify-center leading-none border-r border-b border-black text-gray-500"
                             style={{ width: '8.333%', height: '5px', fontSize: '2.5px' }}
                           >
                             {mes}
@@ -647,12 +647,12 @@ export default function EtiquetasPage() {
                         </div>
                       </div>
                       <div className="flex flex-col items-center ml-2 shrink-0">
-                        <div className="w-8 h-8 border border-gray-200 rounded-sm bg-white flex items-center justify-center">
-                          <span className="text-[5px] text-gray-400 font-bold">QR</span>
+                        <div className="w-6 h-6 border border-gray-200 rounded-sm bg-white flex items-center justify-center">
+                          <span className="text-[4px] text-gray-400 font-bold">QR</span>
                         </div>
                         <div className="flex items-center gap-0.5 mt-0.5">
-                          <div className="w-3 h-3 rounded-full bg-[#25D366] flex items-center justify-center">
-                            <span className="text-white font-bold" style={{ fontSize: '5px' }}>☎</span>
+                          <div className="w-2.5 h-2.5 rounded-full bg-[#25D366] flex items-center justify-center">
+                            <span className="text-white font-bold" style={{ fontSize: '4px' }}>☎</span>
                           </div>
                           <span className="text-[5px] text-green-600 font-bold">3754-419324</span>
                         </div>
