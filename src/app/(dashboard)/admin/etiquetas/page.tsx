@@ -30,8 +30,11 @@ interface ProductoTerminado {
   estado: boolean
 }
 
+type TamanoEtiqueta = import('@/components/print/EtiquetaProductoPDF').TamanoEtiqueta
+
 type EtiquetaProductoPDFType = React.ComponentType<{
   etiquetas: import('@/components/print/EtiquetaProductoPDF').EtiquetaData[]
+  tamano?: TamanoEtiqueta
 }>
 
 const PESOS_PREDEFINIDOS = [
@@ -117,6 +120,7 @@ export default function EtiquetasPage() {
   const [infoExtra, setInfoExtra] = useState<string[]>([])
   const [incluirLogo, setIncluirLogo] = useState<boolean>(true)
   const [incluirVencimiento, setIncluirVencimiento] = useState<boolean>(true)
+  const [tamano, setTamano] = useState<TamanoEtiqueta>('grande')
 
   // Data URLs
   const [logoDataUrl, setLogoDataUrl] = useState<string | null>(null)
@@ -246,7 +250,9 @@ export default function EtiquetasPage() {
     return new Date(fechaVencimiento + 'T12:00:00').getMonth() + 1
   }
 
-  const hojasNecesarias = Math.ceil(cantidad / 24)
+  const etiquetasPorHoja = tamano === 'pequena' ? 40 : 24
+  const maxCantidad = etiquetasPorHoja * 10
+  const hojasNecesarias = Math.ceil(cantidad / etiquetasPorHoja)
 
   const handleGeneratePDF = useCallback(async () => {
     if (!selectedProducto || !PDFComponent) return
@@ -290,7 +296,7 @@ export default function EtiquetasPage() {
 
       const etiquetas = Array.from({ length: cantidad }, () => etiquetaData)
       const { pdf } = await import('@react-pdf/renderer')
-      const blob = await pdf(<PDFComponent etiquetas={etiquetas} />).toBlob()
+      const blob = await pdf(<PDFComponent etiquetas={etiquetas} tamano={tamano} />).toBlob()
 
       const url = URL.createObjectURL(blob)
       const link = document.createElement('a')
@@ -314,6 +320,7 @@ export default function EtiquetasPage() {
     fechaVencimiento,
     incluirLogo,
     incluirVencimiento,
+    tamano,
     logoDataUrl,
     qrCodeDataUrl,
     whatsappIconDataUrl,
@@ -341,7 +348,7 @@ export default function EtiquetasPage() {
         <div>
           <h1 className="text-2xl font-bold text-marron">Generador de Etiquetas</h1>
           <p className="text-sm text-muted-foreground">
-            Generá etiquetas PDF · 24 etiquetas por hoja A4 (3×8)
+            Generá etiquetas PDF · {etiquetasPorHoja} etiquetas por hoja A4 ({tamano === 'pequena' ? '5×8' : '3×8'})
           </p>
         </div>
       </div>
@@ -419,6 +426,24 @@ export default function EtiquetasPage() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {/* Tamaño de etiqueta */}
+                <div className="space-y-1.5">
+                  <Label className="text-sm font-medium">Tamaño de etiqueta</Label>
+                  <Select value={tamano} onValueChange={(v) => {
+                    const newTamano = v as TamanoEtiqueta
+                    setTamano(newTamano)
+                    setCantidad(newTamano === 'pequena' ? 40 : 24)
+                  }}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="grande">Grande (70×37mm) - 24 por hoja</SelectItem>
+                      <SelectItem value="pequena">Pequeña (50×25mm) - 40 por hoja</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
                 {/* Peso */}
                 <div className="space-y-1.5">
                   <Label className="text-sm font-medium">Peso</Label>
@@ -459,18 +484,18 @@ export default function EtiquetasPage() {
                     <Input
                       type="number"
                       min={1}
-                      max={240}
+                      max={maxCantidad}
                       value={cantidad}
                       onChange={(e) =>
-                        setCantidad(Math.max(1, Math.min(240, parseInt(e.target.value) || 1)))
+                        setCantidad(Math.max(1, Math.min(maxCantidad, parseInt(e.target.value) || 1)))
                       }
                       className="w-20 text-center"
                     />
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => setCantidad(Math.min(240, cantidad + 1))}
-                      disabled={cantidad >= 240}
+                      onClick={() => setCantidad(Math.min(maxCantidad, cantidad + 1))}
+                      disabled={cantidad >= maxCantidad}
                     >
                       +
                     </Button>
@@ -547,10 +572,18 @@ export default function EtiquetasPage() {
             <CardContent>
               {selectedProducto ? (
                 <div
-                  className="mx-auto rounded-lg overflow-hidden bg-white border-2 border-gray-300 p-3 relative"
-                  style={{ width: '220px', minHeight: '280px' }}
+                  className="mx-auto rounded-lg overflow-hidden bg-white border-2 border-gray-300 relative"
+                  style={{
+                    width: tamano === 'pequena' ? '150px' : '220px',
+                    minHeight: tamano === 'pequena' ? '190px' : '280px',
+                    padding: tamano === 'pequena' ? '6px' : '12px',
+                  }}
                 >
-                  <div className="flex flex-col" style={{ fontSize: '8px' }}>
+                  {/* Indicador de tamaño */}
+                  <div className="absolute top-1 right-1.5 text-[8px] text-gray-400 font-medium">
+                    {tamano === 'pequena' ? '50×25mm' : '70×37mm'}
+                  </div>
+                  <div className="flex flex-col" style={{ fontSize: tamano === 'pequena' ? '5px' : '8px' }}>
                     {/* FILA 1: Logo (izq) + Nombre (der del logo) */}
                     <div className="flex items-center mb-1">
                       {incluirLogo && (
@@ -558,12 +591,13 @@ export default function EtiquetasPage() {
                           <img
                             src="/images/logoweb.png"
                             alt="Logo"
-                            className="w-10 h-10 object-contain"
+                            style={{ width: tamano === 'pequena' ? '24px' : '40px', height: tamano === 'pequena' ? '24px' : '40px' }}
+                            className="object-contain"
                           />
                         </div>
                       )}
-                      <div className={incluirLogo ? 'w-[70%] pl-1.5' : 'w-full pl-1.5'}>
-                        <div className="font-bold text-gray-800 text-[9px] leading-tight">
+                      <div className={incluirLogo ? 'w-[70%]' : 'w-full'} style={{ paddingLeft: tamano === 'pequena' ? '3px' : '6px' }}>
+                        <div className="font-bold text-gray-800 leading-tight" style={{ fontSize: tamano === 'pequena' ? '6px' : '9px' }}>
                           {selectedProducto.nombre}
                         </div>
                       </div>
@@ -578,7 +612,7 @@ export default function EtiquetasPage() {
                             <span
                               key={id}
                               className="text-gray-700 mr-1.5"
-                              style={{ fontSize: '4.5px' }}
+                              style={{ fontSize: tamano === 'pequena' ? '3px' : '4.5px' }}
                             >
                               {option.label}
                             </span>
@@ -586,17 +620,17 @@ export default function EtiquetasPage() {
                         })}
                       </div>
                       <div className="flex flex-col items-end">
-                        <span className="font-bold text-black text-[9px]">
+                        <span className="font-bold text-black" style={{ fontSize: tamano === 'pequena' ? '6px' : '9px' }}>
                           ${selectedProducto.precio_venta.toLocaleString('es-AR')}
                         </span>
-                        <span className="text-gray-600 text-[5.5px]">
+                        <span className="text-gray-600" style={{ fontSize: tamano === 'pequena' ? '3.5px' : '5.5px' }}>
                           Peso: {getPesoDisplay()}
                         </span>
                       </div>
                     </div>
 
                     {/* Texto "Vencimiento" sobre el calendario */}
-                    <div className="text-gray-600 mb-0.5" style={{ fontSize: '4.5px' }}>
+                    <div className="text-gray-600 mb-0.5" style={{ fontSize: tamano === 'pequena' ? '3px' : '4.5px' }}>
                       Vencimiento
                     </div>
 
@@ -612,8 +646,8 @@ export default function EtiquetasPage() {
                               className="flex items-center justify-center leading-none"
                               style={{
                                 width: '3.226%',
-                                height: '6px',
-                                fontSize: '3px',
+                                height: tamano === 'pequena' ? '4px' : '6px',
+                                fontSize: tamano === 'pequena' ? '2px' : '3px',
                                 borderRight: '0.25px solid black',
                                 borderBottom: '0.25px solid black',
                                 color: isHighlight ? '#C41E3A' : '#6b7280',
@@ -635,8 +669,8 @@ export default function EtiquetasPage() {
                               className="flex items-center justify-center leading-none"
                               style={{
                                 width: '8.333%',
-                                height: '6px',
-                                fontSize: '3px',
+                                height: tamano === 'pequena' ? '4px' : '6px',
+                                fontSize: tamano === 'pequena' ? '2px' : '3px',
                                 borderRight: '0.25px solid black',
                                 borderBottom: '0.25px solid black',
                                 color: isHighlight ? '#C41E3A' : '#6b7280',
@@ -655,41 +689,41 @@ export default function EtiquetasPage() {
                       <div className="flex-1">
                         {selectedProducto.codigo_barras ? (
                           <>
-                            <div className="flex gap-px items-end h-5">
-                              {Array.from({ length: 45 }, (_, i) => (
+                            <div className="flex gap-px items-end" style={{ height: tamano === 'pequena' ? '12px' : '20px' }}>
+                              {Array.from({ length: tamano === 'pequena' ? 30 : 45 }, (_, i) => (
                                 <div
                                   key={i}
                                   className="bg-black"
                                   style={{
-                                    width: i % 3 === 0 ? '1.5px' : '0.7px',
-                                    height: `${10 + (i % 5) * 2}px`,
+                                    width: i % 3 === 0 ? '1px' : '0.5px',
+                                    height: `${(tamano === 'pequena' ? 6 : 10) + (i % 5) * (tamano === 'pequena' ? 1 : 2)}px`,
                                   }}
                                 />
                               ))}
                             </div>
-                            <div className="text-center" style={{ fontSize: '4px', fontFamily: 'monospace' }}>
+                            <div className="text-center" style={{ fontSize: tamano === 'pequena' ? '2.5px' : '4px', fontFamily: 'monospace' }}>
                               {selectedProducto.codigo_barras}
                             </div>
                           </>
                         ) : (
-                          <span className="text-[5px] text-red-400">Sin código de barras</span>
+                          <span className="text-red-400" style={{ fontSize: tamano === 'pequena' ? '3px' : '5px' }}>Sin código de barras</span>
                         )}
-                        <div className="text-gray-500 mt-0.5" style={{ fontSize: '4.5px' }}>
+                        <div className="text-gray-500 mt-0.5" style={{ fontSize: tamano === 'pequena' ? '3px' : '4.5px' }}>
                           Elab: {formatDateDisplay(fechaElaboracion)}
                         </div>
                       </div>
-                      <div className="flex flex-col items-end ml-2 shrink-0" style={{ width: '36px' }}>
-                        <div className="w-7 h-7 border border-gray-200 rounded-sm bg-white flex items-center justify-center">
-                          <span className="text-[4px] text-gray-400 font-bold">QR</span>
+                      <div className="flex flex-col items-end shrink-0" style={{ width: tamano === 'pequena' ? '24px' : '36px', marginLeft: tamano === 'pequena' ? '4px' : '8px' }}>
+                        <div className="border border-gray-200 rounded-sm bg-white flex items-center justify-center" style={{ width: tamano === 'pequena' ? '18px' : '28px', height: tamano === 'pequena' ? '18px' : '28px' }}>
+                          <span className="text-gray-400 font-bold" style={{ fontSize: tamano === 'pequena' ? '3px' : '4px' }}>QR</span>
                         </div>
                         <div className="flex items-center gap-0.5 mt-0.5 w-full justify-end">
-                          <div className="w-2.5 h-2.5 rounded-full bg-[#25D366] flex items-center justify-center relative shrink-0">
-                            <svg viewBox="0 0 24 24" className="w-1.5 h-1.5 fill-white">
+                          <div className="rounded-full bg-[#25D366] flex items-center justify-center relative shrink-0" style={{ width: tamano === 'pequena' ? '7px' : '10px', height: tamano === 'pequena' ? '7px' : '10px' }}>
+                            <svg viewBox="0 0 24 24" style={{ width: tamano === 'pequena' ? '4px' : '6px', height: tamano === 'pequena' ? '4px' : '6px' }} className="fill-white">
                               <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
                               <path d="M12 0C5.373 0 0 5.373 0 12c0 2.117.553 4.106 1.519 5.834L.526 23.5l5.855-.97A11.94 11.94 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.82c-1.98 0-3.868-.528-5.527-1.526l-.397-.236-3.414.567.578-3.327-.259-.413A9.785 9.785 0 012.18 12c0-5.422 4.398-9.82 9.82-9.82 5.422 0 9.82 4.398 9.82 9.82 0 5.422-4.398 9.82-9.82 9.82z"/>
                             </svg>
                           </div>
-                          <span className="text-green-600 font-bold leading-none" style={{ fontSize: '3.5px' }}>3754-419324</span>
+                          <span className="text-green-600 font-bold leading-none" style={{ fontSize: tamano === 'pequena' ? '2.3px' : '3.5px' }}>3754-419324</span>
                         </div>
                       </div>
                     </div>
@@ -744,7 +778,7 @@ export default function EtiquetasPage() {
 
           {selectedProducto && (
             <p className="text-xs text-center text-muted-foreground">
-              📄 {cantidad} etiquetas en {hojasNecesarias} hoja{hojasNecesarias !== 1 ? 's' : ''} A4 (24 por hoja)
+              📄 {cantidad} etiquetas en {hojasNecesarias} hoja{hojasNecesarias !== 1 ? 's' : ''} A4 ({etiquetasPorHoja} por hoja)
             </p>
           )}
         </div>

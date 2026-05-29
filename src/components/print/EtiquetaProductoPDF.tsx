@@ -1,5 +1,7 @@
 import { Document, Page, Text, View, Image, StyleSheet } from '@react-pdf/renderer'
 
+export type TamanoEtiqueta = 'grande' | 'pequena'
+
 export interface EtiquetaData {
   nombre: string
   codigo_barras: string | null
@@ -20,278 +22,295 @@ export interface EtiquetaData {
 
 interface EtiquetaProductoPDFProps {
   etiquetas: EtiquetaData[]
+  tamano?: TamanoEtiqueta
 }
 
-const ETIQUETAS_POR_HOJA = 24 // 3 columnas x 8 filas
-
 // A4: 595.28 x 841.89 pt
-// Márgenes: 0.5cm ≈ 14pt
 const PAGE_MARGIN = 14
 const PAGE_WIDTH = 595.28
 const CONTENT_WIDTH = PAGE_WIDTH - PAGE_MARGIN * 2
-const CELL_WIDTH = CONTENT_WIDTH / 3
-const CELL_HEIGHT = (841.89 - PAGE_MARGIN * 2) / 8
-const CELL_GAP = 2
-const BORDER_RADIUS = 6
+const CONTENT_HEIGHT = 841.89 - PAGE_MARGIN * 2
 
 const MESES = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic']
 
-const styles = StyleSheet.create({
-  page: {
-    padding: PAGE_MARGIN,
-    fontFamily: 'Helvetica',
-  },
-  grid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-  },
-  cell: {
-    width: CELL_WIDTH,
-    height: CELL_HEIGHT,
-    padding: CELL_GAP / 2,
-  },
-  etiqueta: {
-    flex: 1,
-    borderRadius: BORDER_RADIUS,
-    backgroundColor: '#FFFFFF',
-    border: '1px solid #d1d5db',
-    padding: 4,
-    flexDirection: 'column',
-    justifyContent: 'flex-start',
-    position: 'relative',
-  },
+// ===== LAYOUT CONFIG BY SIZE =====
+function getLayout(tamano: TamanoEtiqueta) {
+  const columnas = tamano === 'pequena' ? 5 : 3
+  const filas = 8
+  const s = tamano === 'pequena' ? 0.65 : 1.0
 
-  // ===== FILA 1: LOGO (izquierda) + NOMBRE (derecha del logo) =====
-  topRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 1,
-  },
-  logoCol: {
-    width: '30%',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  logoImg: {
-    width: 42,
-    height: 42,
-  },
-  nameCol: {
-    width: '70%',
-    justifyContent: 'center',
-    paddingLeft: 3,
-  },
-  productName: {
-    fontSize: 7,
-    fontWeight: 'bold',
-    color: '#1f2937',
-  },
+  return {
+    etiquetasPorHoja: columnas * filas,
+    columnas,
+    filas,
+    cellWidth: CONTENT_WIDTH / columnas,
+    cellHeight: CONTENT_HEIGHT / filas,
+    cellGap: 2 * s,
+    s,
+  }
+}
 
-  // ===== FILA 2: INFO EXTRA (izq) + PRECIO/PESO (der) =====
-  infoPriceRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-end',
-    marginBottom: 1,
-  },
-  infoExtraLeft: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    flex: 1,
-  },
-  infoText: {
-    fontSize: 3.5,
-    color: '#374151',
-    marginRight: 2,
-  },
-  priceWeightCol: {
-    flexDirection: 'column',
-    alignItems: 'flex-end',
-  },
-  priceText: {
-    fontSize: 7,
-    fontWeight: 'bold',
-    color: '#000000',
-  },
-  pesoText: {
-    fontSize: 4.5,
-    color: '#374151',
-  },
+function createStyles(s: number, cellGap: number) {
+  return StyleSheet.create({
+    page: {
+      padding: PAGE_MARGIN,
+      fontFamily: 'Helvetica',
+    },
+    grid: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+    },
+    cell: {
+      width: CONTENT_WIDTH / (s < 1 ? 5 : 3),
+      height: CONTENT_HEIGHT / 8,
+      padding: cellGap / 2,
+    },
+    etiqueta: {
+      flex: 1,
+      borderRadius: 6 * s,
+      backgroundColor: '#FFFFFF',
+      border: '1px solid #d1d5db',
+      padding: 4 * s,
+      flexDirection: 'column',
+      justifyContent: 'flex-start',
+      position: 'relative',
+    },
 
-  // ===== TEXTO "VENCIMIENTO" SOBRE EL CALENDARIO =====
-  vencimientoLabel: {
-    fontSize: 3.5,
-    color: '#374151',
-    marginBottom: 0.5,
-  },
+    // ===== FILA 1: LOGO + NOMBRE =====
+    topRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginBottom: 1 * s,
+    },
+    logoCol: {
+      width: '30%',
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    logoImg: {
+      width: 42 * s,
+      height: 42 * s,
+    },
+    nameCol: {
+      width: '70%',
+      justifyContent: 'center',
+      paddingLeft: 3 * s,
+    },
+    productName: {
+      fontSize: 7 * s,
+      fontWeight: 'bold',
+      color: '#1f2937',
+    },
 
-  // ===== CALENDARIO (bordes finos, neutro) =====
-  calendarSection: {
-    borderTopWidth: 0.3,
-    borderLeftWidth: 0.3,
-    borderRightWidth: 0.3,
-    borderBottomWidth: 0.3,
-    borderColor: '#000000',
-    marginBottom: 2,
-  },
-  calendarRow: {
-    flexDirection: 'row',
-  },
-  dayCell: {
-    width: '3.226%',
-    height: 5,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRightWidth: 0.2,
-    borderBottomWidth: 0.2,
-    borderColor: '#000000',
-  },
-  dayNum: {
-    fontSize: 2.5,
-    color: '#4b5563',
-  },
-  dayNumHighlight: {
-    fontSize: 2.5,
-    color: '#C41E3A',
-    fontWeight: 'bold',
-  },
-  monthCell: {
-    width: '8.333%',
-    height: 5,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRightWidth: 0.2,
-    borderBottomWidth: 0,
-    borderColor: '#000000',
-  },
-  monthName: {
-    fontSize: 2.5,
-    color: '#4b5563',
-  },
-  monthNameHighlight: {
-    fontSize: 2.5,
-    color: '#C41E3A',
-    fontWeight: 'bold',
-  },
+    // ===== FILA 2: INFO EXTRA + PRECIO/PESO =====
+    infoPriceRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'flex-end',
+      marginBottom: 1 * s,
+    },
+    infoExtraLeft: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      flex: 1,
+    },
+    infoText: {
+      fontSize: 3.5 * s,
+      color: '#374151',
+      marginRight: 2 * s,
+    },
+    priceWeightCol: {
+      flexDirection: 'column',
+      alignItems: 'flex-end',
+    },
+    priceText: {
+      fontSize: 7 * s,
+      fontWeight: 'bold',
+      color: '#000000',
+    },
+    pesoText: {
+      fontSize: 4.5 * s,
+      color: '#374151',
+    },
 
-  // ===== FILA INFERIOR: CÓDIGO DE BARRAS (izq) | QR + WHATSAPP (der) =====
-  bottomSection: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-  },
-  leftBottomCol: {
-    flexDirection: 'column',
-    flex: 1,
-    marginRight: 2,
-  },
-  barcodeImg: {
-    width: 65,
-    height: 18,
-  },
-  noBarcode: {
-    fontSize: 4,
-    color: '#d1d5db',
-  },
-  elabText: {
-    fontSize: 3.5,
-    color: '#6b7280',
-    marginTop: 1,
-  },
-  rightBottomCol: {
-    flexDirection: 'column',
-    alignItems: 'flex-end',
-    width: 28,
-  },
-  qrImg: {
-    width: 20,
-    height: 20,
-  },
-  waInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 1,
-    alignSelf: 'stretch',
-    justifyContent: 'flex-end',
-  },
-  whatsappIconImg: {
-    width: 4,
-    height: 4,
-    marginRight: 0.5,
-  },
-  whatsappText: {
-    fontSize: 2.8,
-    color: '#25D366',
-    fontWeight: 'bold',
-  },
-})
+    // ===== VENCIMIENTO LABEL =====
+    vencimientoLabel: {
+      fontSize: 3.5 * s,
+      color: '#374151',
+      marginBottom: 0.5 * s,
+    },
 
-/** Dibuja el ícono de WhatsApp como un círculo verde con un teléfono blanco simplificado */
-function WhatsAppIcon() {
+    // ===== CALENDARIO =====
+    calendarSection: {
+      borderTopWidth: 0.3 * s,
+      borderLeftWidth: 0.3 * s,
+      borderRightWidth: 0.3 * s,
+      borderBottomWidth: 0.3 * s,
+      borderColor: '#000000',
+      marginBottom: 2 * s,
+    },
+    calendarRow: {
+      flexDirection: 'row',
+    },
+    dayCell: {
+      width: '3.226%',
+      height: 5 * s,
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderRightWidth: 0.2 * s,
+      borderBottomWidth: 0.2 * s,
+      borderColor: '#000000',
+    },
+    dayNum: {
+      fontSize: 2.5 * s,
+      color: '#4b5563',
+    },
+    dayNumHighlight: {
+      fontSize: 2.5 * s,
+      color: '#C41E3A',
+      fontWeight: 'bold',
+    },
+    monthCell: {
+      width: '8.333%',
+      height: 5 * s,
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderRightWidth: 0.2 * s,
+      borderBottomWidth: 0,
+      borderColor: '#000000',
+    },
+    monthName: {
+      fontSize: 2.5 * s,
+      color: '#4b5563',
+    },
+    monthNameHighlight: {
+      fontSize: 2.5 * s,
+      color: '#C41E3A',
+      fontWeight: 'bold',
+    },
+
+    // ===== FILA INFERIOR =====
+    bottomSection: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'flex-start',
+    },
+    leftBottomCol: {
+      flexDirection: 'column',
+      flex: 1,
+      marginRight: 2 * s,
+    },
+    barcodeImg: {
+      width: 65 * s,
+      height: 18 * s,
+    },
+    noBarcode: {
+      fontSize: 4 * s,
+      color: '#d1d5db',
+    },
+    elabText: {
+      fontSize: 3.5 * s,
+      color: '#6b7280',
+      marginTop: 1 * s,
+    },
+    rightBottomCol: {
+      flexDirection: 'column',
+      alignItems: 'flex-end',
+      width: 28 * s,
+    },
+    qrImg: {
+      width: 20 * s,
+      height: 20 * s,
+    },
+    waInfo: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginTop: 1 * s,
+      alignSelf: 'stretch',
+      justifyContent: 'flex-end',
+    },
+    whatsappIconImg: {
+      width: 4 * s,
+      height: 4 * s,
+      marginRight: 0.5 * s,
+    },
+    whatsappText: {
+      fontSize: 2.8 * s,
+      color: '#25D366',
+      fontWeight: 'bold',
+    },
+  })
+}
+
+/** Ícono de WhatsApp nativo (funciona en @react-pdf/renderer) */
+function WhatsAppIcon({ scale: s }: { scale: number }) {
   return (
-    <View style={{ width: 4, height: 4, marginRight: 0.5 }}>
+    <View style={{ width: 4 * s, height: 4 * s, marginRight: 0.5 * s }}>
       <View
         style={{
           position: 'absolute',
           top: 0,
           left: 0,
-          width: 4,
-          height: 4,
-          borderRadius: 2,
+          width: 4 * s,
+          height: 4 * s,
+          borderRadius: 2 * s,
           backgroundColor: '#25D366',
         }}
       />
       <View
         style={{
           position: 'absolute',
-          top: 1,
-          left: 1.2,
-          width: 1.6,
-          height: 1.6,
+          top: 1 * s,
+          left: 1.2 * s,
+          width: 1.6 * s,
+          height: 1.6 * s,
           backgroundColor: '#FFFFFF',
-          borderRadius: 0.3,
+          borderRadius: 0.3 * s,
         }}
       />
       <View
         style={{
           position: 'absolute',
-          top: 0.6,
-          left: 1.3,
-          width: 1.4,
-          height: 0.7,
+          top: 0.6 * s,
+          left: 1.3 * s,
+          width: 1.4 * s,
+          height: 0.7 * s,
           backgroundColor: '#FFFFFF',
-          borderRadius: 0.4,
+          borderRadius: 0.4 * s,
         }}
       />
       <View
         style={{
           position: 'absolute',
-          top: 2,
-          left: 1.3,
-          width: 1.4,
-          height: 0.7,
+          top: 2 * s,
+          left: 1.3 * s,
+          width: 1.4 * s,
+          height: 0.7 * s,
           backgroundColor: '#FFFFFF',
-          borderRadius: 0.4,
+          borderRadius: 0.4 * s,
         }}
       />
     </View>
   )
 }
 
-export function EtiquetaProductoPDF({ etiquetas }: EtiquetaProductoPDFProps) {
-  const totalHojas = Math.ceil(etiquetas.length / ETIQUETAS_POR_HOJA)
+export function EtiquetaProductoPDF({ etiquetas, tamano = 'grande' }: EtiquetaProductoPDFProps) {
+  const layout = getLayout(tamano)
+  const styles = createStyles(layout.s, layout.cellGap)
+  const s = layout.s
+  const totalHojas = Math.ceil(etiquetas.length / layout.etiquetasPorHoja)
 
   return (
     <Document>
       {Array.from({ length: totalHojas }).map((_, hojaIdx) => {
-        const inicio = hojaIdx * ETIQUETAS_POR_HOJA
-        const fin = inicio + ETIQUETAS_POR_HOJA
+        const inicio = hojaIdx * layout.etiquetasPorHoja
+        const fin = inicio + layout.etiquetasPorHoja
         const etiquetasHoja = etiquetas.slice(inicio, fin)
 
         return (
           <Page key={hojaIdx} size="A4" style={styles.page}>
             <View style={styles.grid}>
-              {Array.from({ length: ETIQUETAS_POR_HOJA }).map((_, cellIdx) => {
+              {Array.from({ length: layout.etiquetasPorHoja }).map((_, cellIdx) => {
                 const etiqueta = etiquetasHoja[cellIdx]
                 if (!etiqueta) {
                   return (
@@ -333,7 +352,7 @@ export function EtiquetaProductoPDF({ etiquetas }: EtiquetaProductoPDFProps) {
                       {/* ====== TEXTO "VENCIMIENTO" SOBRE EL CALENDARIO ====== */}
                       <Text style={styles.vencimientoLabel}>Vencimiento</Text>
 
-                      {/* ====== CALENDARIO (bordes negros visibles, con resaltado si incluir_vencimiento) ====== */}
+                      {/* ====== CALENDARIO (con resaltado si incluir_vencimiento) ====== */}
                       <View style={styles.calendarSection}>
                         {/* Días 1-31 */}
                         <View style={styles.calendarRow}>
@@ -371,7 +390,7 @@ export function EtiquetaProductoPDF({ etiquetas }: EtiquetaProductoPDFProps) {
                             {etiqueta.whatsappIconDataUrl ? (
                               <Image src={etiqueta.whatsappIconDataUrl} style={styles.whatsappIconImg} alt="WhatsApp" />
                             ) : (
-                              <WhatsAppIcon />
+                              <WhatsAppIcon scale={s} />
                             )}
                             <Text style={styles.whatsappText}>3754-419324</Text>
                           </View>
