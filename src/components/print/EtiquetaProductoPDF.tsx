@@ -36,8 +36,8 @@ const MESES = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'o
 // ===== LAYOUT CONFIG BY SIZE =====
 function getLayout(tamano: TamanoEtiqueta) {
   const columnas = tamano === 'pequena' ? 5 : 3
-  const filas = 8
-  const s = tamano === 'pequena' ? 0.65 : 1.0
+  const filas = tamano === 'pequena' ? 14 : 8
+  const s = tamano === 'pequena' ? 0.55 : 1.0
 
   return {
     etiquetasPorHoja: columnas * filas,
@@ -62,7 +62,7 @@ function createStyles(s: number, cellGap: number) {
     },
     cell: {
       width: CONTENT_WIDTH / (s < 1 ? 5 : 3),
-      height: CONTENT_HEIGHT / 8,
+      height: CONTENT_HEIGHT / (s < 1 ? 14 : 8),
       padding: cellGap / 2,
     },
     etiqueta: {
