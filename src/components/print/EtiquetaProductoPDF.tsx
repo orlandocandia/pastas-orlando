@@ -59,61 +59,97 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
   },
 
-  // ===== 1. LOGO CENTRADO (MÁS GRANDE) =====
-  logoCenter: {
+  // ===== FILA 1: LOGO (izquierda) + NOMBRE (centro) + PRECIO/PESO (derecha) =====
+  topRow: {
+    flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 2,
   },
-  logoImg: {
-    width: 36,
-    height: 36,
+  logoCol: {
+    width: '25%',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-
-  // ===== 2. TÍTULO CENTRADO =====
+  logoImg: {
+    width: 30,
+    height: 30,
+  },
+  nameCol: {
+    width: '40%',
+    justifyContent: 'center',
+    paddingHorizontal: 2,
+  },
   productName: {
-    fontSize: 7.5,
+    fontSize: 7,
     fontWeight: 'bold',
     color: '#1f2937',
     textAlign: 'center',
-    marginBottom: 2,
   },
-
-  // ===== 3. PESO CENTRADO =====
-  pesoText: {
-    fontSize: 5.5,
-    color: '#6b7280',
-    textAlign: 'center',
-    marginBottom: 1,
+  priceWeightCol: {
+    width: '35%',
+    alignItems: 'flex-end',
+    justifyContent: 'center',
   },
-
-  // ===== 4. PRECIO CENTRADO =====
   priceText: {
-    fontSize: 9,
+    fontSize: 7.5,
     fontWeight: 'bold',
-    color: '#C41E3A',
-    textAlign: 'center',
-    marginBottom: 2,
+    color: '#000000',
+    textAlign: 'right',
+  },
+  pesoText: {
+    fontSize: 5,
+    color: '#374151',
+    textAlign: 'right',
   },
 
-  // ===== 5. INFO EXTRA (badges) =====
+  // ===== FILA 2: INFO EXTRA (texto plano, sin bordes) =====
   infoExtraRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    justifyContent: 'center',
-    gap: 1,
     marginBottom: 2,
   },
-  infoBadge: {
-    fontSize: 3,
-    color: '#4a5eb0',
-    borderWidth: 0.5,
-    borderColor: '#8fa8cc',
-    borderRadius: 1,
-    paddingHorizontal: 2,
-    paddingVertical: 0.5,
+  infoText: {
+    fontSize: 4,
+    color: '#374151',
+    marginRight: 3,
   },
 
-  // ===== 6. CÓDIGO DE BARRAS + QR (fila) =====
+  // ===== FILA 3: CALENDARIO (bordes negros, neutro) =====
+  calendarSection: {
+    borderWidth: 0.5,
+    borderColor: '#000000',
+    marginBottom: 2,
+  },
+  calendarRow: {
+    flexDirection: 'row',
+  },
+  dayCell: {
+    width: '3.226%',
+    height: 5,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRightWidth: 0.3,
+    borderBottomWidth: 0.3,
+    borderColor: '#000000',
+  },
+  dayNum: {
+    fontSize: 2.8,
+    color: '#4b5563',
+  },
+  monthCell: {
+    width: '8.333%',
+    height: 5,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRightWidth: 0.3,
+    borderColor: '#000000',
+  },
+  monthName: {
+    fontSize: 2.8,
+    color: '#4b5563',
+  },
+
+  // ===== FILA 4: CÓDIGO DE BARRAS (izq) + QR (der) =====
   barcodeQrRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -142,12 +178,15 @@ const styles = StyleSheet.create({
     height: 22,
   },
 
-  // ===== 7. WA + ELAB (fila) =====
-  waElabRow: {
+  // ===== FILA 5: ELAB (izq) + WHATSAPP (der) =====
+  bottomRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 3,
+  },
+  elabText: {
+    fontSize: 4,
+    color: '#6b7280',
   },
   waInfo: {
     flexDirection: 'row',
@@ -162,48 +201,6 @@ const styles = StyleSheet.create({
     fontSize: 3.5,
     color: '#25D366',
     fontWeight: 'bold',
-  },
-  elabText: {
-    fontSize: 4,
-    color: '#6b7280',
-  },
-
-  // ===== 8. CALENDARIO NEUTRO (sin selección) =====
-  calendarSection: {
-    borderWidth: 0.5,
-    borderColor: '#4a6fa5',
-    borderRadius: 1,
-    overflow: 'hidden',
-  },
-  calendarRow: {
-    flexDirection: 'row',
-  },
-  // Celdas de día (neutras, sin highlight)
-  dayCell: {
-    width: '3.226%',
-    height: 5,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRightWidth: 0.3,
-    borderBottomWidth: 0.3,
-    borderColor: '#8fa8cc',
-  },
-  dayNum: {
-    fontSize: 2.8,
-    color: '#4b5563',
-  },
-  // Celdas de mes (neutras, sin highlight)
-  monthCell: {
-    width: '8.333%',
-    height: 5,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRightWidth: 0.3,
-    borderColor: '#8fa8cc',
-  },
-  monthName: {
-    fontSize: 2.8,
-    color: '#4b5563',
   },
 })
 
@@ -233,34 +230,58 @@ export function EtiquetaProductoPDF({ etiquetas }: EtiquetaProductoPDFProps) {
                 return (
                   <View key={cellIdx} style={styles.cell}>
                     <View style={styles.etiqueta}>
-                      {/* ====== 1. LOGO CENTRADO (MÁS GRANDE) ====== */}
-                      {etiqueta.incluir_logo && etiqueta.logoDataUrl ? (
-                        <View style={styles.logoCenter}>
-                          <Image src={etiqueta.logoDataUrl} style={styles.logoImg} alt="Logo" />
+
+                      {/* ====== FILA 1: LOGO (izq) + NOMBRE (centro) + PRECIO/PESO (der) ====== */}
+                      <View style={styles.topRow}>
+                        {/* Logo a la izquierda */}
+                        <View style={styles.logoCol}>
+                          {etiqueta.incluir_logo && etiqueta.logoDataUrl ? (
+                            <Image src={etiqueta.logoDataUrl} style={styles.logoImg} alt="Logo" />
+                          ) : null}
                         </View>
-                      ) : null}
+                        {/* Nombre al centro */}
+                        <View style={styles.nameCol}>
+                          <Text style={styles.productName}>{etiqueta.nombre}</Text>
+                        </View>
+                        {/* Precio y peso a la derecha */}
+                        <View style={styles.priceWeightCol}>
+                          <Text style={styles.priceText}>
+                            ${etiqueta.precio_venta.toLocaleString('es-AR')}
+                          </Text>
+                          <Text style={styles.pesoText}>Peso: {etiqueta.peso}</Text>
+                        </View>
+                      </View>
 
-                      {/* ====== 2. TÍTULO DEL PRODUCTO CENTRADO ====== */}
-                      <Text style={styles.productName}>{etiqueta.nombre}</Text>
-
-                      {/* ====== 3. PESO CENTRADO ====== */}
-                      <Text style={styles.pesoText}>Peso: {etiqueta.peso}</Text>
-
-                      {/* ====== 4. PRECIO CENTRADO ====== */}
-                      <Text style={styles.priceText}>
-                        ${etiqueta.precio_venta.toLocaleString('es-AR')}
-                      </Text>
-
-                      {/* ====== 5. INFO EXTRA (badges opcionales) ====== */}
+                      {/* ====== FILA 2: INFO EXTRA (texto plano sin bordes) ====== */}
                       {etiqueta.info_extra.length > 0 && (
                         <View style={styles.infoExtraRow}>
-                          {etiqueta.info_extra.map((info) => (
-                            <Text key={info} style={styles.infoBadge}>{info}</Text>
+                          {etiqueta.info_extra.map((info, idx) => (
+                            <Text key={idx} style={styles.infoText}>{info}</Text>
                           ))}
                         </View>
                       )}
 
-                      {/* ====== 6. CÓDIGO DE BARRAS + QR (fila) ====== */}
+                      {/* ====== FILA 3: CALENDARIO NEUTRO (bordes negros, sin selección) ====== */}
+                      <View style={styles.calendarSection}>
+                        {/* Días 1-31 */}
+                        <View style={styles.calendarRow}>
+                          {Array.from({ length: 31 }, (_, i) => i + 1).map((dia) => (
+                            <View key={dia} style={styles.dayCell}>
+                              <Text style={styles.dayNum}>{dia}</Text>
+                            </View>
+                          ))}
+                        </View>
+                        {/* Meses ene-dic */}
+                        <View style={styles.calendarRow}>
+                          {MESES.map((mes) => (
+                            <View key={mes} style={styles.monthCell}>
+                              <Text style={styles.monthName}>{mes}</Text>
+                            </View>
+                          ))}
+                        </View>
+                      </View>
+
+                      {/* ====== FILA 4: CÓDIGO DE BARRAS (izq) + QR (der) ====== */}
                       <View style={styles.barcodeQrRow}>
                         <View style={styles.barcodeCol}>
                           {etiqueta.barcodeDataUrl ? (
@@ -276,36 +297,17 @@ export function EtiquetaProductoPDF({ etiquetas }: EtiquetaProductoPDFProps) {
                         </View>
                       </View>
 
-                      {/* ====== 7. WHATSAPP + FECHA ELABORACIÓN (fila alineada) ====== */}
-                      <View style={styles.waElabRow}>
+                      {/* ====== FILA 5: ELAB (izq) + WHATSAPP (der) ====== */}
+                      <View style={styles.bottomRow}>
+                        <Text style={styles.elabText}>Elab: {etiqueta.fecha_elaboracion}</Text>
                         <View style={styles.waInfo}>
                           {etiqueta.whatsappIconDataUrl && (
                             <Image src={etiqueta.whatsappIconDataUrl} style={styles.whatsappIcon} alt="WhatsApp" />
                           )}
                           <Text style={styles.whatsappText}>3754-419324</Text>
                         </View>
-                        <Text style={styles.elabText}>Elab: {etiqueta.fecha_elaboracion}</Text>
                       </View>
 
-                      {/* ====== 8. CALENDARIO NEUTRO (sin día/mes seleccionado) ====== */}
-                      <View style={styles.calendarSection}>
-                        {/* Fila de días: 1-31 (todos neutros) */}
-                        <View style={styles.calendarRow}>
-                          {Array.from({ length: 31 }, (_, i) => i + 1).map((dia) => (
-                            <View key={dia} style={styles.dayCell}>
-                              <Text style={styles.dayNum}>{dia}</Text>
-                            </View>
-                          ))}
-                        </View>
-                        {/* Fila de meses: ene-dic (todos neutros) */}
-                        <View style={styles.calendarRow}>
-                          {MESES.map((mes) => (
-                            <View key={mes} style={styles.monthCell}>
-                              <Text style={styles.monthName}>{mes}</Text>
-                            </View>
-                          ))}
-                        </View>
-                      </View>
                     </View>
                   </View>
                 )

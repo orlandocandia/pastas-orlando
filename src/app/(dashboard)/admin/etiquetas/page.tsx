@@ -538,43 +538,46 @@ export default function EtiquetasPage() {
                   className="mx-auto rounded-lg overflow-hidden bg-white border-2 border-gray-300 p-3"
                   style={{ width: '220px', minHeight: '280px' }}
                 >
-                  <div className="flex flex-col items-center" style={{ fontSize: '8px' }}>
-                    {/* 1. Logo centrado (más grande) */}
-                    {incluirLogo && (
-                      <div className="mb-1.5">
-                        <img
-                          src="/images/logoweb.png"
-                          alt="Logo"
-                          className="w-14 h-14 object-contain"
-                        />
+                  <div className="flex flex-col" style={{ fontSize: '8px' }}>
+                    {/* FILA 1: Logo (izq) + Nombre (centro) + Precio/Peso (der) */}
+                    <div className="flex items-center mb-2">
+                      {/* Logo izquierda */}
+                      {incluirLogo && (
+                        <div className="w-[25%] flex items-center justify-center pr-1">
+                          <img
+                            src="/images/logoweb.png"
+                            alt="Logo"
+                            className="w-11 h-11 object-contain"
+                          />
+                        </div>
+                      )}
+                      {/* Nombre centro */}
+                      <div className={incluirLogo ? 'w-[40%] px-1' : 'w-[55%] px-1'}>
+                        <div className="font-bold text-gray-800 text-[9px] leading-tight text-center">
+                          {selectedProducto.nombre}
+                        </div>
                       </div>
-                    )}
-
-                    {/* 2. Título centrado */}
-                    <div className="font-bold text-gray-800 text-[9px] leading-tight text-center mb-1">
-                      {selectedProducto.nombre}
+                      {/* Precio + Peso derecha */}
+                      <div className={incluirLogo ? 'w-[35%]' : 'w-[45%]'} style={{ textAlign: 'right' }}>
+                        <div className="font-bold text-black text-[10px]">
+                          ${selectedProducto.precio_venta.toLocaleString('es-AR')}
+                        </div>
+                        <div className="text-gray-600 text-[6px]">
+                          Peso: {getPesoDisplay()}
+                        </div>
+                      </div>
                     </div>
 
-                    {/* 3. Peso centrado */}
-                    <div className="text-gray-500 text-[7px] mb-0.5">
-                      Peso: {getPesoDisplay()}
-                    </div>
-
-                    {/* 4. Precio centrado */}
-                    <div className="font-bold text-rojo text-[12px] mb-1.5">
-                      ${selectedProducto.precio_venta.toLocaleString('es-AR')}
-                    </div>
-
-                    {/* 5. Info extra badges */}
+                    {/* FILA 2: Info extra (texto plano, sin bordes) */}
                     {infoExtra.length > 0 && (
-                      <div className="flex flex-wrap gap-0.5 mb-1.5 justify-center">
+                      <div className="flex flex-wrap mb-1.5">
                         {infoExtra.map((id) => {
                           const option = INFO_EXTRA_OPCIONES.find((o) => o.id === id)
                           return option ? (
                             <span
                               key={id}
-                              className="text-blue-700 border border-blue-300 rounded-sm px-1"
-                              style={{ fontSize: '4px' }}
+                              className="text-gray-700 mr-2"
+                              style={{ fontSize: '5px' }}
                             >
                               {option.label}
                             </span>
@@ -583,8 +586,36 @@ export default function EtiquetasPage() {
                       </div>
                     )}
 
-                    {/* 6. Código de barras + QR (fila) */}
-                    <div className="flex items-end justify-between w-full mb-1">
+                    {/* FILA 3: Calendario (bordes negros, neutro) */}
+                    <div className="border border-black overflow-hidden mb-2">
+                      {/* Días 1-31 */}
+                      <div className="flex">
+                        {Array.from({ length: 31 }, (_, i) => i + 1).map((dia) => (
+                          <div
+                            key={dia}
+                            className="flex items-center justify-center leading-none border-r border-b border-black text-gray-500"
+                            style={{ width: '3.226%', height: '7px', fontSize: '3px' }}
+                          >
+                            {dia}
+                          </div>
+                        ))}
+                      </div>
+                      {/* Meses */}
+                      <div className="flex">
+                        {MESES_CORTOS.map((mes) => (
+                          <div
+                            key={mes}
+                            className="flex items-center justify-center leading-none border-r border-black text-gray-500"
+                            style={{ width: '8.333%', height: '7px', fontSize: '3px' }}
+                          >
+                            {mes}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* FILA 4: Código de barras (izq) + QR (der) */}
+                    <div className="flex items-end justify-between mb-1">
                       <div className="flex-1">
                         {selectedProducto.codigo_barras ? (
                           <>
@@ -615,8 +646,11 @@ export default function EtiquetasPage() {
                       </div>
                     </div>
 
-                    {/* 7. WhatsApp + Elab (fila alineada) */}
-                    <div className="flex items-center justify-between w-full mb-2">
+                    {/* FILA 5: Elab (izq) + WhatsApp (der) */}
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-500 text-[5px]">
+                        Elab: {formatDateDisplay(fechaElaboracion)}
+                      </span>
                       <div className="flex items-center gap-1">
                         <img
                           src="/images/whatsapp-icon.png"
@@ -624,37 +658,6 @@ export default function EtiquetasPage() {
                           className="w-3 h-3 object-contain"
                         />
                         <span className="text-[5px] text-green-600 font-bold">3754-419324</span>
-                      </div>
-                      <span className="text-gray-500 text-[5px]">
-                        Elab: {formatDateDisplay(fechaElaboracion)}
-                      </span>
-                    </div>
-
-                    {/* 8. Calendario neutro (sin selección) */}
-                    <div className="border border-blue-400 rounded-sm overflow-hidden w-full">
-                      {/* Días 1-31 */}
-                      <div className="flex">
-                        {Array.from({ length: 31 }, (_, i) => i + 1).map((dia) => (
-                          <div
-                            key={dia}
-                            className="flex items-center justify-center leading-none border-r border-b border-blue-300 text-gray-500"
-                            style={{ width: '3.226%', height: '7px', fontSize: '3px' }}
-                          >
-                            {dia}
-                          </div>
-                        ))}
-                      </div>
-                      {/* Meses */}
-                      <div className="flex">
-                        {MESES_CORTOS.map((mes) => (
-                          <div
-                            key={mes}
-                            className="flex items-center justify-center leading-none border-r border-blue-300 text-gray-500"
-                            style={{ width: '8.333%', height: '7px', fontSize: '3px' }}
-                          >
-                            {mes}
-                          </div>
-                        ))}
                       </div>
                     </div>
                   </div>
