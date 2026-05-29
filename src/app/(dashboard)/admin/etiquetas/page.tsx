@@ -250,12 +250,19 @@ export default function EtiquetasPage() {
   const handleGeneratePDF = useCallback(async () => {
     if (!selectedProducto || !PDFComponent) return
 
+    // Usar el código de barras existente del producto
+    const codigoBarras = selectedProducto.codigo_barras
+
+    if (!codigoBarras) {
+      alert('Este producto no tiene código de barras asignado. Asignale uno desde la edición del producto.')
+      return
+    }
+
     setGenerating(true)
 
     try {
-      const barcodeDataUrl = selectedProducto.codigo_barras
-        ? generateBarcodeDataUrl(selectedProducto.codigo_barras)
-        : null
+      // Generar la imagen del código de barras a partir del código existente del producto
+      const barcodeDataUrl = generateBarcodeDataUrl(codigoBarras)
 
       const infoExtraLabels = infoExtra.map((id) => {
         const option = INFO_EXTRA_OPCIONES.find((o) => o.id === id)
@@ -264,7 +271,7 @@ export default function EtiquetasPage() {
 
       const etiquetaData = {
         nombre: selectedProducto.nombre,
-        codigo_barras: selectedProducto.codigo_barras,
+        codigo_barras: codigoBarras,
         precio_venta: selectedProducto.precio_venta,
         peso: getPesoDisplay(),
         fecha_elaboracion: formatDateDisplay(fechaElaboracion),
@@ -617,20 +624,25 @@ export default function EtiquetasPage() {
                     <div className="flex items-end justify-between mt-1">
                       <div className="flex-1">
                         {selectedProducto.codigo_barras ? (
-                          <div className="flex gap-px items-end h-4">
-                            {Array.from({ length: 35 }, (_, i) => (
-                              <div
-                                key={i}
-                                className="bg-black"
-                                style={{
-                                  width: Math.random() > 0.5 ? '1.5px' : '0.7px',
-                                  height: `${8 + Math.random() * 6}px`,
-                                }}
-                              />
-                            ))}
-                          </div>
+                          <>
+                            <div className="flex gap-px items-end h-4">
+                              {Array.from({ length: 40 }, (_, i) => (
+                                <div
+                                  key={i}
+                                  className="bg-black"
+                                  style={{
+                                    width: i % 3 === 0 ? '1.5px' : '0.7px',
+                                    height: `${8 + (i % 5) * 1.5}px`,
+                                  }}
+                                />
+                              ))}
+                            </div>
+                            <div className="text-center" style={{ fontSize: '4px', fontFamily: 'monospace' }}>
+                              {selectedProducto.codigo_barras}
+                            </div>
+                          </>
                         ) : (
-                          <span className="text-[4px] text-gray-300">Sin código de barras</span>
+                          <span className="text-[4px] text-red-400">Sin código de barras</span>
                         )}
                       </div>
                       <div className="flex flex-col items-center ml-2">
@@ -690,9 +702,16 @@ export default function EtiquetasPage() {
             </p>
           )}
 
+          {selectedProducto && selectedProducto.codigo_barras && (
+            <div className="flex items-center justify-center gap-1.5 mt-1">
+              <svg className="h-3.5 w-3.5 text-mostaza" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><rect x="7" y="7" width="10" height="10" rx="1"/></svg>
+              <span className="text-xs font-mono text-marron">{selectedProducto.codigo_barras}</span>
+            </div>
+          )}
+
           {selectedProducto && !selectedProducto.codigo_barras && (
-            <p className="text-xs text-center text-amber-600">
-              ⚠️ Este producto no tiene código de barras. Se generará uno automáticamente al crear el producto.
+            <p className="text-xs text-center text-red-500">
+              ⚠️ Este producto no tiene código de barras asignado. Editá el producto para asignarle uno.
             </p>
           )}
 

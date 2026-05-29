@@ -198,7 +198,13 @@ const styles = StyleSheet.create({
   },
   barcodeImg: {
     width: 70,
-    height: 14,
+    height: 16,
+  },
+  barcodeNumber: {
+    fontSize: 3.5,
+    color: '#4b5563',
+    fontFamily: 'Helvetica',
+    marginTop: 0.5,
   },
   noBarcode: {
     fontSize: 4,
@@ -330,7 +336,12 @@ export function EtiquetaProductoPDF({ etiquetas }: EtiquetaProductoPDFProps) {
                       <View style={styles.bottomRow}>
                         <View style={styles.barcodeCol}>
                           {etiqueta.barcodeDataUrl ? (
-                            <Image src={etiqueta.barcodeDataUrl} style={styles.barcodeImg} alt="Código de barras" />
+                            <>
+                              <Image src={etiqueta.barcodeDataUrl} style={styles.barcodeImg} alt="Código de barras" />
+                              {etiqueta.codigo_barras && (
+                                <Text style={styles.barcodeNumber}>{etiqueta.codigo_barras}</Text>
+                              )}
+                            </>
                           ) : (
                             <Text style={styles.noBarcode}>Sin código de barras</Text>
                           )}
