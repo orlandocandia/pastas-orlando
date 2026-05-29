@@ -121,6 +121,7 @@ export default function EtiquetasPage() {
   const [incluirLogo, setIncluirLogo] = useState<boolean>(true)
   const [incluirVencimiento, setIncluirVencimiento] = useState<boolean>(true)
   const [tamano, setTamano] = useState<TamanoEtiqueta>('grande')
+  const [unidadesPorPaquete, setUnidadesPorPaquete] = useState<number>(12)
 
   // Data URLs
   const [logoDataUrl, setLogoDataUrl] = useState<string | null>(null)
@@ -292,6 +293,8 @@ export default function EtiquetasPage() {
         vencimientoDia: getVencimientoDia(),
         vencimientoMes: getVencimientoMes(),
         info_extra: infoExtraLabels,
+        unidades_por_paquete: tamano === 'pequena' ? unidadesPorPaquete : null,
+        tamano,
       }
 
       const etiquetas = Array.from({ length: cantidad }, () => etiquetaData)
@@ -327,6 +330,7 @@ export default function EtiquetasPage() {
     infoExtra,
     pesoOption,
     pesoCustom,
+    unidadesPorPaquete,
   ])
 
   if (loading) {
@@ -502,6 +506,38 @@ export default function EtiquetasPage() {
                   </div>
                 </div>
 
+                {/* Unidades por paquete (solo etiqueta pequeña) */}
+                {tamano === 'pequena' && (
+                  <div className="space-y-1.5">
+                    <Label className="text-sm font-medium">Unidades por paquete</Label>
+                    <div className="flex items-center gap-2">
+                      <Input
+                        type="number"
+                        min={1}
+                        max={999}
+                        value={unidadesPorPaquete}
+                        onChange={(e) =>
+                          setUnidadesPorPaquete(Math.max(1, parseInt(e.target.value) || 1))
+                        }
+                        className="w-20 text-center"
+                      />
+                    </div>
+                    <div className="flex gap-1.5 flex-wrap">
+                      {[2, 6, 12, 24].map((val) => (
+                        <Button
+                          key={val}
+                          variant={unidadesPorPaquete === val ? 'default' : 'outline'}
+                          size="sm"
+                          className={`h-7 text-xs px-2.5 ${unidadesPorPaquete === val ? 'bg-mostaza hover:bg-mostaza/90 text-white' : ''}`}
+                          onClick={() => setUnidadesPorPaquete(val)}
+                        >
+                          {val}
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 {/* Fecha elaboración */}
                 <div className="space-y-1.5">
                   <Label className="text-sm font-medium">Fecha de elaboración</Label>
@@ -626,6 +662,11 @@ export default function EtiquetasPage() {
                         <span className="text-gray-600" style={{ fontSize: tamano === 'pequena' ? '3px' : '5.5px' }}>
                           Peso: {getPesoDisplay()}
                         </span>
+                        {tamano === 'pequena' && unidadesPorPaquete > 0 && (
+                          <span className="font-bold" style={{ fontSize: tamano === 'pequena' ? '2.5px' : '5px', color: '#5C3A21' }}>
+                            Contiene: {unidadesPorPaquete} unidades
+                          </span>
+                        )}
                       </div>
                     </div>
 

@@ -18,6 +18,8 @@ export interface EtiquetaData {
   vencimientoDia: number
   vencimientoMes: number
   info_extra: string[]
+  unidades_por_paquete?: number | null
+  tamano?: TamanoEtiqueta
 }
 
 interface EtiquetaProductoPDFProps {
@@ -131,6 +133,11 @@ function createStyles(s: number, cellGap: number) {
     pesoText: {
       fontSize: 4.5 * s,
       color: '#374151',
+    },
+    contieneText: {
+      fontSize: 3.8 * s,
+      color: '#5C3A21',
+      fontWeight: 'bold',
     },
 
     // ===== VENCIMIENTO LABEL =====
@@ -346,6 +353,9 @@ export function EtiquetaProductoPDF({ etiquetas, tamano = 'grande' }: EtiquetaPr
                         <View style={styles.priceWeightCol}>
                           <Text style={styles.priceText}>${etiqueta.precio_venta.toLocaleString('es-AR')}</Text>
                           <Text style={styles.pesoText}>Peso: {etiqueta.peso}</Text>
+                          {etiqueta.tamano === 'pequena' && etiqueta.unidades_por_paquete && etiqueta.unidades_por_paquete > 0 && (
+                            <Text style={styles.contieneText}>Contiene: {etiqueta.unidades_por_paquete} unidades</Text>
+                          )}
                         </View>
                       </View>
 
