@@ -38,6 +38,7 @@ type EtiquetaProductoPDFType = React.ComponentType<{
 }>
 
 const PESOS_PREDEFINIDOS = [
+  { label: '380 g', value: '380g' },
   { label: '500 g', value: '500g' },
   { label: '1 kg', value: '1kg' },
   { label: '2 kg', value: '2kg' },
@@ -437,6 +438,8 @@ export default function EtiquetasPage() {
                     const newTamano = v as TamanoEtiqueta
                     setTamano(newTamano)
                     setCantidad(newTamano === 'pequena' ? 70 : 24)
+                    setPesoOption(newTamano === 'pequena' ? '380g' : '500g')
+                    setUnidadesPorPaquete(12)
                   }}>
                     <SelectTrigger>
                       <SelectValue />
