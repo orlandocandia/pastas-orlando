@@ -113,7 +113,7 @@ const styles = StyleSheet.create({
 
   // ===== TEXTO "VENCIMIENTO" SOBRE EL CALENDARIO =====
   vencimientoLabel: {
-    fontSize: 4.5,
+    fontSize: 3.5,
     color: '#374151',
     marginBottom: 1,
   },
@@ -136,7 +136,7 @@ const styles = StyleSheet.create({
   },
   dayCell: {
     width: '3.226%',
-    height: 5,
+    height: 4,
     alignItems: 'center',
     justifyContent: 'center',
     borderRightWidth: 0.3,
@@ -144,19 +144,19 @@ const styles = StyleSheet.create({
     borderColor: '#000000',
   },
   dayNum: {
-    fontSize: 2.8,
+    fontSize: 2.2,
     color: '#4b5563',
   },
   monthCell: {
     width: '8.333%',
-    height: 5,
+    height: 4,
     alignItems: 'center',
     justifyContent: 'center',
     borderRightWidth: 0.3,
     borderColor: '#000000',
   },
   monthName: {
-    fontSize: 2.8,
+    fontSize: 2.2,
     color: '#4b5563',
   },
 

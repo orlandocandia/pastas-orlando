@@ -586,7 +586,7 @@ export default function EtiquetasPage() {
                     </div>
 
                     {/* Texto "Vencimiento" sobre el calendario */}
-                    <div className="text-gray-600 mb-0.5" style={{ fontSize: '6px' }}>
+                    <div className="text-gray-600 mb-0.5" style={{ fontSize: '4.5px' }}>
                       Vencimiento
                     </div>
 
@@ -598,7 +598,7 @@ export default function EtiquetasPage() {
                           <div
                             key={dia}
                             className="flex items-center justify-center leading-none border-r border-b border-black text-gray-500"
-                            style={{ width: '3.226%', height: '7px', fontSize: '3px' }}
+                            style={{ width: '3.226%', height: '5px', fontSize: '2.5px' }}
                           >
                             {dia}
                           </div>
@@ -610,7 +610,7 @@ export default function EtiquetasPage() {
                           <div
                             key={mes}
                             className="flex items-center justify-center leading-none border-r border-black text-gray-500"
-                            style={{ width: '8.333%', height: '7px', fontSize: '3px' }}
+                            style={{ width: '8.333%', height: '5px', fontSize: '2.5px' }}
                           >
                             {mes}
                           </div>
