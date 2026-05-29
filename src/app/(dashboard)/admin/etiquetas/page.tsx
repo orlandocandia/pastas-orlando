@@ -577,8 +577,8 @@ export default function EtiquetasPage() {
                       </div>
                     )}
 
-                    {/* Precio + Peso (a la derecha, más cerca del calendario) */}
-                    <div className="flex justify-end items-baseline gap-2 mb-1.5">
+                    {/* Precio arriba + Peso abajo (a la derecha) */}
+                    <div className="flex flex-col items-end mb-1.5">
                       <span className="font-bold text-black text-[10px]">
                         ${selectedProducto.precio_venta.toLocaleString('es-AR')}
                       </span>
@@ -620,8 +620,8 @@ export default function EtiquetasPage() {
                       </div>
                     </div>
 
-                    {/* FILA 4: Código de barras (izq) + QR (der) */}
-                    <div className="flex items-end justify-between mb-1">
+                    {/* FILA 4: Barras+Elab (izq) | QR+WhatsApp (der) */}
+                    <div className="flex items-start justify-between">
                       <div className="flex-1">
                         {selectedProducto.codigo_barras ? (
                           <>
@@ -644,26 +644,20 @@ export default function EtiquetasPage() {
                         ) : (
                           <span className="text-[5px] text-red-400">Sin código de barras</span>
                         )}
+                        <div className="text-gray-500 mt-0.5" style={{ fontSize: '5px' }}>
+                          Elab: {formatDateDisplay(fechaElaboracion)}
+                        </div>
                       </div>
                       <div className="flex flex-col items-center ml-2 shrink-0">
                         <div className="w-8 h-8 border border-gray-200 rounded-sm bg-white flex items-center justify-center">
                           <span className="text-[5px] text-gray-400 font-bold">QR</span>
                         </div>
-                      </div>
-                    </div>
-
-                    {/* FILA 5: Elab (izq) + WhatsApp (der) */}
-                    <div className="flex items-center justify-between">
-                      <span className="text-gray-500 text-[5px]">
-                        Elab: {formatDateDisplay(fechaElaboracion)}
-                      </span>
-                      <div className="flex items-center gap-1">
-                        <img
-                          src="/images/whatsapp-icon.png"
-                          alt="WA"
-                          className="w-3 h-3 object-contain"
-                        />
-                        <span className="text-[5px] text-green-600 font-bold">3754-419324</span>
+                        <div className="flex items-center gap-0.5 mt-0.5">
+                          <div className="w-3 h-3 rounded-full bg-[#25D366] flex items-center justify-center">
+                            <span className="text-white font-bold" style={{ fontSize: '5px' }}>☎</span>
+                          </div>
+                          <span className="text-[5px] text-green-600 font-bold">3754-419324</span>
+                        </div>
                       </div>
                     </div>
                   </div>

@@ -85,10 +85,9 @@ const styles = StyleSheet.create({
     color: '#1f2937',
   },
 
-  // ===== FILA 2: PRECIO + PESO (a la derecha, más abajo) =====
-  priceWeightRow: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
+  // ===== FILA 2: PRECIO ARRIBA + PESO ABAJO (a la derecha) =====
+  priceWeightCol: {
+    flexDirection: 'column',
     alignItems: 'flex-end',
     marginBottom: 2,
   },
@@ -96,7 +95,6 @@ const styles = StyleSheet.create({
     fontSize: 7.5,
     fontWeight: 'bold',
     color: '#000000',
-    marginRight: 4,
   },
   pesoText: {
     fontSize: 5,
@@ -157,14 +155,13 @@ const styles = StyleSheet.create({
     color: '#4b5563',
   },
 
-  // ===== FILA 4: CÓDIGO DE BARRAS (izq) + QR (der) =====
-  barcodeQrRow: {
+  // ===== FILA 4: CÓDIGO DE BARRAS + ELAB (izq) | QR + WHATSAPP (der) =====
+  bottomSection: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'flex-end',
-    marginBottom: 1,
+    alignItems: 'flex-start',
   },
-  barcodeCol: {
+  leftBottomCol: {
     flexDirection: 'column',
     flex: 1,
     marginRight: 2,
@@ -177,7 +174,12 @@ const styles = StyleSheet.create({
     fontSize: 4,
     color: '#d1d5db',
   },
-  qrCol: {
+  elabText: {
+    fontSize: 4,
+    color: '#6b7280',
+    marginTop: 1,
+  },
+  rightBottomCol: {
     flexDirection: 'column',
     alignItems: 'center',
   },
@@ -185,25 +187,24 @@ const styles = StyleSheet.create({
     width: 22,
     height: 22,
   },
-
-  // ===== FILA 5: ELAB (izq) + WHATSAPP (der) =====
-  bottomRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  elabText: {
-    fontSize: 4,
-    color: '#6b7280',
-  },
   waInfo: {
     flexDirection: 'row',
     alignItems: 'center',
+    marginTop: 1,
   },
-  whatsappIcon: {
+  whatsappCircle: {
     width: 5,
     height: 5,
+    borderRadius: 2.5,
+    backgroundColor: '#25D366',
+    alignItems: 'center',
+    justifyContent: 'center',
     marginRight: 1,
+  },
+  whatsappPhoneIcon: {
+    fontSize: 3,
+    color: '#FFFFFF',
+    fontWeight: 'bold',
   },
   whatsappText: {
     fontSize: 3.5,
@@ -260,8 +261,8 @@ export function EtiquetaProductoPDF({ etiquetas }: EtiquetaProductoPDFProps) {
                         </View>
                       )}
 
-                      {/* ====== PRECIO + PESO (a la derecha, más cerca del calendario) ====== */}
-                      <View style={styles.priceWeightRow}>
+                      {/* ====== PRECIO ARRIBA + PESO ABAJO (a la derecha) ====== */}
+                      <View style={styles.priceWeightCol}>
                         <Text style={styles.priceText}>${etiqueta.precio_venta.toLocaleString('es-AR')}</Text>
                         <Text style={styles.pesoText}>Peso: {etiqueta.peso}</Text>
                       </View>
@@ -289,30 +290,26 @@ export function EtiquetaProductoPDF({ etiquetas }: EtiquetaProductoPDFProps) {
                         </View>
                       </View>
 
-                      {/* ====== FILA 4: CÓDIGO DE BARRAS (izq) + QR (der) ====== */}
-                      <View style={styles.barcodeQrRow}>
-                        <View style={styles.barcodeCol}>
+                      {/* ====== FILA 4: BARRAS+ELAB (izq) | QR+WHATSAPP (der) ====== */}
+                      <View style={styles.bottomSection}>
+                        <View style={styles.leftBottomCol}>
                           {etiqueta.barcodeDataUrl ? (
                             <Image src={etiqueta.barcodeDataUrl} style={styles.barcodeImg} alt="Código de barras" />
                           ) : (
                             <Text style={styles.noBarcode}>Sin código de barras</Text>
                           )}
+                          <Text style={styles.elabText}>Elab: {etiqueta.fecha_elaboracion}</Text>
                         </View>
-                        <View style={styles.qrCol}>
+                        <View style={styles.rightBottomCol}>
                           {etiqueta.qrCodeDataUrl && (
                             <Image src={etiqueta.qrCodeDataUrl} style={styles.qrImg} alt="QR" />
                           )}
-                        </View>
-                      </View>
-
-                      {/* ====== FILA 5: ELAB (izq) + WHATSAPP (der) ====== */}
-                      <View style={styles.bottomRow}>
-                        <Text style={styles.elabText}>Elab: {etiqueta.fecha_elaboracion}</Text>
-                        <View style={styles.waInfo}>
-                          {etiqueta.whatsappIconDataUrl && (
-                            <Image src={etiqueta.whatsappIconDataUrl} style={styles.whatsappIcon} alt="WhatsApp" />
-                          )}
-                          <Text style={styles.whatsappText}>3754-419324</Text>
+                          <View style={styles.waInfo}>
+                            <View style={styles.whatsappCircle}>
+                              <Text style={styles.whatsappPhoneIcon}>☎</Text>
+                            </View>
+                            <Text style={styles.whatsappText}>3754-419324</Text>
+                          </View>
                         </View>
                       </View>
 
