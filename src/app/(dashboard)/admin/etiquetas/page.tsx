@@ -539,36 +539,34 @@ export default function EtiquetasPage() {
                   style={{ width: '220px', minHeight: '280px' }}
                 >
                   <div className="flex flex-col" style={{ fontSize: '8px' }}>
-                    {/* FILA 1: Logo (izq, grande) + Nombre (der del logo) */}
-                    <div className="flex items-center mb-2">
-                      {/* Logo izquierda - DOBLE TAMAÑO */}
+                    {/* FILA 1: Logo (izq) + Nombre (der del logo) */}
+                    <div className="flex items-center mb-1">
                       {incluirLogo && (
-                        <div className="w-[35%] flex items-center justify-center pr-1">
+                        <div className="w-[30%] flex items-center justify-center pr-1">
                           <img
                             src="/images/logoweb.png"
                             alt="Logo"
-                            className="w-[52px] h-[52px] object-contain"
+                            className="w-10 h-10 object-contain"
                           />
                         </div>
                       )}
-                      {/* Nombre (derecha del logo) */}
-                      <div className={incluirLogo ? 'w-[65%] pl-2' : 'w-full pl-2'}>
+                      <div className={incluirLogo ? 'w-[70%] pl-1.5' : 'w-full pl-1.5'}>
                         <div className="font-bold text-gray-800 text-[9px] leading-tight">
                           {selectedProducto.nombre}
                         </div>
                       </div>
                     </div>
 
-                    {/* FILA 2: Info extra (izq) + Precio/Peso (der) a la misma altura */}
-                    <div className="flex justify-between items-end mb-0">
+                    {/* FILA 2: Info extra (izq) + Precio/Peso (der) */}
+                    <div className="flex justify-between items-end mb-1">
                       <div className="flex flex-wrap flex-1">
                         {infoExtra.map((id) => {
                           const option = INFO_EXTRA_OPCIONES.find((o) => o.id === id)
                           return option ? (
                             <span
                               key={id}
-                              className="text-gray-700 mr-2"
-                              style={{ fontSize: '5px' }}
+                              className="text-gray-700 mr-1.5"
+                              style={{ fontSize: '4.5px' }}
                             >
                               {option.label}
                             </span>
@@ -576,29 +574,35 @@ export default function EtiquetasPage() {
                         })}
                       </div>
                       <div className="flex flex-col items-end">
-                        <span className="font-bold text-black text-[10px]">
+                        <span className="font-bold text-black text-[9px]">
                           ${selectedProducto.precio_venta.toLocaleString('es-AR')}
                         </span>
-                        <span className="text-gray-600 text-[6px]">
+                        <span className="text-gray-600 text-[5.5px]">
                           Peso: {getPesoDisplay()}
                         </span>
                       </div>
                     </div>
 
                     {/* Texto "Vencimiento" sobre el calendario */}
-                    <div className="text-gray-600" style={{ fontSize: '4.5px' }}>
+                    <div className="text-gray-600 mb-0.5" style={{ fontSize: '4.5px' }}>
                       Vencimiento
                     </div>
 
-                    {/* Calendario (bordes negros, neutro) */}
-                    <div className="border border-black overflow-hidden mb-2">
+                    {/* Calendario (bordes negros visibles, neutro) */}
+                    <div className="border border-black overflow-hidden mb-1.5" style={{ borderWidth: '1px' }}>
                       {/* Días 1-31 */}
                       <div className="flex">
                         {Array.from({ length: 31 }, (_, i) => i + 1).map((dia) => (
                           <div
                             key={dia}
-                            className="flex items-center justify-center leading-none border-r border-b border-black text-gray-500"
-                            style={{ width: '3.226%', height: '5px', fontSize: '2.5px' }}
+                            className="flex items-center justify-center leading-none text-gray-500"
+                            style={{
+                              width: '3.226%',
+                              height: '6px',
+                              fontSize: '3px',
+                              borderRight: '0.5px solid black',
+                              borderBottom: '0.5px solid black',
+                            }}
                           >
                             {dia}
                           </div>
@@ -609,8 +613,14 @@ export default function EtiquetasPage() {
                         {MESES_CORTOS.map((mes) => (
                           <div
                             key={mes}
-                            className="flex items-center justify-center leading-none border-r border-b border-black text-gray-500"
-                            style={{ width: '8.333%', height: '5px', fontSize: '2.5px' }}
+                            className="flex items-center justify-center leading-none text-gray-500"
+                            style={{
+                              width: '8.333%',
+                              height: '6px',
+                              fontSize: '3px',
+                              borderRight: '0.5px solid black',
+                              borderBottom: '0.5px solid black',
+                            }}
                           >
                             {mes}
                           </div>
@@ -642,19 +652,22 @@ export default function EtiquetasPage() {
                         ) : (
                           <span className="text-[5px] text-red-400">Sin código de barras</span>
                         )}
-                        <div className="text-gray-500 mt-0.5" style={{ fontSize: '5px' }}>
+                        <div className="text-gray-500 mt-0.5" style={{ fontSize: '4.5px' }}>
                           Elab: {formatDateDisplay(fechaElaboracion)}
                         </div>
                       </div>
                       <div className="flex flex-col items-center ml-2 shrink-0">
-                        <div className="w-6 h-6 border border-gray-200 rounded-sm bg-white flex items-center justify-center">
+                        <div className="w-7 h-7 border border-gray-200 rounded-sm bg-white flex items-center justify-center">
                           <span className="text-[4px] text-gray-400 font-bold">QR</span>
                         </div>
                         <div className="flex items-center gap-0.5 mt-0.5">
-                          <div className="w-2.5 h-2.5 rounded-full bg-[#25D366] flex items-center justify-center">
-                            <span className="text-white font-bold" style={{ fontSize: '4px' }}>☎</span>
+                          <div className="w-3 h-3 rounded-full bg-[#25D366] flex items-center justify-center relative">
+                            <svg viewBox="0 0 24 24" className="w-2 h-2 fill-white">
+                              <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+                              <path d="M12 0C5.373 0 0 5.373 0 12c0 2.117.553 4.106 1.519 5.834L.526 23.5l5.855-.97A11.94 11.94 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.82c-1.98 0-3.868-.528-5.527-1.526l-.397-.236-3.414.567.578-3.327-.259-.413A9.785 9.785 0 012.18 12c0-5.422 4.398-9.82 9.82-9.82 5.422 0 9.82 4.398 9.82 9.82 0 5.422-4.398 9.82-9.82 9.82z"/>
+                            </svg>
                           </div>
-                          <span className="text-[5px] text-green-600 font-bold">3754-419324</span>
+                          <span className="text-[4.5px] text-green-600 font-bold">3754-419324</span>
                         </div>
                       </div>
                     </div>

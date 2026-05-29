@@ -54,7 +54,7 @@ const styles = StyleSheet.create({
     borderRadius: BORDER_RADIUS,
     backgroundColor: '#FFFFFF',
     border: '1px solid #d1d5db',
-    padding: 5,
+    padding: 4,
     flexDirection: 'column',
     justifyContent: 'flex-start',
   },
@@ -63,21 +63,21 @@ const styles = StyleSheet.create({
   topRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 2,
+    marginBottom: 1,
   },
   logoCol: {
-    width: '35%',
+    width: '30%',
     alignItems: 'center',
     justifyContent: 'center',
   },
   logoImg: {
-    width: 60,
-    height: 60,
+    width: 42,
+    height: 42,
   },
   nameCol: {
-    width: '65%',
+    width: '70%',
     justifyContent: 'center',
-    paddingLeft: 4,
+    paddingLeft: 3,
   },
   productName: {
     fontSize: 7,
@@ -85,29 +85,34 @@ const styles = StyleSheet.create({
     color: '#1f2937',
   },
 
-  // ===== FILA 2: INFO EXTRA (izq) + PRECIO/PESO (der) a la misma altura =====
+  // ===== FILA 2: INFO EXTRA (izq) + PRECIO/PESO (der) =====
   infoPriceRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-end',
-    marginBottom: 0,
+    marginBottom: 1,
   },
   infoExtraLeft: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     flex: 1,
   },
+  infoText: {
+    fontSize: 3.5,
+    color: '#374151',
+    marginRight: 2,
+  },
   priceWeightCol: {
     flexDirection: 'column',
     alignItems: 'flex-end',
   },
   priceText: {
-    fontSize: 7.5,
+    fontSize: 7,
     fontWeight: 'bold',
     color: '#000000',
   },
   pesoText: {
-    fontSize: 5,
+    fontSize: 4.5,
     color: '#374151',
   },
 
@@ -115,20 +120,12 @@ const styles = StyleSheet.create({
   vencimientoLabel: {
     fontSize: 3.5,
     color: '#374151',
-    marginBottom: 0,
-    marginTop: 0,
+    marginBottom: 0.5,
   },
 
-  // ===== INFO EXTRA (texto plano, sin bordes) - dentro de infoPriceRow =====
-  infoText: {
-    fontSize: 4,
-    color: '#374151',
-    marginRight: 3,
-  },
-
-  // ===== FILA 3: CALENDARIO (bordes negros, neutro) =====
+  // ===== CALENDARIO (bordes negros visibles, neutro) =====
   calendarSection: {
-    borderWidth: 0.5,
+    borderWidth: 0.7,
     borderColor: '#000000',
     marginBottom: 2,
   },
@@ -137,32 +134,32 @@ const styles = StyleSheet.create({
   },
   dayCell: {
     width: '3.226%',
-    height: 4,
+    height: 5,
     alignItems: 'center',
     justifyContent: 'center',
-    borderRightWidth: 0.3,
-    borderBottomWidth: 0.3,
+    borderRightWidth: 0.5,
+    borderBottomWidth: 0.5,
     borderColor: '#000000',
   },
   dayNum: {
-    fontSize: 2.2,
+    fontSize: 2.5,
     color: '#4b5563',
   },
   monthCell: {
     width: '8.333%',
-    height: 4,
+    height: 5,
     alignItems: 'center',
     justifyContent: 'center',
-    borderRightWidth: 0.3,
-    borderBottomWidth: 0.3,
+    borderRightWidth: 0.5,
+    borderBottomWidth: 0.5,
     borderColor: '#000000',
   },
   monthName: {
-    fontSize: 2.2,
+    fontSize: 2.5,
     color: '#4b5563',
   },
 
-  // ===== FILA 4: CÓDIGO DE BARRAS + ELAB (izq) | QR + WHATSAPP (der) =====
+  // ===== FILA INFERIOR: CÓDIGO DE BARRAS (izq) | QR + WHATSAPP (der) =====
   bottomSection: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -174,15 +171,15 @@ const styles = StyleSheet.create({
     marginRight: 2,
   },
   barcodeImg: {
-    width: 68,
-    height: 16,
+    width: 65,
+    height: 18,
   },
   noBarcode: {
     fontSize: 4,
     color: '#d1d5db',
   },
   elabText: {
-    fontSize: 4,
+    fontSize: 3.5,
     color: '#6b7280',
     marginTop: 1,
   },
@@ -191,27 +188,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   qrImg: {
-    width: 16,
-    height: 16,
+    width: 20,
+    height: 20,
   },
   waInfo: {
     flexDirection: 'row',
     alignItems: 'center',
     marginTop: 1,
   },
-  whatsappCircle: {
-    width: 4,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: '#25D366',
-    alignItems: 'center',
-    justifyContent: 'center',
+  whatsappIconImg: {
+    width: 5,
+    height: 5,
     marginRight: 1,
-  },
-  whatsappPhoneIcon: {
-    fontSize: 2.5,
-    color: '#FFFFFF',
-    fontWeight: 'bold',
   },
   whatsappText: {
     fontSize: 3.5,
@@ -219,6 +207,62 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 })
+
+/** Dibuja el ícono de WhatsApp como un círculo verde con un teléfono blanco simplificado */
+function WhatsAppIcon() {
+  return (
+    <View style={{ width: 5, height: 5, marginRight: 1 }}>
+      {/* Círculo verde de fondo */}
+      <View
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: 5,
+          height: 5,
+          borderRadius: 2.5,
+          backgroundColor: '#25D366',
+        }}
+      />
+      {/* Auricular del teléfono - parte superior (brazo curvo) */}
+      <View
+        style={{
+          position: 'absolute',
+          top: 1.2,
+          left: 1.5,
+          width: 2,
+          height: 1,
+          backgroundColor: '#FFFFFF',
+          borderRadius: 0.5,
+        }}
+      />
+      {/* Auricular - parte inferior */}
+      <View
+        style={{
+          position: 'absolute',
+          top: 2.3,
+          left: 1.5,
+          width: 2,
+          height: 1,
+          backgroundColor: '#FFFFFF',
+          borderRadius: 0.5,
+        }}
+      />
+      {/* Cuerpo del teléfono */}
+      <View
+        style={{
+          position: 'absolute',
+          top: 1.8,
+          left: 1.8,
+          width: 1.4,
+          height: 1.4,
+          backgroundColor: '#FFFFFF',
+          borderRadius: 0.3,
+        }}
+      />
+    </View>
+  )
+}
 
 export function EtiquetaProductoPDF({ etiquetas }: EtiquetaProductoPDFProps) {
   const totalHojas = Math.ceil(etiquetas.length / ETIQUETAS_POR_HOJA)
@@ -247,7 +291,7 @@ export function EtiquetaProductoPDF({ etiquetas }: EtiquetaProductoPDFProps) {
                   <View key={cellIdx} style={styles.cell}>
                     <View style={styles.etiqueta}>
 
-                      {/* ====== FILA 1: LOGO (izq) + NOMBRE (derecha del logo) ====== */}
+                      {/* ====== FILA 1: LOGO (izq) + NOMBRE (der del logo) ====== */}
                       <View style={styles.topRow}>
                         <View style={styles.logoCol}>
                           {etiqueta.incluir_logo && etiqueta.logoDataUrl ? (
@@ -259,7 +303,7 @@ export function EtiquetaProductoPDF({ etiquetas }: EtiquetaProductoPDFProps) {
                         </View>
                       </View>
 
-                      {/* ====== FILA 2: INFO EXTRA (izq) + PRECIO/PESO (der) a la misma altura ====== */}
+                      {/* ====== FILA 2: INFO EXTRA (izq) + PRECIO/PESO (der) ====== */}
                       <View style={styles.infoPriceRow}>
                         <View style={styles.infoExtraLeft}>
                           {etiqueta.info_extra.map((info, idx) => (
@@ -275,7 +319,7 @@ export function EtiquetaProductoPDF({ etiquetas }: EtiquetaProductoPDFProps) {
                       {/* ====== TEXTO "VENCIMIENTO" SOBRE EL CALENDARIO ====== */}
                       <Text style={styles.vencimientoLabel}>Vencimiento</Text>
 
-                      {/* ====== CALENDARIO NEUTRO (bordes negros, sin selección) ====== */}
+                      {/* ====== CALENDARIO NEUTRO (bordes negros visibles, sin selección) ====== */}
                       <View style={styles.calendarSection}>
                         {/* Días 1-31 */}
                         <View style={styles.calendarRow}>
@@ -295,7 +339,7 @@ export function EtiquetaProductoPDF({ etiquetas }: EtiquetaProductoPDFProps) {
                         </View>
                       </View>
 
-                      {/* ====== FILA 4: BARRAS+ELAB (izq) | QR+WHATSAPP (der) ====== */}
+                      {/* ====== FILA INFERIOR: BARRAS+ELAB (izq) | QR+WHATSAPP (der) ====== */}
                       <View style={styles.bottomSection}>
                         <View style={styles.leftBottomCol}>
                           {etiqueta.barcodeDataUrl ? (
@@ -310,9 +354,12 @@ export function EtiquetaProductoPDF({ etiquetas }: EtiquetaProductoPDFProps) {
                             <Image src={etiqueta.qrCodeDataUrl} style={styles.qrImg} alt="QR" />
                           )}
                           <View style={styles.waInfo}>
-                            <View style={styles.whatsappCircle}>
-                              <Text style={styles.whatsappPhoneIcon}>☎</Text>
-                            </View>
+                            {/* Logo WhatsApp: usar imagen si existe, sino dibujar con formas */}
+                            {etiqueta.whatsappIconDataUrl ? (
+                              <Image src={etiqueta.whatsappIconDataUrl} style={styles.whatsappIconImg} alt="WhatsApp" />
+                            ) : (
+                              <WhatsAppIcon />
+                            )}
                             <Text style={styles.whatsappText}>3754-419324</Text>
                           </View>
                         </View>
