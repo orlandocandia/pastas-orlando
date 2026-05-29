@@ -186,6 +186,7 @@ const styles = StyleSheet.create({
   rightBottomCol: {
     flexDirection: 'column',
     alignItems: 'center',
+    width: 20,
   },
   qrImg: {
     width: 20,
@@ -195,14 +196,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginTop: 1,
+    width: 20,
+    justifyContent: 'center',
   },
   whatsappIconImg: {
-    width: 5,
-    height: 5,
-    marginRight: 1,
+    width: 4,
+    height: 4,
+    marginRight: 0.5,
   },
   whatsappText: {
-    fontSize: 3.5,
+    fontSize: 2.8,
     color: '#25D366',
     fontWeight: 'bold',
   },
@@ -211,53 +214,51 @@ const styles = StyleSheet.create({
 /** Dibuja el ícono de WhatsApp como un círculo verde con un teléfono blanco simplificado */
 function WhatsAppIcon() {
   return (
-    <View style={{ width: 5, height: 5, marginRight: 1 }}>
+    <View style={{ width: 4, height: 4, marginRight: 0.5 }}>
       {/* Círculo verde de fondo */}
       <View
         style={{
           position: 'absolute',
           top: 0,
           left: 0,
-          width: 5,
-          height: 5,
-          borderRadius: 2.5,
+          width: 4,
+          height: 4,
+          borderRadius: 2,
           backgroundColor: '#25D366',
         }}
       />
-      {/* Auricular del teléfono - parte superior (brazo curvo) */}
+      {/* Teléfono simplificado */}
       <View
         style={{
           position: 'absolute',
-          top: 1.2,
-          left: 1.5,
-          width: 2,
-          height: 1,
-          backgroundColor: '#FFFFFF',
-          borderRadius: 0.5,
-        }}
-      />
-      {/* Auricular - parte inferior */}
-      <View
-        style={{
-          position: 'absolute',
-          top: 2.3,
-          left: 1.5,
-          width: 2,
-          height: 1,
-          backgroundColor: '#FFFFFF',
-          borderRadius: 0.5,
-        }}
-      />
-      {/* Cuerpo del teléfono */}
-      <View
-        style={{
-          position: 'absolute',
-          top: 1.8,
-          left: 1.8,
-          width: 1.4,
-          height: 1.4,
+          top: 1,
+          left: 1.2,
+          width: 1.6,
+          height: 1.6,
           backgroundColor: '#FFFFFF',
           borderRadius: 0.3,
+        }}
+      />
+      <View
+        style={{
+          position: 'absolute',
+          top: 0.6,
+          left: 1.3,
+          width: 1.4,
+          height: 0.7,
+          backgroundColor: '#FFFFFF',
+          borderRadius: 0.4,
+        }}
+      />
+      <View
+        style={{
+          position: 'absolute',
+          top: 2,
+          left: 1.3,
+          width: 1.4,
+          height: 0.7,
+          backgroundColor: '#FFFFFF',
+          borderRadius: 0.4,
         }}
       />
     </View>
