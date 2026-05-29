@@ -59,14 +59,14 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
   },
 
-  // ===== FILA 1: LOGO (izquierda) + NOMBRE (centro) + PRECIO/PESO (derecha) =====
+  // ===== FILA 1: LOGO (izquierda) + NOMBRE (derecha del logo) =====
   topRow: {
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 2,
   },
   logoCol: {
-    width: '25%',
+    width: '22%',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -75,31 +75,39 @@ const styles = StyleSheet.create({
     height: 30,
   },
   nameCol: {
-    width: '40%',
+    width: '78%',
     justifyContent: 'center',
-    paddingHorizontal: 2,
+    paddingLeft: 4,
   },
   productName: {
     fontSize: 7,
     fontWeight: 'bold',
     color: '#1f2937',
-    textAlign: 'center',
   },
-  priceWeightCol: {
-    width: '35%',
+
+  // ===== FILA 2: PRECIO + PESO (a la derecha, más abajo) =====
+  priceWeightRow: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
     alignItems: 'flex-end',
-    justifyContent: 'center',
+    marginBottom: 2,
   },
   priceText: {
     fontSize: 7.5,
     fontWeight: 'bold',
     color: '#000000',
-    textAlign: 'right',
+    marginRight: 4,
   },
   pesoText: {
     fontSize: 5,
     color: '#374151',
-    textAlign: 'right',
+  },
+
+  // ===== TEXTO "VENCIMIENTO" SOBRE EL CALENDARIO =====
+  vencimientoLabel: {
+    fontSize: 4.5,
+    color: '#374151',
+    marginBottom: 1,
   },
 
   // ===== FILA 2: INFO EXTRA (texto plano, sin bordes) =====
@@ -231,24 +239,15 @@ export function EtiquetaProductoPDF({ etiquetas }: EtiquetaProductoPDFProps) {
                   <View key={cellIdx} style={styles.cell}>
                     <View style={styles.etiqueta}>
 
-                      {/* ====== FILA 1: LOGO (izq) + NOMBRE (centro) + PRECIO/PESO (der) ====== */}
+                      {/* ====== FILA 1: LOGO (izq) + NOMBRE (derecha del logo) ====== */}
                       <View style={styles.topRow}>
-                        {/* Logo a la izquierda */}
                         <View style={styles.logoCol}>
                           {etiqueta.incluir_logo && etiqueta.logoDataUrl ? (
                             <Image src={etiqueta.logoDataUrl} style={styles.logoImg} alt="Logo" />
                           ) : null}
                         </View>
-                        {/* Nombre al centro */}
                         <View style={styles.nameCol}>
                           <Text style={styles.productName}>{etiqueta.nombre}</Text>
-                        </View>
-                        {/* Precio y peso a la derecha */}
-                        <View style={styles.priceWeightCol}>
-                          <Text style={styles.priceText}>
-                            ${etiqueta.precio_venta.toLocaleString('es-AR')}
-                          </Text>
-                          <Text style={styles.pesoText}>Peso: {etiqueta.peso}</Text>
                         </View>
                       </View>
 
@@ -261,7 +260,16 @@ export function EtiquetaProductoPDF({ etiquetas }: EtiquetaProductoPDFProps) {
                         </View>
                       )}
 
-                      {/* ====== FILA 3: CALENDARIO NEUTRO (bordes negros, sin selección) ====== */}
+                      {/* ====== PRECIO + PESO (a la derecha, más cerca del calendario) ====== */}
+                      <View style={styles.priceWeightRow}>
+                        <Text style={styles.priceText}>${etiqueta.precio_venta.toLocaleString('es-AR')}</Text>
+                        <Text style={styles.pesoText}>Peso: {etiqueta.peso}</Text>
+                      </View>
+
+                      {/* ====== TEXTO "VENCIMIENTO" SOBRE EL CALENDARIO ====== */}
+                      <Text style={styles.vencimientoLabel}>Vencimiento</Text>
+
+                      {/* ====== CALENDARIO NEUTRO (bordes negros, sin selección) ====== */}
                       <View style={styles.calendarSection}>
                         {/* Días 1-31 */}
                         <View style={styles.calendarRow}>

@@ -539,11 +539,11 @@ export default function EtiquetasPage() {
                   style={{ width: '220px', minHeight: '280px' }}
                 >
                   <div className="flex flex-col" style={{ fontSize: '8px' }}>
-                    {/* FILA 1: Logo (izq) + Nombre (centro) + Precio/Peso (der) */}
+                    {/* FILA 1: Logo (izq) + Nombre (más a la derecha) */}
                     <div className="flex items-center mb-2">
                       {/* Logo izquierda */}
                       {incluirLogo && (
-                        <div className="w-[25%] flex items-center justify-center pr-1">
+                        <div className="w-[22%] flex items-center justify-center pr-1">
                           <img
                             src="/images/logoweb.png"
                             alt="Logo"
@@ -551,19 +551,10 @@ export default function EtiquetasPage() {
                           />
                         </div>
                       )}
-                      {/* Nombre centro */}
-                      <div className={incluirLogo ? 'w-[40%] px-1' : 'w-[55%] px-1'}>
-                        <div className="font-bold text-gray-800 text-[9px] leading-tight text-center">
+                      {/* Nombre (más a la derecha del logo) */}
+                      <div className={incluirLogo ? 'w-[78%] pl-2' : 'w-full pl-2'}>
+                        <div className="font-bold text-gray-800 text-[9px] leading-tight">
                           {selectedProducto.nombre}
-                        </div>
-                      </div>
-                      {/* Precio + Peso derecha */}
-                      <div className={incluirLogo ? 'w-[35%]' : 'w-[45%]'} style={{ textAlign: 'right' }}>
-                        <div className="font-bold text-black text-[10px]">
-                          ${selectedProducto.precio_venta.toLocaleString('es-AR')}
-                        </div>
-                        <div className="text-gray-600 text-[6px]">
-                          Peso: {getPesoDisplay()}
                         </div>
                       </div>
                     </div>
@@ -586,7 +577,22 @@ export default function EtiquetasPage() {
                       </div>
                     )}
 
-                    {/* FILA 3: Calendario (bordes negros, neutro) */}
+                    {/* Precio + Peso (a la derecha, más cerca del calendario) */}
+                    <div className="flex justify-end items-baseline gap-2 mb-1.5">
+                      <span className="font-bold text-black text-[10px]">
+                        ${selectedProducto.precio_venta.toLocaleString('es-AR')}
+                      </span>
+                      <span className="text-gray-600 text-[6px]">
+                        Peso: {getPesoDisplay()}
+                      </span>
+                    </div>
+
+                    {/* Texto "Vencimiento" sobre el calendario */}
+                    <div className="text-gray-600 mb-0.5" style={{ fontSize: '6px' }}>
+                      Vencimiento
+                    </div>
+
+                    {/* Calendario (bordes negros, neutro) */}
                     <div className="border border-black overflow-hidden mb-2">
                       {/* Días 1-31 */}
                       <div className="flex">
