@@ -3,6 +3,7 @@
 import Image from 'next/image'
 import { ChevronDown, Sparkles, Truck, Star, Home } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
+import type { FiltroHarina } from '@/components/HomeContent'
 
 interface Beneficio {
   icon: LucideIcon
@@ -16,7 +17,20 @@ const beneficios: Beneficio[] = [
   { icon: Home, texto: 'De puerta en puerta' },
 ]
 
-export default function Hero() {
+const HERO_BACKGROUNDS: Record<FiltroHarina, string> = {
+  todos: '/images/hero-bg.jpg',
+  con_gluten: '/images/hero-tradicional.jpg',
+  integral: '/images/hero-integral.jpg',
+  sin_gluten: '/images/hero-sin-gluten.jpg',
+}
+
+interface HeroProps {
+  filtroActivo?: FiltroHarina
+}
+
+export default function Hero({ filtroActivo = 'todos' }: HeroProps) {
+  const bgImage = HERO_BACKGROUNDS[filtroActivo] || HERO_BACKGROUNDS.todos
+
   return (
     <section
       id="inicio"
@@ -24,8 +38,8 @@ export default function Hero() {
     >
       {/* Parallax Background */}
       <div
-        className="parallax-bg absolute inset-0 z-0"
-        style={{ backgroundImage: "url('/images/hero-bg.jpg')" }}
+        className="parallax-bg absolute inset-0 z-0 transition-all duration-1000"
+        style={{ backgroundImage: `url('${bgImage}')` }}
       />
 
       {/* Dark Overlay */}

@@ -23,7 +23,7 @@ interface ProductoPublico {
   }
 }
 
-type FiltroHarina = 'todos' | 'con_gluten' | 'integral' | 'sin_gluten'
+export type FiltroHarina = 'todos' | 'con_gluten' | 'integral' | 'sin_gluten'
 
 interface Familia {
   nombre: string
@@ -117,11 +117,16 @@ const expandedVariants = {
   },
 }
 
-export default function Productos() {
+interface ProductosProps {
+  filtroActivo?: FiltroHarina
+  onFiltroChange?: (filtro: FiltroHarina) => void
+}
+
+export default function Productos({ filtroActivo = 'todos', onFiltroChange }: ProductosProps) {
   const [productos, setProductos] = useState<ProductoPublico[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
-  const [filtro, setFiltro] = useState<FiltroHarina>('todos')
+  const [filtro, setFiltro] = useState<FiltroHarina>(filtroActivo)
   const [familiaActiva, setFamiliaActiva] = useState<string | null>(null)
 
   useEffect(() => {
@@ -146,10 +151,19 @@ export default function Productos() {
     fetchProductos()
   }, [filtro])
 
-  // When changing filter, reset active family
+  // Sync with parent filtro state
+  useEffect(() => {
+    if (filtroActivo !== filtro) {
+      setFiltro(filtroActivo)
+      setFamiliaActiva(null)
+    }
+  }, [filtroActivo])
+
+  // When changing filter, reset active family and notify parent
   const handleFiltroChange = (nuevoFiltro: FiltroHarina) => {
     setFiltro(nuevoFiltro)
     setFamiliaActiva(null)
+    onFiltroChange?.(nuevoFiltro)
   }
 
   // Compute product counts per family (considering the current filter)
