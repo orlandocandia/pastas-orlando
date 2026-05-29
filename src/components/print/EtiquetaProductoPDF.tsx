@@ -123,9 +123,12 @@ const styles = StyleSheet.create({
     marginBottom: 0.5,
   },
 
-  // ===== CALENDARIO (bordes negros visibles, neutro) =====
+  // ===== CALENDARIO (bordes finos, neutro) =====
   calendarSection: {
-    borderWidth: 0.3,
+    borderTopWidth: 0.3,
+    borderLeftWidth: 0.3,
+    borderRightWidth: 0.3,
+    borderBottomWidth: 0.3,
     borderColor: '#000000',
     marginBottom: 2,
   },
@@ -151,7 +154,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderRightWidth: 0.2,
-    borderBottomWidth: 0.2,
+    borderBottomWidth: 0,
     borderColor: '#000000',
   },
   monthName: {
@@ -185,7 +188,7 @@ const styles = StyleSheet.create({
   },
   rightBottomCol: {
     flexDirection: 'column',
-    alignItems: 'flex-start',
+    alignItems: 'flex-end',
     width: 20,
   },
   qrImg: {
@@ -197,7 +200,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 1,
     width: 20,
-    justifyContent: 'flex-start',
+    justifyContent: 'flex-end',
   },
   whatsappIconImg: {
     width: 4,
