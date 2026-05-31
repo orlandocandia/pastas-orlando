@@ -62,13 +62,10 @@ export default function ProductCard({ producto }: ProductCardProps) {
 
       {/* Content */}
       <div className="p-4">
-        <div className="flex items-center gap-2 mb-2">
+        <div className="flex items-center justify-between mb-2">
           <Badge className="bg-mostaza/20 text-marron text-xs hover:bg-mostaza/30 border-0">
             {formatPeso(producto.peso_unitario_aprox)}
           </Badge>
-          <span className="text-xs text-muted-foreground">
-            {producto.categoria?.nombre}
-          </span>
           {producto.tipo_harina && (
             <Badge
               className={`
@@ -89,7 +86,7 @@ export default function ProductCard({ producto }: ProductCardProps) {
             </Badge>
           )}
         </div>
-        <h3 className="font-bold text-marron text-base mb-1 line-clamp-1">
+        <h3 className="font-bold text-marron text-base mb-1 line-clamp-1 text-center">
           {producto.nombre}
         </h3>
         {producto.descripcion && (
